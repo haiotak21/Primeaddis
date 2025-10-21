@@ -1,0 +1,40 @@
+{
+  "en": {
+    "site": {
+      "title": "Real Estate Pro"
+    },
+    "nav": {
+      "home": "Home",
+      "properties": "Properties",
+      "dashboard": "Dashboard",
+      "language": "Language"
+    },
+    "currency": {
+      "birr": "Birr",
+      "dollar": "Dollar"
+    },
+    "switch": {
+      "en": "English",
+      "am": "Amharic"
+    }
+  },
+  "am": {
+    "site": {
+      "title": "እውነተኛ ንብረት"
+    },
+    "nav": {
+      "home": "መነሻ",
+      "properties": "ንብረቶች",
+      "dashboard": "ዳሽቦርድ",
+      "language": "ቋንቋ"
+    },
+    "currency": {
+      "birr": "ብር",
+      "dollar": "ዶላር"
+    },
+    "switch": {
+      "en": "እንግሊዝኛ",
+      "am": "አማርኛ"
+    }
+  }
+}
