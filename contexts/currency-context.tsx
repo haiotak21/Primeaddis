@@ -79,6 +79,22 @@ export function CurrencyProvider({
 
 export function useCurrency() {
   const ctx = useContext(CurrencyContext);
-  if (!ctx) throw new Error("useCurrency must be used within CurrencyProvider");
+  if (!ctx) {
+    // Graceful fallback if provider is missing in a subtree during SSR/refresh
+    const fallbackFormat = (amountUsd: number) =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+      }).format(amountUsd);
+    return {
+      currency: "USD",
+      // no-ops to avoid state updates without a provider
+      setCurrency: () => {},
+      rate: 115,
+      setRate: () => {},
+      format: fallbackFormat,
+    };
+  }
   return ctx;
 }

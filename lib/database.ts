@@ -37,6 +37,10 @@ async function connectDB(): Promise<typeof mongoose> {
     const opts: any = {
       bufferCommands: false,
       serverSelectionTimeoutMS: Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000),
+      connectTimeoutMS: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || 20000),
+      socketTimeoutMS: Number(process.env.MONGO_SOCKET_TIMEOUT_MS || 45000),
+      family: 4, // prefer IPv4 to avoid some ISP/IPv6 issues
+      tls: true,
       ...(hasDbInUri ? {} : { dbName: "primeaddis" }),
     }
 
@@ -70,8 +74,12 @@ async function connectDB(): Promise<typeof mongoose> {
         (process.env.DB_FALLBACK_MEMORY === "true" || process.env.DB_FALLBACK_MEMORY === "1"))
 
     if (useMemory) {
-      cached.promise = startMemory().then((conn) => {
+      cached.promise = startMemory().then(async (conn) => {
         console.log("✅ Connected to in-memory MongoDB (dev mode)")
+        // Ensure all Mongoose models are registered once connected
+        try {
+          await import("@/models")
+        } catch {}
         return conn
       })
     } else {
@@ -86,8 +94,12 @@ async function connectDB(): Promise<typeof mongoose> {
 
       cached.promise = mongoose
         .connect(MONGODB_URI, opts)
-        .then((conn) => {
+        .then(async (conn) => {
           console.log("✅ MongoDB connected:", safeUri)
+          // Ensure all Mongoose models are registered once connected
+          try {
+            await import("@/models")
+          } catch {}
           return conn
         })
         .catch(async (err) => {
