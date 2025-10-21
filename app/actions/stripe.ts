@@ -1,6 +1,6 @@
 "use server"
 
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import { SUBSCRIPTION_PRODUCTS, PROMOTION_PRODUCTS } from "@/lib/products"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -8,6 +8,7 @@ import connectDB from "@/lib/database"
 import Property from "@/models/Property"
 
 export async function createSubscriptionCheckout(productId: string) {
+  const stripe = getStripe()
   const session = await getServerSession(authOptions)
 
   if (!session?.user) {
@@ -51,6 +52,7 @@ export async function createSubscriptionCheckout(productId: string) {
 }
 
 export async function createPromotionCheckout(propertyId: string, productId: string) {
+  const stripe = getStripe()
   const session = await getServerSession(authOptions)
 
   if (!session?.user) {
@@ -105,6 +107,7 @@ export async function createPromotionCheckout(propertyId: string, productId: str
 }
 
 export async function getCheckoutSessionStatus(sessionId: string) {
+  const stripe = getStripe()
   const session = await stripe.checkout.sessions.retrieve(sessionId)
 
   return {

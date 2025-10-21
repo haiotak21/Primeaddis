@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
 import Property from "@/models/Property"
 import Payment from "@/models/Payment"
 
 export async function POST(req: NextRequest) {
+  const stripe = getStripe()
   const body = await req.text()
   const signature = req.headers.get("stripe-signature")
 
@@ -111,3 +112,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 })
   }
 }
+
+export const runtime = "nodejs"

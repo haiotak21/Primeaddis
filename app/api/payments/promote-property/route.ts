@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import { PROMOTION_PRODUCTS } from "@/lib/products"
 import { requireAuth } from "@/lib/middleware/auth"
 import connectDB from "@/lib/database"
@@ -7,6 +7,7 @@ import Property from "@/models/Property"
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = getStripe()
     const session = await requireAuth()
     if (session instanceof NextResponse) return session
 
@@ -33,8 +34,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
     }
 
-    // Create Stripe checkout session
-    const checkoutSession = await stripe.checkout.sessions.create({
+  // Create Stripe checkout session
+  const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       line_items: [
@@ -67,3 +68,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 })
   }
 }
+
+export const runtime = "nodejs"

@@ -1,10 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { stripe } from "@/lib/stripe"
+import { getStripe } from "@/lib/stripe"
 import { SUBSCRIPTION_PRODUCTS } from "@/lib/products"
 import { requireAuth } from "@/lib/middleware/auth"
 
 export async function POST(req: NextRequest) {
   try {
+    // Ensure this route uses the Node.js runtime (Stripe SDK requires Node)
+    
     const session = await requireAuth()
     if (session instanceof NextResponse) return session
 
@@ -19,8 +21,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Plan not found" }, { status: 404 })
     }
 
-    // Create Stripe checkout session
-    const checkoutSession = await stripe.checkout.sessions.create({
+  // Create Stripe checkout session
+  const stripe = getStripe()
+  const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [
@@ -54,3 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 })
   }
 }
+
+// Force Node.js runtime for this route
+export const runtime = "nodejs"
