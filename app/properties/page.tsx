@@ -126,7 +126,7 @@ export default async function PropertiesPage({
   }
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen property-theme bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Browse Properties</h1>
@@ -142,12 +142,13 @@ export default async function PropertiesPage({
           <aside className="lg:col-span-1">
             <PropertyFilters />
           </aside>
+          {/* Results area */}
           <main className="lg:col-span-3">
             <Suspense
               fallback={
                 <div className="space-y-4">
                   <div className="h-10 w-48 animate-pulse rounded bg-muted" />
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     <div className="h-64 animate-pulse rounded bg-muted" />
                     <div className="h-64 animate-pulse rounded bg-muted" />
                     <div className="h-64 animate-pulse rounded bg-muted" />

@@ -2,13 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+// Removed Card UI imports in favor of custom styled sections aligning to the new design
 import { formatDate } from "@/utils/helpers";
 import CurrencyAmount from "@/components/common/currency-amount";
 import connectDB from "@/lib/database";
@@ -97,285 +91,244 @@ export default async function AdminPage() {
   const isSuperadmin = session.user.role === "superadmin";
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">
-            {isAgent ? "Agent Dashboard" : "Admin Dashboard"}
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            {isAgent
-              ? "Manage your listings, invites, and reviews"
-              : "Manage your platform and monitor activity"}
+    <div className="min-h-screen bg-[#f4fafe] text-[#03063b]">
+      <header className="flex flex-col items-center text-center gap-2 mb-8">
+        <h1 className="text-4xl font-black leading-tight tracking-tight">
+          {isAgent ? "Agent Dashboard" : "Admin Dashboard"}
+        </h1>
+        <p className="text-gray-500">
+          {isAgent
+            ? "Manage your listings, invites, and reviews"
+            : "Manage your platform and monitor activity"}
+        </p>
+      </header>
+
+      {/* Stats Grid styled like the reference */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+              group
+            </span>
+            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+              {stats.totalUsers || 0}
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+            Registered users
           </p>
         </div>
-
-        {/* Stats Grid (read-only) */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatsCard
-            title="Total Users"
-            value={stats.totalUsers || 0}
-            description="Registered users"
-            icon={
-              <svg
-                className="h-4 w-4 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                />
-              </svg>
-            }
-          />
-          <StatsCard
-            title="Total Agents"
-            value={stats.totalAgents || 0}
-            description="Active agents"
-            icon={
-              <svg
-                className="h-4 w-4 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-            }
-          />
-          <StatsCard
-            title="Total Properties"
-            value={stats.totalProperties || 0}
-            description={`${stats.activeProperties || 0} active`}
-            icon={
-              <svg
-                className="h-4 w-4 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-            }
-          />
-          <StatsCard
-            title="Pending Approvals"
-            value={stats.pendingProperties || 0}
-            description="Properties awaiting review"
-            icon={
-              <svg
-                className="h-4 w-4 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          />
-          <StatsCard
-            title="Total Revenue"
-            value={
-              (<CurrencyAmount amountUsd={stats.totalRevenue || 0} />) as any
-            }
-            description="All-time earnings"
-            icon={
-              <svg
-                className="h-4 w-4 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-          />
+        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+              support_agent
+            </span>
+            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+              {stats.totalAgents || 0}
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+            Active agents
+          </p>
         </div>
+        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+              home_work
+            </span>
+            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+              {stats.totalProperties || 0}
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+            {stats.activeProperties || 0} active
+          </p>
+        </div>
+        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-orange-500 text-3xl">
+              notification_important
+            </span>
+            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+              {stats.pendingProperties || 0}
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+            Properties awaiting review
+          </p>
+        </div>
+        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+              attach_money
+            </span>
+            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+              <CurrencyAmount amountUsd={stats.totalRevenue || 0} />
+            </p>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+            all-time earnings
+          </p>
+        </div>
+      </section>
 
-        {/* Role-specific sections as accordion for usability */}
-        <Accordion type="multiple" className="mb-8">
-          <AccordionItem value="section-properties">
-            <AccordionTrigger>Property Management</AccordionTrigger>
-            <AccordionContent>
-              {isAgent ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      Create, edit and delete your own properties
-                    </p>
-                    <Link href="/properties/new" className="underline">
-                      Add Property
-                    </Link>
-                  </div>
-                  <AgentProperties />
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Admins can review and approve listings in{" "}
-                  <Link href="/admin/properties" className="underline">
-                    Properties
-                  </Link>
-                  .
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="section-users">
-            <AccordionTrigger>Users Management</AccordionTrigger>
-            <AccordionContent>
-              {isSuperadmin ? (
-                <div className="space-y-3">
+      {/* Role-specific sections as accordion for usability */}
+      <Accordion type="multiple" className="mb-8">
+        <AccordionItem value="section-properties">
+          <AccordionTrigger>Property Management</AccordionTrigger>
+          <AccordionContent>
+            {isAgent ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Create agent accounts directly. They can sign in
-                    immediately.
+                    Create, edit and delete your own properties
                   </p>
-                  <AgentInvite />
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Access restricted for your role. Only superadmin can create
-                  agent accounts. You can still view users in {""}
-                  <Link href="/admin/users" className="underline">
-                    Users
+                  <Link href="/properties/new" className="underline">
+                    Add Property
                   </Link>
-                  .
                 </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+                <AgentProperties />
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                Admins can review and approve listings in{" "}
+                <Link href="/admin/properties" className="underline">
+                  Properties
+                </Link>
+                .
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
 
-          <AccordionItem value="section-reviews">
-            <AccordionTrigger>Review Management</AccordionTrigger>
-            <AccordionContent>
-              {isAgent ? (
-                <AgentReviews />
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Go to{" "}
-                  <Link className="underline" href="/admin/reviews">
-                    Review Management
-                  </Link>{" "}
-                  for full moderation.
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+        <AccordionItem value="section-users">
+          <AccordionTrigger>Users Management</AccordionTrigger>
+          <AccordionContent>
+            {isSuperadmin ? (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Create agent accounts directly. They can sign in immediately.
+                </p>
+                <AgentInvite />
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                Access restricted for your role. Only superadmin can create
+                agent accounts. You can still view users in {""}
+                <Link href="/admin/users" className="underline">
+                  Users
+                </Link>
+                .
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
 
-          <AccordionItem value="section-analytics">
-            <AccordionTrigger>Analytics</AccordionTrigger>
-            <AccordionContent>
-              {isAgent ? (
-                <AgentAnalytics userId={session.user.id} />
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  See{" "}
-                  <Link href="/admin/analytics" className="underline">
-                    Analytics
-                  </Link>{" "}
-                  for platform-wide metrics.
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+        <AccordionItem value="section-reviews">
+          <AccordionTrigger>Review Management</AccordionTrigger>
+          <AccordionContent>
+            {isAgent ? (
+              <AgentReviews />
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                Go to{" "}
+                <Link className="underline" href="/admin/reviews">
+                  Review Management
+                </Link>{" "}
+                for full moderation.
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
 
-          {!isAgent && (
-            <AccordionItem value="section-payments">
-              <AccordionTrigger>Payments & Settings</AccordionTrigger>
-              <AccordionContent>
-                {session.user.role === "superadmin" ? (
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <Link href="/admin/payments" className="underline">
-                        Payment Management
-                      </Link>
-                    </div>
-                    <div>
-                      <Link href="/admin/settings" className="underline">
-                        System Settings
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Access restricted for your role.
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          )}
-        </Accordion>
+        <AccordionItem value="section-analytics">
+          <AccordionTrigger>Analytics</AccordionTrigger>
+          <AccordionContent>
+            {isAgent ? (
+              <AgentAnalytics userId={session.user.id} />
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                See{" "}
+                <Link href="/admin/analytics" className="underline">
+                  Analytics
+                </Link>{" "}
+                for platform-wide metrics.
+              </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
 
         {!isAgent && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Payments</CardTitle>
-              <CardDescription>
-                Latest transactions on the platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recentPayments.length === 0 ? (
-                <p className="text-center text-muted-foreground">
-                  No payments yet
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {recentPayments.map((payment: any) => (
-                    <div
-                      key={payment._id}
-                      className="flex items-center justify-between border-b pb-4 last:border-0"
-                    >
-                      <div>
-                        <p className="font-medium">
-                          {payment.userId?.name || "Unknown User"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {payment.type === "subscription"
-                            ? `${payment.planType} subscription`
-                            : "Featured listing"}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">
-                          <CurrencyAmount amountUsd={payment.amount} />
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(payment.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+          <AccordionItem value="section-payments">
+            <AccordionTrigger>Payments & Settings</AccordionTrigger>
+            <AccordionContent>
+              {session.user.role === "superadmin" ? (
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <Link href="/admin/payments" className="underline">
+                      Payment Management
+                    </Link>
+                  </div>
+                  <div>
+                    <Link href="/admin/settings" className="underline">
+                      System Settings
+                    </Link>
+                  </div>
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Access restricted for your role.
+                </p>
               )}
-            </CardContent>
-          </Card>
+            </AccordionContent>
+          </AccordionItem>
         )}
-      </div>
+      </Accordion>
+
+      {!isAgent && (
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-[#03063b] dark:text-white text-xl font-bold leading-tight">
+              Latest Payments transactions on the platform
+            </h2>
+          </div>
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm min-h-60">
+            {recentPayments.length === 0 ? (
+              <p className="text-center text-gray-500 dark:text-gray-400 text-lg">
+                No payments yet
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {recentPayments.map((payment: any) => (
+                  <div
+                    key={payment._id}
+                    className="flex items-center justify-between border-b pb-4 last:border-0"
+                  >
+                    <div>
+                      <p className="font-medium">
+                        {payment.userId?.name || "Unknown User"}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {payment.type === "subscription"
+                          ? `${payment.planType} subscription`
+                          : "Featured listing"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">
+                        <CurrencyAmount amountUsd={payment.amount} />
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatDate(payment.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

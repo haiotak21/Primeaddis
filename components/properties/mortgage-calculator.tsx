@@ -10,109 +10,98 @@ interface MortgageCalculatorProps {
 }
 
 export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
-  const [downPct, setDownPct] = React.useState<number>(20);
-  const [rateAnnual, setRateAnnual] = React.useState<number>(12);
-  const [years, setYears] = React.useState<number>(20);
+  const [totalAmount, setTotalAmount] = React.useState<number>(price);
+  const [downPayment, setDownPayment] = React.useState<number>(
+    Math.round(price * 0.2)
+  );
+  const [rateAnnual, setRateAnnual] = React.useState<number>(6.5);
+  const [years, setYears] = React.useState<number>(30);
 
-  const { monthly, principal, downPayment, totalInterest, totalPaid } =
-    React.useMemo(() => {
-      const dp = Math.max(0, Math.min(100, downPct));
-      const rA = Math.max(0, rateAnnual);
-      const y = Math.max(1, years);
-      const principal = Math.max(0, price * (1 - dp / 100));
-      const r = rA / 100 / 12; // monthly rate
-      const n = y * 12; // months
-      const monthly =
-        r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
-      const totalPaid = monthly * n + (dp / 100) * price;
-      const totalInterest = totalPaid - price;
-      return {
-        monthly,
-        principal,
-        downPayment: (dp / 100) * price,
-        totalInterest,
-        totalPaid,
-      };
-    }, [price, downPct, rateAnnual, years]);
+  const { monthly } = React.useMemo(() => {
+    const principal = Math.max(0, totalAmount - downPayment);
+    const r = Math.max(0, rateAnnual) / 100 / 12; // monthly rate
+    const n = Math.max(1, years) * 12; // months
+    const monthly =
+      r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
+    return { monthly };
+  }, [totalAmount, downPayment, rateAnnual, years]);
 
   return (
-    <Card>
+    <Card className="bg-white rounded-xl border border-[#dde8f0]">
       <CardHeader>
-        <CardTitle className="text-lg">Mortgage Calculator</CardTitle>
+        <CardTitle className="text-xl font-bold">Mortgage Calculator</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <Label htmlFor="downPct">Down %</Label>
+        <div className="space-y-4">
+          <div>
+            <Label
+              className="text-sm font-medium text-[#03063b]/80"
+              htmlFor="mc-total-amount"
+            >
+              Total Amount ($)
+            </Label>
             <Input
-              id="downPct"
+              id="mc-total-amount"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
               type="number"
-              min={0}
-              max={100}
-              value={downPct}
-              onChange={(e) => setDownPct(Number(e.target.value))}
+              value={totalAmount}
+              onChange={(e) => setTotalAmount(Number(e.target.value))}
             />
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="rateAnnual">Rate % (annual)</Label>
+          <div>
+            <Label
+              className="text-sm font-medium text-[#03063b]/80"
+              htmlFor="mc-down-payment"
+            >
+              Down Payment ($)
+            </Label>
             <Input
-              id="rateAnnual"
+              id="mc-down-payment"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
               type="number"
-              min={0}
+              value={downPayment}
+              onChange={(e) => setDownPayment(Number(e.target.value))}
+            />
+          </div>
+          <div>
+            <Label
+              className="text-sm font-medium text-[#03063b]/80"
+              htmlFor="mc-interest-rate"
+            >
+              Interest Rate (%)
+            </Label>
+            <Input
+              id="mc-interest-rate"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+              type="number"
               step={0.1}
               value={rateAnnual}
               onChange={(e) => setRateAnnual(Number(e.target.value))}
             />
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="years">Years</Label>
+          <div>
+            <Label
+              className="text-sm font-medium text-[#03063b]/80"
+              htmlFor="mc-loan-term"
+            >
+              Loan Term (Years)
+            </Label>
             <Input
-              id="years"
+              id="mc-loan-term"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
               type="number"
-              min={1}
               value={years}
               onChange={(e) => setYears(Number(e.target.value))}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-          <div className="rounded-md border p-2">
-            <div className="text-muted-foreground">Monthly</div>
-            <div className="font-semibold">
-              <CurrencyAmount amountUsd={monthly} />
-            </div>
-          </div>
-          <div className="rounded-md border p-2">
-            <div className="text-muted-foreground">Down payment</div>
-            <div className="font-semibold">
-              <CurrencyAmount amountUsd={downPayment} />
-            </div>
-          </div>
-          <div className="rounded-md border p-2">
-            <div className="text-muted-foreground">Loan principal</div>
-            <div className="font-semibold">
-              <CurrencyAmount amountUsd={principal} />
-            </div>
-          </div>
-          <div className="rounded-md border p-2">
-            <div className="text-muted-foreground">Total interest</div>
-            <div className="font-semibold">
-              <CurrencyAmount amountUsd={totalInterest} />
-            </div>
-          </div>
+        <div className="mt-6 pt-4 border-t border-[#dde8f0] text-center">
+          <p className="text-[#03063b]/70 text-sm">Estimated Monthly Payment</p>
+          <p className="text-3xl font-black text-[#0b8bff]">
+            <CurrencyAmount amountUsd={monthly} />
+          </p>
         </div>
-
-        <div className="rounded-md border p-2 text-sm">
-          <div className="text-muted-foreground">Total paid (incl. down)</div>
-          <div className="font-semibold">
-            <CurrencyAmount amountUsd={totalPaid} />
-          </div>
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          Estimates only. Actual terms vary by bank.
-        </p>
       </CardContent>
     </Card>
   );

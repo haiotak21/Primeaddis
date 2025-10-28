@@ -53,7 +53,15 @@ export default async function RootLayout({
   const initialRate = cookieRate ? Number(cookieRate) : undefined;
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        className={`font-sans app-theme ${GeistSans.variable} ${GeistMono.variable}`}
+      >
         <NextIntlClientProvider
           locale={locale}
           messages={(messages as Record<AppLocale, any>)[locale]}
@@ -65,13 +73,20 @@ export default async function RootLayout({
                 initialRate={initialRate}
               >
                 <CompareProvider>
-                  <Navbar />
+                  {/* Exclude header from new theme by resetting to defaults */}
+                  <div className="default-theme">
+                    <Navbar />
+                  </div>
                   <TawkWidget />
+                  {/* Main app content stays in the new app theme */}
                   <Suspense fallback={<div>Loading...</div>}>
                     {children}
                   </Suspense>
                   <CompareBar />
-                  <Footer />
+                  {/* Exclude footer from new theme likewise */}
+                  <div className="default-theme">
+                    <Footer />
+                  </div>
                 </CompareProvider>
               </CurrencyProvider>
             </ThemeProvider>

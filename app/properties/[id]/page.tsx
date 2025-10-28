@@ -10,9 +10,11 @@ import { CompareButton } from "@/components/properties/compare-button";
 import RequestSiteVisitClient from "@/components/properties/request-site-visit-client";
 import { formatDate } from "@/utils/helpers";
 import CurrencyAmount from "@/components/common/currency-amount";
-import SocialShareButtons from "@/components/properties/social-share-buttons";
+// Removed SocialShareButtons from this page per request (only keep Compare button here)
 import { MessageCircle } from "lucide-react";
+import { ShareDialogButton } from "@/components/properties/share-dialog";
 import MortgageCalculator from "@/components/properties/mortgage-calculator";
+import { GalleryModalButton } from "@/components/properties/gallery-modal";
 
 function isValidObjectId(id: string) {
   return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
@@ -108,7 +110,7 @@ export default async function PropertyDetailPage({
     );
   }
 
-  // Build WhatsApp link if agent phone is available
+  // Build WhatsApp link and property URL
   const baseUrl = process.env.NEXTAUTH_URL || "";
   const propertyUrl = baseUrl
     ? `${baseUrl}/properties/${property._id}`
@@ -133,8 +135,12 @@ export default async function PropertyDetailPage({
       (property as any).listedBy &&
       typeof (property as any).listedBy === "object"
         ? {
-            ...((property as any).listedBy._id
-              ? { _id: toStringIfObjectId((property as any).listedBy._id) }
+            ...(((property as any).listedBy as any)._id
+              ? {
+                  _id: toStringIfObjectId(
+                    ((property as any).listedBy as any)._id
+                  ),
+                }
               : {}),
             name: (property as any).listedBy?.name,
             email: (property as any).listedBy?.email,
@@ -154,231 +160,255 @@ export default async function PropertyDetailPage({
   } as any;
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="mb-6 grid gap-4">
-              <div className="relative h-96 w-full overflow-hidden rounded-lg">
-                <Image
-                  src={
-                    property.images[0] ||
-                    "/placeholder.svg?height=400&width=800"
-                  }
-                  alt={property.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              {property.images.length > 1 && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {property.images
-                    .slice(1, 5)
-                    .map((image: string, index: number) => (
-                      <div
-                        key={index}
-                        className="relative h-24 overflow-hidden rounded-lg"
-                      >
-                        <Image
-                          src={image || "/placeholder.svg"}
-                          alt={`${property.title} ${index + 2}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                </div>
-              )}
+    <div className="bg-[#f4fafe] text-[#03063b] min-h-screen">
+      <main className="container mx-auto max-w-7xl px-4 py-8">
+        {/* Gallery - 4x2 grid with main image and thumbnails */}
+        <div className="mb-8 @container">
+          <div className="grid grid-cols-4 grid-rows-2 gap-4 h-[500px]">
+            {/* Main Image */}
+            <div className="col-span-4 md:col-span-2 row-span-2 rounded-xl overflow-hidden relative">
+              <Image
+                src={property.images?.[0] || "/placeholder.svg"}
+                alt={property.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
             </div>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">{property.title}</CardTitle>
-                    <p className="mt-2 text-muted-foreground">
+            {/* Top-right small */}
+            <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
+              <Image
+                src={
+                  property.images?.[1] ||
+                  property.images?.[0] ||
+                  "/placeholder.svg"
+                }
+                alt={`${property.title} photo 2`}
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Top-right small 2 */}
+            <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
+              <Image
+                src={
+                  property.images?.[2] ||
+                  property.images?.[0] ||
+                  "/placeholder.svg"
+                }
+                alt={`${property.title} photo 3`}
+                fill
+                className="object-cover"
+              />
+            </div>
+            {/* Bottom-right wide with overlay */}
+            <div className="hidden md:block col-span-2 row-span-1 rounded-xl overflow-hidden relative">
+              <Image
+                src={
+                  property.images?.[3] ||
+                  property.images?.[0] ||
+                  "/placeholder.svg"
+                }
+                alt={`${property.title} photo 4`}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <GalleryModalButton
+                  images={property.images || []}
+                  title={property.title}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main content area */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Title and actions */}
+            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-black leading-tight tracking-tight">
+                    {property.title}
+                  </h1>
+                  <div className="mt-1 flex items-center text-base text-[#03063b]/70">
+                    <span className="material-symbols-outlined text-lg mr-2">
+                      location_on
+                    </span>
+                    <span>
                       {property.location.address}, {property.location.city},{" "}
                       {property.location.region}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge>
-                      {property.listingType === "sale"
-                        ? "For Sale"
-                        : "For Rent"}
-                    </Badge>
-                    {property.featured && (
-                      <Badge variant="secondary">Featured</Badge>
-                    )}
+                    </span>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="mb-2 text-xl font-semibold">Description</h3>
-                  <p className="text-muted-foreground">
-                    {property.description}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="size-10 rounded-full border border-[#dde8f0] flex items-center justify-center hover:bg-[#f4fafe] transition-colors"
+                    aria-label="Favorite"
+                  >
+                    <span className="material-symbols-outlined">
+                      favorite_border
+                    </span>
+                  </button>
+                  <ShareDialogButton url={propertyUrl} title={property.title} />
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="mb-4 text-xl font-semibold">
-                    Property Details
-                  </h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium capitalize">{property.type}</p>
-                    </div>
-                    {Array.isArray(property.financing) &&
-                      property.financing.length > 0 && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Financing
-                          </p>
-                          <p className="font-medium">
-                            {property.financing.join(", ")}
-                          </p>
-                        </div>
-                      )}
-                    {property.specifications.bedrooms && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Bedrooms
-                        </p>
-                        <p className="font-medium">
-                          {property.specifications.bedrooms}
-                        </p>
-                      </div>
-                    )}
-                    {property.specifications.bathrooms && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Bathrooms
-                        </p>
-                        <p className="font-medium">
-                          {property.specifications.bathrooms}
-                        </p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm text-muted-foreground">Area</p>
-                      <p className="font-medium">
-                        {property.specifications.area} sq ft
-                      </p>
-                    </div>
-                    {property.specifications.yearBuilt && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          Year Built
-                        </p>
-                        <p className="font-medium">
-                          {property.specifications.yearBuilt}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {property.amenities.length > 0 && (
+              {/* Quick specs */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[#dde8f0] mt-4">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                    bed
+                  </span>
                   <div>
-                    <h3 className="mb-4 text-xl font-semibold">Amenities</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {property.amenities.map(
-                        (amenity: string, index: number) => (
-                          <Badge key={index} variant="outline">
-                            {amenity}
-                          </Badge>
-                        )
-                      )}
+                    <div className="text-[#03063b] text-lg font-bold">
+                      {property.specifications.bedrooms || 0}
+                    </div>
+                    <div className="text-[#03063b]/70 text-sm">Bedrooms</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                    bathtub
+                  </span>
+                  <div>
+                    <div className="text-[#03063b] text-lg font-bold">
+                      {property.specifications.bathrooms || 0}
+                    </div>
+                    <div className="text-[#03063b]/70 text-sm">Bathrooms</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                    square_foot
+                  </span>
+                  <div>
+                    <div className="text-[#03063b] text-lg font-bold">
+                      {property.specifications.area?.toLocaleString()} sq
+                      {"\u00A0"}ft
+                    </div>
+                    <div className="text-[#03063b]/70 text-sm">Sqft</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                    home_work
+                  </span>
+                  <div>
+                    <div className="text-[#03063b] text-lg font-bold capitalize">
+                      {property.type}
+                    </div>
+                    <div className="text-[#03063b]/70 text-sm">
+                      Property Type
                     </div>
                   </div>
-                )}
+                </div>
+              </div>
+            </div>
 
-                {/* Nearby Amenities Section */}
-                {nearbyAmenities.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="mb-4 text-xl font-semibold">
-                      Nearby Amenities
-                    </h3>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {nearbyAmenities.map((am, idx) => (
-                        <Card key={idx} className="overflow-hidden">
-                          <CardHeader>
-                            <CardTitle className="text-lg">{am.name}</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <Badge variant="outline">{am.type}</Badge>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              {am.address}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* End Nearby Amenities Section */}
+            {/* About this property */}
+            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+              <h3 className="text-xl font-bold mb-3">About this property</h3>
+              <div className="text-[#03063b]/80 space-y-4 text-base leading-relaxed">
+                <p className="whitespace-pre-line">{property.description}</p>
+              </div>
+            </div>
 
-                {/* Similar Properties Section */}
-                {similarProperties.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="mb-4 text-xl font-semibold">
-                      Similar Properties
-                    </h3>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      {similarProperties.map((sp: any) => (
-                        <Card key={sp._id} className="overflow-hidden">
-                          <CardHeader>
-                            <CardTitle className="text-lg">
-                              <a href={`/properties/${sp._id}`}>{sp.title}</a>
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="relative h-32 w-full mb-2 rounded-md overflow-hidden">
-                              <Image
-                                src={sp.images?.[0] || "/placeholder.svg"}
-                                alt={sp.title}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <Badge>{sp.type}</Badge>
-                              <span className="font-semibold">
-                                <CurrencyAmount amountUsd={sp.price} />
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              {sp.location?.city}, {sp.location?.region}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* End Similar Properties Section */}
-              </CardContent>
-            </Card>
+            {/* Amenities */}
+            {property.amenities?.length > 0 && (
+              <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                <h3 className="text-xl font-bold mb-4">Amenities</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
+                  {property.amenities.map((amenity: string, idx: number) => {
+                    const a = amenity.toLowerCase();
+                    let icon = "check_circle";
+                    if (a.includes("pool")) icon = "pool";
+                    else if (a.includes("garage")) icon = "garage";
+                    else if (a.includes("deck")) icon = "deck";
+                    else if (a.includes("air") || a.includes("ac"))
+                      icon = "ac_unit";
+                    else if (a.includes("fireplace")) icon = "fireplace";
+                    else if (a.includes("laundry"))
+                      icon = "local_laundry_service";
+                    else if (a.includes("kitchen")) icon = "countertops";
+                    else if (a.includes("bbq") || a.includes("grill"))
+                      icon = "outdoor_grill";
+                    else if (a.includes("security")) icon = "security";
+                    return (
+                      <div key={idx} className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-[#0b8bff]">
+                          {icon}
+                        </span>
+                        <span>{amenity}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Note: Contact Agent handled via sidebar button/dialog to match design */}
           </div>
 
-          <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle className="text-3xl">
+          {/* Right Column - Sidebar */}
+          <aside className="lg:col-span-1">
+            <div className="sticky top-24 space-y-6">
+              <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                <p className="text-sm text-[#03063b]/70">Asking Price</p>
+                <div className="text-4xl font-black text-[#03063b] mb-4">
                   <CurrencyAmount amountUsd={property.price} />
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {property.listingType === "rent" && "per month"}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Listed by</h4>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {/* Use ContactAgentForm which renders its own button and dialog */}
+                  <ContactAgentForm
+                    propertyId={String(property._id)}
+                    propertyTitle={property.title}
+                  />
+
+                  {/* Schedule viewing (RequestSiteVisitClient) */}
+                  <div className="relative">
+                    <RequestSiteVisitClient
+                      propertyId={String(property._id)}
+                      propertyTitle={property.title}
+                    />
+                  </div>
+
+                  {property.vrTourUrl && (
+                    <Button
+                      asChild
+                      className="w-full h-12 px-6 rounded-lg bg-[#0b8bff]/10 text-[#0b8bff] hover:bg-[#0b8bff]/20 text-base font-bold tracking-wide"
+                    >
+                      <a href={`/properties/${property._id}/vr`}>
+                        View VR Tour
+                      </a>
+                    </Button>
+                  )}
+
+                  {whatsappHref && (
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button className="w-full h-12 px-6 rounded-lg bg-green-600 hover:bg-green-700 text-white text-base font-bold tracking-wide">
+                        <MessageCircle className="mr-2 h-4 w-4" /> Chat on
+                        WhatsApp
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="text-xs text-[#51607a]">Listed by:</span>
                   <div className="flex items-center gap-3">
                     {(property as any).listedBy?.profileImage && (
-                      <div className="relative h-10 w-10 overflow-hidden rounded-full">
+                      <div className="relative h-8 w-8 overflow-hidden rounded-full">
                         <Image
                           src={
                             (property as any).listedBy?.profileImage ||
@@ -390,81 +420,31 @@ export default async function PropertyDetailPage({
                         />
                       </div>
                     )}
-                    <div>
-                      <p className="font-medium">
-                        {(property as any).listedBy?.name || "Agent"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {(property as any).listedBy?.email}
-                      </p>
-                    </div>
+                    <span className="text-sm font-medium">
+                      {(property as any).listedBy?.name || "Agent"}
+                    </span>
                   </div>
                 </div>
+              </div>
 
-                <ContactAgentForm
-                  propertyId={String(property._id)}
-                  propertyTitle={property.title}
-                />
-
-                {/* Request Site Visit button and form (client component) */}
-                <div className="my-4">
-                  <RequestSiteVisitClient
-                    propertyId={String(property._id)}
-                    propertyTitle={property.title}
+              {/* Compare only (share removed as it's already available elsewhere) */}
+              <div className="rounded-2xl border bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-center">
+                  <CompareButton
+                    property={safeProperty}
+                    variant="ghost"
+                    size="lg"
+                    className="gap-2 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-2 has-[>svg]:px-3 w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#0b8bff]/10 text-[#0b8bff] text-base font-bold leading-normal tracking-wide hover:bg-[#0b8bff]/20 transition-colors"
                   />
                 </div>
+              </div>
 
-                {whatsappHref && (
-                  <a
-                    href={whatsappHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                      <MessageCircle className="mr-2 h-4 w-4" /> Chat on
-                      WhatsApp
-                    </Button>
-                  </a>
-                )}
-
-                {property.vrTourUrl && (
-                  <Button asChild className="w-full">
-                    <a href={`/properties/${property._id}/vr`}>View VR Tour</a>
-                  </Button>
-                )}
-
-                <Button variant="outline" className="w-full bg-transparent">
-                  Schedule Viewing
-                </Button>
-
-                {/* Social Sharing Buttons (Client Component) */}
-                <SocialShareButtons
-                  propertyUrl={propertyUrl}
-                  title={property.title}
-                  description={property.description}
-                />
-
-                <CompareButton property={safeProperty} />
-
-                {/* Mortgage calculator */}
-                <div className="pt-2">
-                  <MortgageCalculator price={property.price} />
-                </div>
-
-                <div className="border-t pt-4">
-                  <p className="text-xs text-muted-foreground">
-                    Listed on {formatDate(property.createdAt as any)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {property.views || 0} views
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              {/* Mortgage Calculator */}
+              <MortgageCalculator price={property.price} />
+            </div>
+          </aside>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

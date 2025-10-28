@@ -276,262 +276,365 @@ export default function NewPropertyPage() {
       </div>
     );
   } else {
+    // UI restyled to match provided design while preserving handlers and map component
+    const mapRef = (node: HTMLDivElement | null) => {
+      // no-op ref; used for potential scroll into view via button
+      (window as any).__mapAnchor = node;
+    };
+    const scrollToMap = () => {
+      const el: HTMLElement | null = (window as any).__mapAnchor;
+      if (el && el.scrollIntoView)
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
     content = (
-      <div className="min-h-screen bg-muted/40">
-        <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#f4fafe]">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 md:px-10 lg:px-20 py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold">Create Property Listing</h1>
-            <p className="mt-2 text-muted-foreground">
+            <p className="text-[#03063b] text-4xl font-black leading-tight tracking-[-0.033em]">
+              Create Property
+            </p>
+            <p className="text-[#47739e] text-base mt-2">
               Add a new property to the marketplace
             </p>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Create Property</CardTitle>
-              <CardDescription>
-                Fill in the information about your property
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                <div className="space-y-2">
-                  <Label htmlFor="title">Property Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="Beautiful 3BR House in Downtown"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                  />
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Basic Information */}
+            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
+              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+                Basic Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Property Title
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="Enter property title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      required
+                    />
+                  </label>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe your property..."
-                    rows={4}
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price ($)</Label>
-                    <Input
-                      id="price"
+                <div>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Price ($)
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="Enter price"
                       type="number"
-                      placeholder="500000"
                       value={formData.price}
                       onChange={(e) =>
                         setFormData({ ...formData, price: e.target.value })
                       }
                       required
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="type">Property Type</Label>
-                    <Select
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Property Type
+                    </p>
+                    <select
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
                       value={formData.type}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, type: value })
+                      onChange={(e) =>
+                        setFormData({ ...formData, type: e.target.value })
                       }
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="house">House</SelectItem>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                        <SelectItem value="land">Land</SelectItem>
-                        <SelectItem value="office">Office</SelectItem>
-                        <SelectItem value="commercial">Commercial</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="realEstate">Real Estate Agency</Label>
-                    <Select
+                      <option value="house">House</option>
+                      <option value="apartment">Apartment</option>
+                      <option value="land">Land</option>
+                      <option value="office">Office</option>
+                      <option value="commercial">Commercial</option>
+                    </select>
+                  </label>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Description
+                    </p>
+                    <textarea
+                      className="min-h-36 px-4 py-3 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="Add a detailed description of the property"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Real Estate Agency
+                    </p>
+                    <select
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
                       value={formData.realEstate}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, realEstate: value })
+                      onChange={(e) =>
+                        setFormData({ ...formData, realEstate: e.target.value })
                       }
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select agency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {realEstates.map((r) => (
-                          <SelectItem key={r._id} value={r._id}>
-                            {r.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <option value="">Select agency</option>
+                      {realEstates.map((r) => (
+                        <option key={r._id} value={r._id}>
+                          {r.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="listingType">Listing Type</Label>
-                  <Select
-                    value={formData.listingType}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, listingType: value })
-                    }
+                <div>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Listing Type
+                    </p>
+                    <select
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
+                      value={formData.listingType}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          listingType: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="sale">For Sale</option>
+                      <option value="rent">For Rent</option>
+                    </select>
+                  </label>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Amenities
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="e.g., Swimming Pool, Gym, Garden"
+                      value={formData.amenities}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amenities: e.target.value })
+                      }
+                    />
+                    <p className="text-[#47739e] text-sm mt-1.5">
+                      Enter amenities separated by commas.
+                    </p>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
+              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+                Location
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="flex flex-col gap-6">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Address
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="e.g., 123 Main Street"
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      required
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      City
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="e.g., Addis Ababa"
+                      value={formData.city}
+                      onChange={(e) =>
+                        setFormData({ ...formData, city: e.target.value })
+                      }
+                      required
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      State/Region
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      placeholder="e.g., Addis Ababa"
+                      value={formData.region}
+                      onChange={(e) =>
+                        setFormData({ ...formData, region: e.target.value })
+                      }
+                      required
+                    />
+                  </label>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <button
+                    type="button"
+                    onClick={scrollToMap}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b8bff]/10 px-4 py-2.5 text-sm font-semibold text-[#0b8bff] transition-colors hover:bg-[#0b8bff]/20"
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="sale">For Sale</SelectItem>
-                      <SelectItem value="rent">For Rent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Location</h3>
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Address</Label>
-                      <Input
-                        id="address"
-                        placeholder="123 Main St"
-                        value={formData.address}
-                        onChange={(e) =>
-                          setFormData({ ...formData, address: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        placeholder="Addis Ababa"
-                        value={formData.city}
-                        onChange={(e) =>
-                          setFormData({ ...formData, city: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="region">State/Region</Label>
-                      <Input
-                        id="region"
-                        placeholder="Addis Ababa"
-                        value={formData.region}
-                        onChange={(e) =>
-                          setFormData({ ...formData, region: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                    <span className="material-symbols-outlined text-base">
+                      add_location_alt
+                    </span>
+                    Add from map
+                  </button>
+                  <div ref={mapRef}>
+                    <CoordinatePicker
+                      lat={formData.lat}
+                      lng={formData.lng}
+                      onChange={handleCoordsChange}
+                      onResolve={handleResolve}
+                    />
                   </div>
-
-                  <CoordinatePicker
-                    lat={formData.lat}
-                    lng={formData.lng}
-                    onChange={handleCoordsChange}
-                    onResolve={handleResolve}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Ethiopia-only: Latitude 3.4–14.9, Longitude 32.9–48.0. Try
-                    Addis Ababa (8.9806, 38.7578).
+                  <p className="text-xs text-[#47739e] text-center">
+                    Click on the location in Ethiopia to set coordinates
+                    automatically.
                   </p>
                 </div>
+                <div className="md:col-span-2 grid grid-cols-2 gap-6">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Latitude
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg bg-gray-100"
+                      readOnly
+                      value={formData.lat}
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Longitude
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg bg-gray-100"
+                      readOnly
+                      value={formData.lng}
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Specifications</h3>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="bedrooms">Bedrooms</Label>
-                      <Input
-                        id="bedrooms"
-                        type="number"
-                        placeholder="3"
-                        value={formData.bedrooms}
-                        onChange={(e) =>
-                          setFormData({ ...formData, bedrooms: e.target.value })
-                        }
-                      />
-                    </div>
+            {/* Specifications */}
+            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
+              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+                Specifications
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <label className="flex flex-col">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Bedrooms
+                  </p>
+                  <input
+                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    placeholder="e.g., 3"
+                    type="number"
+                    value={formData.bedrooms}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bedrooms: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Bathrooms
+                  </p>
+                  <input
+                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    placeholder="e.g., 2"
+                    type="number"
+                    value={formData.bathrooms}
+                    onChange={(e) =>
+                      setFormData({ ...formData, bathrooms: e.target.value })
+                    }
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Area (sq ft)
+                  </p>
+                  <input
+                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    placeholder="e.g., 1800"
+                    type="number"
+                    value={formData.area}
+                    onChange={(e) =>
+                      setFormData({ ...formData, area: e.target.value })
+                    }
+                    required
+                  />
+                </label>
+                <label className="flex flex-col">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Year Built
+                  </p>
+                  <input
+                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    placeholder="e.g., 2015"
+                    type="number"
+                    value={formData.yearBuilt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, yearBuilt: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
+            </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="bathrooms">Bathrooms</Label>
-                      <Input
-                        id="bathrooms"
-                        type="number"
-                        placeholder="2"
-                        value={formData.bathrooms}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            bathrooms: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="area">Area (sq ft)</Label>
-                      <Input
-                        id="area"
-                        type="number"
-                        placeholder="2000"
-                        value={formData.area}
-                        onChange={(e) =>
-                          setFormData({ ...formData, area: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="yearBuilt">Year Built</Label>
-                      <Input
-                        id="yearBuilt"
-                        type="number"
-                        placeholder="2020"
-                        value={formData.yearBuilt}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            yearBuilt: e.target.value,
-                          })
-                        }
-                      />
+            {/* Media */}
+            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
+              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+                Media
+              </h2>
+              <div className="flex flex-col gap-6">
+                <div>
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Property Images
+                  </p>
+                  <div className="flex justify-center items-center w-full">
+                    {/* Keep existing FileUpload behavior within a dropzone-styled container */}
+                    <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-[#dfe6e9] border-dashed rounded-lg cursor-pointer bg-[#f4fafe]/30 hover:bg-[#f4fafe]/60">
+                      <FileUpload eventName="file-upload:change" multiple />
                     </div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="amenities">Amenities (comma-separated)</Label>
-                  <Input
-                    id="amenities"
-                    placeholder="Pool, Gym, Parking, Garden"
-                    value={formData.amenities}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amenities: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Property Images</Label>
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      id="images"
-                      placeholder="Paste image URLs, comma-separated"
+                <div className="md:col-span-2">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Property Image Insert URL
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      placeholder="https://example.com/image.jpg"
                       value={formData.imagesUrlInput}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -540,73 +643,88 @@ export default function NewPropertyPage() {
                         }))
                       }
                     />
-                    <FileUpload eventName="file-upload:change" multiple />
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {((formData.imagesUrlInput &&
-                      formData.imagesUrlInput.split(",").filter(Boolean)
-                        .length > 0) ||
-                      (formData.images && formData.images.length > 0)) &&
-                      [
-                        ...(formData.imagesUrlInput
-                          ? formData.imagesUrlInput
-                              .split(",")
-                              .map((i) => i.trim())
-                              .filter(Boolean)
-                          : []),
-                        ...(formData.images || []),
-                      ].map((url, idx) => (
-                        <img
-                          key={idx}
-                          src={url}
-                          alt={`Property image ${idx + 1}`}
-                          className="w-24 h-24 object-cover rounded border"
-                        />
-                      ))}
-                  </div>
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Video URL{" "}
+                      <span className="text-[#47739e] font-normal">
+                        (Optional)
+                      </span>
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      placeholder="https://youtube.com/watch?v=..."
+                      value={formData.videoUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, videoUrl: e.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      VR Tour Link{" "}
+                      <span className="text-[#47739e] font-normal">
+                        (Optional)
+                      </span>
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      placeholder="https://example.com/vr-tour"
+                      value={formData.vrTourUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, vrTourUrl: e.target.value })
+                      }
+                    />
+                  </label>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="videoUrl">Video URL (optional)</Label>
-                  <Input
-                    id="videoUrl"
-                    type="url"
-                    placeholder="https://your-video-provider.com/watch/xyz"
-                    value={formData.videoUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, videoUrl: e.target.value })
-                    }
-                  />
+                {/* Thumbnails preview */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {((formData.imagesUrlInput &&
+                    formData.imagesUrlInput.split(",").filter(Boolean).length >
+                      0) ||
+                    (formData.images && formData.images.length > 0)) &&
+                    [
+                      ...(formData.imagesUrlInput
+                        ? formData.imagesUrlInput
+                            .split(",")
+                            .map((i) => i.trim())
+                            .filter(Boolean)
+                        : []),
+                      ...(formData.images || []),
+                    ].map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`Property image ${idx + 1}`}
+                        className="w-24 h-24 object-cover rounded border"
+                      />
+                    ))}
                 </div>
+              </div>
+            </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="vrTourUrl">VR Tour Link (optional)</Label>
-                  <Input
-                    id="vrTourUrl"
-                    type="url"
-                    placeholder="https://your-vr-provider.com/tour/abc"
-                    value={formData.vrTourUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, vrTourUrl: e.target.value })
-                    }
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <Button type="submit" disabled={loading}>
-                    {loading ? "Creating..." : "Create Property"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push("/dashboard")}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+            {/* Actions */}
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-2">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-auto rounded-lg bg-[#0b8bff] hover:bg-[#0b8bff]/90 text-white px-8 py-3"
+              >
+                {loading ? "Creating..." : "Create Property"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push("/dashboard")}
+                className="w-full sm:w-auto border border-[#dfe6e9] text-[#47739e] px-8 py-3"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     );

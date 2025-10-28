@@ -49,14 +49,16 @@ export async function GET(req: NextRequest) {
 
     const skip = (page - 1) * limit
 
+    const queryMax = Number(process.env.MONGO_QUERY_MAX_TIME_MS || 1500)
     const [properties, total] = await Promise.all([
       Property.find(query)
         .populate("listedBy", "name email profileImage")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
+        .maxTimeMS(queryMax)
         .lean(),
-      Property.countDocuments(query),
+      Property.countDocuments(query).maxTimeMS(queryMax),
     ])
 
     const res = NextResponse.json({

@@ -11,7 +11,16 @@ export async function GET(req: NextRequest) {
 
     await connectDB()
 
-    const user = await User.findById(session.user.id).select("-password").lean()
+    const id = session.user.id
+    let user = null as any
+    const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(id)
+    if (isValidObjectId) {
+      user = await User.findById(id).select("-password").lean()
+    }
+    // Fallback by email (handles superadmin initial creation or legacy sessions)
+    if (!user && session.user.email) {
+      user = await User.findOne({ email: session.user.email }).select("-password").lean()
+    }
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -34,15 +43,30 @@ export async function PUT(req: NextRequest) {
 
     await connectDB()
 
-    const updatedUser = await User.findByIdAndUpdate(
-      session.user.id,
-      {
-        name: body.name,
-        phone: body.phone,
-        profileImage: body.profileImage,
-      },
-      { new: true, runValidators: true },
-    ).select("-password")
+    const id = session.user.id
+    const update = {
+      name: body.name,
+      phone: body.phone,
+      profileImage: body.profileImage,
+      lastLogin: new Date(),
+    }
+
+    let updatedUser = null as any
+    const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(id)
+    if (isValidObjectId) {
+      updatedUser = await User.findByIdAndUpdate(id, update, {
+        new: true,
+        runValidators: true,
+      }).select("-password")
+    }
+    // Fallback update by email (covers superadmin ephemeral id)
+    if (!updatedUser && session.user.email) {
+      updatedUser = await User.findOneAndUpdate(
+        { email: session.user.email },
+        update,
+        { new: true, upsert: true, runValidators: true },
+      ).select("-password")
+    }
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {

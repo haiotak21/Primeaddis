@@ -10,20 +10,40 @@ export async function GET(req: NextRequest) {
     const session = await requireAuth()
     if (session instanceof NextResponse) return session
 
-    await connectDB()
+    try {
+      await connectDB()
+    } catch (e) {
+      // DB unavailable: degrade gracefully in dev so UI loads
+      return NextResponse.json({ favorites: [], dbUnavailable: true })
+    }
 
-    const user = await User.findById(session.user.id).populate({
-      path: "favorites",
-      populate: { path: "listedBy", select: "name email profileImage" },
-    })
+    const userId = session.user.id as string
+    const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(userId)
+    if (!isValidObjectId) {
+      // Invalid id in session (e.g., dev fallback sessions) -> return empty list
+      return NextResponse.json({ favorites: [] })
+    }
+
+    const user = await User.findById(userId)
+      .maxTimeMS(Number(process.env.MONGO_QUERY_MAX_TIME_MS || 1500))
+      .populate({
+        path: "favorites",
+        populate: { path: "listedBy", select: "name email profileImage" },
+      })
+      .lean()
 
     if (!user) {
+      const isDev = process.env.NODE_ENV !== "production"
+      if (isDev) return NextResponse.json({ favorites: [] })
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ favorites: user.favorites })
+    return NextResponse.json({ favorites: (user as any).favorites || [] })
   } catch (error) {
     console.error("Error fetching favorites:", error)
+    // In dev/fallback, don't break the UI
+    const isDev = process.env.NODE_ENV !== "production"
+    if (isDev) return NextResponse.json({ favorites: [], dbUnavailable: true })
     return NextResponse.json({ error: "Failed to fetch favorites" }, { status: 500 })
   }
 }

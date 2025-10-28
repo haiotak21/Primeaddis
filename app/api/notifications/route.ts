@@ -29,9 +29,14 @@ export async function GET(req: NextRequest) {
     const query: any = { userId }
     if (unreadOnly) query.read = false
 
-    const notifications = await Notification.find(query).sort({ createdAt: -1 }).limit(50).lean()
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .maxTimeMS(Number(process.env.MONGO_QUERY_MAX_TIME_MS || 1500))
+      .lean()
 
     const unreadCount = await Notification.countDocuments({ userId, read: false })
+      .maxTimeMS(Number(process.env.MONGO_QUERY_MAX_TIME_MS || 1500))
 
     return NextResponse.json({ notifications, unreadCount })
   } catch (error) {

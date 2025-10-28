@@ -148,207 +148,346 @@ export default function AdminPropertyEditPage() {
     );
   }
 
+  // Styled UI to match provided design while preserving logic and map component
+  const mapAnchorRef = (node: HTMLDivElement | null) => {
+    (window as any).__editMapAnchor = node;
+  };
+  const scrollToMap = () => {
+    const el: HTMLElement | null = (window as any).__editMapAnchor;
+    if (el && el.scrollIntoView)
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Property</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={onSave} className="space-y-6">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                />
+    <div className="min-h-screen bg-[#f4fafe]">
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+            Edit Property
+          </h1>
+        </div>
+
+        <form onSubmit={onSave} className="space-y-8">
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Basic Information */}
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] text-lg font-bold mb-6">
+              Basic Information
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Property Title
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                  />
+                </label>
               </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Description
+                  </p>
+                  <textarea
+                    className="min-h-32 p-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                  />
+                </label>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Price</Label>
-                  <Input
+              <div>
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Price ($)
+                  </p>
+                  <input
                     type="number"
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({ ...formData, price: e.target.value })
                     }
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>Type</Label>
-                  <Select
+                </label>
+              </div>
+              <div>
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Property Type
+                  </p>
+                  <select
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
                     value={formData.type}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, type: value })
+                    onChange={(e) =>
+                      setFormData({ ...formData, type: e.target.value })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="house">House</SelectItem>
-                      <SelectItem value="apartment">Apartment</SelectItem>
-                      <SelectItem value="land">Land</SelectItem>
-                      <SelectItem value="office">Office</SelectItem>
-                      <SelectItem value="commercial">Commercial</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <option value="house">House</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="land">Land</option>
+                    <option value="office">Office</option>
+                    <option value="commercial">Commercial</option>
+                  </select>
+                </label>
               </div>
-              <div className="space-y-2">
-                <Label>Listing Type</Label>
-                <Select
-                  value={formData.listingType}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, listingType: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sale">For Sale</SelectItem>
-                    <SelectItem value="rent">For Rent</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Location</h3>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label>Address</Label>
-                    <Input
-                      value={formData.address}
-                      onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>City</Label>
-                    <Input
-                      value={formData.city}
-                      onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Region</Label>
-                    <Input
-                      value={formData.region}
-                      onChange={(e) =>
-                        setFormData({ ...formData, region: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <CoordinatePicker
-                  lat={formData.lat}
-                  lng={formData.lng}
-                  onChange={handleCoordsChange}
-                  onResolve={handleResolve}
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Bedrooms</Label>
-                  <Input
-                    value={formData.bedrooms}
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Listing Type
+                  </p>
+                  <select
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.listingType}
                     onChange={(e) =>
-                      setFormData({ ...formData, bedrooms: e.target.value })
+                      setFormData({ ...formData, listingType: e.target.value })
+                    }
+                  >
+                    <option value="sale">For Sale</option>
+                    <option value="rent">For Rent</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] text-lg font-bold mb-6">Location</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Address
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.address}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
                     }
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>Bathrooms</Label>
-                  <Input
-                    value={formData.bathrooms}
+                </label>
+              </div>
+              <div>
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    City
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.city}
                     onChange={(e) =>
-                      setFormData({ ...formData, bathrooms: e.target.value })
+                      setFormData({ ...formData, city: e.target.value })
                     }
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>Area</Label>
-                  <Input
-                    type="number"
-                    value={formData.area}
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Region
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    value={formData.region}
                     onChange={(e) =>
-                      setFormData({ ...formData, area: e.target.value })
+                      setFormData({ ...formData, region: e.target.value })
                     }
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>Year Built</Label>
-                  <Input
-                    value={formData.yearBuilt}
-                    onChange={(e) =>
-                      setFormData({ ...formData, yearBuilt: e.target.value })
-                    }
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <div ref={mapAnchorRef}>
+                  <CoordinatePicker
+                    lat={formData.lat}
+                    lng={formData.lng}
+                    onChange={handleCoordsChange}
+                    onResolve={handleResolve}
                   />
                 </div>
+                <p className="text-gray-500 text-sm mt-2">
+                  Click on the location in Ethiopia to fill coordinates
+                  automatically.
+                </p>
               </div>
-              <div className="space-y-2">
-                <Label>Amenities (comma-separated)</Label>
-                <Input
-                  value={formData.amenities}
-                  onChange={(e) =>
-                    setFormData({ ...formData, amenities: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Images (comma-separated URLs)</Label>
-                <Input
-                  value={formData.images}
-                  onChange={(e) =>
-                    setFormData({ ...formData, images: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>VR Tour Link</Label>
-                <Input
-                  value={formData.vrTourUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, vrTourUrl: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
+              <div className="md:col-span-2 flex items-center gap-4">
+                <button
                   type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
+                  onClick={scrollToMap}
+                  className="flex-1 text-white bg-[#0b8bff] hover:bg-[#0b8bff]/90 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
                 >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Saving..." : "Save Changes"}
-                </Button>
+                  Add from map
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollToMap()}
+                  className="flex-1 text-[#0b8bff] bg-[#0b8bff]/10 hover:bg-[#0b8bff]/20 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
+                >
+                  Add manually
+                </button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+
+          {/* Specifications & Amenities */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-[#03063b] text-lg font-bold mb-6">
+                Specifications
+              </h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Bedrooms
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      type="number"
+                      value={formData.bedrooms}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bedrooms: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Bathrooms
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      type="number"
+                      value={formData.bathrooms}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bathrooms: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Area (sqft)
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      type="number"
+                      value={formData.area}
+                      onChange={(e) =>
+                        setFormData({ ...formData, area: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Year Built
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      type="number"
+                      value={formData.yearBuilt}
+                      onChange={(e) =>
+                        setFormData({ ...formData, yearBuilt: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-[#03063b] text-lg font-bold mb-6">
+                Amenities
+              </h3>
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] text-base font-medium pb-2">
+                      Amenities (comma-separated)
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      value={formData.amenities}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amenities: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Media */}
+          <div className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] text-lg font-bold mb-6">Media</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    Images (comma-separated URLs)
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                    value={formData.images}
+                    onChange={(e) =>
+                      setFormData({ ...formData, images: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] text-base font-medium pb-2">
+                    VR Tour Link
+                  </p>
+                  <input
+                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                    value={formData.vrTourUrl}
+                    onChange={(e) =>
+                      setFormData({ ...formData, vrTourUrl: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-between items-center pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              className="text-gray-600 bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-lg"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving}
+              className="bg-[#0b8bff] hover:bg-[#0b8bff]/90 text-white px-8 py-3 rounded-lg"
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

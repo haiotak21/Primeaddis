@@ -178,19 +178,21 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-[#f4fafe]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="mt-2 text-muted-foreground">
-            View and manage platform users
-          </p>
+          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+            User Management
+          </h1>
+          <p className="mt-2 text-[#47739e]">View and manage platform users</p>
         </div>
 
-        <Card>
+        <Card className="border border-[#dfe6e9] shadow-sm">
           <CardHeader>
-            <CardTitle>All Users</CardTitle>
-            <CardDescription>Total: {users.length} users</CardDescription>
+            <CardTitle className="text-[#03063b]">All Users</CardTitle>
+            <CardDescription className="text-[#47739e]">
+              Total: {users.length} users
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {session?.user.role === "superadmin" && (
@@ -207,9 +209,14 @@ export default function AdminUsersPage() {
                     onChange={(e) => setPromoteEmail(e.target.value)}
                     className="w-64"
                   />
-                  <Button onClick={handlePromote}>Add Admin</Button>
+                  <Button
+                    className="bg-[#0b8bff] hover:bg-[#0b8bff]/90"
+                    onClick={handlePromote}
+                  >
+                    Add Admin
+                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-[#47739e]">
                   Super admin can promote an existing user by email to Admin
                   role.
                 </p>
@@ -219,14 +226,12 @@ export default function AdminUsersPage() {
               {users.map((user: any) => (
                 <div
                   key={user._id}
-                  className="flex items-center justify-between border-b pb-4 last:border-0"
+                  className="flex items-center justify-between border-b pb-4 last:border-0 border-[#dfe6e9]"
                 >
                   <div className="flex-1">
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-[#03063b]">{user.name}</p>
+                    <p className="text-sm text-[#47739e]">{user.email}</p>
+                    <p className="text-xs text-[#47739e]">
                       Joined {formatDate(user.createdAt)}
                     </p>
                   </div>

@@ -13,6 +13,8 @@ declare global {
   var __mongooseCache: MongooseCache | undefined
   // eslint-disable-next-line no-var
   var __mongoMemoryServer: any | undefined
+  // eslint-disable-next-line no-var
+  var __dbDownUntil: number | undefined
 }
 
 const cached: MongooseCache = global.__mongooseCache || { conn: null, promise: null }
@@ -21,9 +23,23 @@ if (!global.__mongooseCache) {
 }
 
 async function connectDB(): Promise<typeof mongoose> {
+  // Disable Mongoose buffering globally so queries fail fast when disconnected
+  try {
+    mongoose.set("bufferCommands", false)
+  } catch {}
+
   if (cached.conn) return cached.conn
 
   if (!cached.promise) {
+    // Circuit breaker: if DB recently failed, skip attempts for a short window
+    const now = Date.now()
+    const downUntil = global.__dbDownUntil || 0
+    if (now < downUntil) {
+      throw new Error(
+        `Database temporarily unavailable (circuit open for ${Math.ceil((downUntil - now) / 1000)}s)`
+      )
+    }
+
     const isProd = (process.env.NODE_ENV || "development") === "production"
     // Ensure a default dbName if URI has no database segment (for some Atlas URIs)
     const parsed = (() => {
@@ -34,13 +50,29 @@ async function connectDB(): Promise<typeof mongoose> {
       }
     })();
     const hasDbInUri = !!parsed && parsed.pathname && parsed.pathname !== "/";
+    const isSrv = (MONGODB_URI || "").startsWith("mongodb+srv://")
+    const isAtlasHost = (() => {
+      try {
+        const u = new URL(MONGODB_URI)
+        return /mongodb\.net$/i.test(u.hostname)
+      } catch {
+        return false
+      }
+    })()
+
+    const isDev = (process.env.NODE_ENV || "development") !== "production"
     const opts: any = {
+      // Keep bufferCommands false to avoid client-side buffering
       bufferCommands: false,
-      serverSelectionTimeoutMS: Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000),
-      connectTimeoutMS: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || 20000),
-      socketTimeoutMS: Number(process.env.MONGO_SOCKET_TIMEOUT_MS || 45000),
+      // Tighter timeouts to avoid long dev hangs before fallback
+      serverSelectionTimeoutMS: Number(
+        process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || (isDev ? 2000 : 5000)
+      ),
+      connectTimeoutMS: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || (isDev ? 2000 : 5000)),
+      socketTimeoutMS: Number(process.env.MONGO_SOCKET_TIMEOUT_MS || (isDev ? 5000 : 20000)),
       family: 4, // prefer IPv4 to avoid some ISP/IPv6 issues
-      tls: true,
+      // Only enable TLS by default for SRV/Atlas; for localhost it typically fails
+      tls: isSrv || isAtlasHost,
       ...(hasDbInUri ? {} : { dbName: "primeaddis" }),
     }
 
@@ -66,12 +98,18 @@ async function connectDB(): Promise<typeof mongoose> {
 
     // Prefer in-memory DB when explicitly requested OR when dev fallback is enabled
     // This avoids long timeouts when Atlas is unreachable during local development.
+    const uriLower = (MONGODB_URI || "").toLowerCase()
+    const isLocal = uriLower.includes("localhost") || uriLower.includes("127.0.0.1")
+
+    // Prefer in-memory in development when:
+    // - explicitly requested via DB_IN_MEMORY or MONGODB_URI === "in-memory"
+    // - OR in general dev mode unless explicitly forced to real DB
+    // - OR URI looks like Atlas/SRV (likely to hang without whitelisting) and fallback isn't explicitly disabled
+    // Only use in-memory when explicitly requested. Prefer connecting to the configured URI (Atlas)
     const useMemory =
       process.env.DB_IN_MEMORY === "true" ||
       process.env.DB_IN_MEMORY === "1" ||
-      MONGODB_URI === "in-memory" ||
-      (((process.env.NODE_ENV || "development") !== "production") &&
-        (process.env.DB_FALLBACK_MEMORY === "true" || process.env.DB_FALLBACK_MEMORY === "1"))
+      MONGODB_URI === "in-memory"
 
     if (useMemory) {
       cached.promise = startMemory().then(async (conn) => {
@@ -104,9 +142,12 @@ async function connectDB(): Promise<typeof mongoose> {
         })
         .catch(async (err) => {
           console.error("❌ MongoDB connection failed:", err?.message || err)
+          // Mark DB as down for a short period to avoid repeated long waits (default 15s)
+          global.__dbDownUntil = Date.now() + Number(process.env.DB_CIRCUIT_BREAK_MS || 15000)
+          // In development, fall back automatically to in-memory unless explicitly disabled.
           const allowFallback =
             ((process.env.NODE_ENV || "development") !== "production") &&
-            (process.env.DB_FALLBACK_MEMORY === "true" || process.env.DB_FALLBACK_MEMORY === "1")
+            process.env.DB_FALLBACK_MEMORY === "true"
           if (allowFallback) {
             console.warn("🔁 Falling back to in-memory MongoDB (dev fallback)")
             return startMemory()
@@ -119,7 +160,9 @@ async function connectDB(): Promise<typeof mongoose> {
   try {
     cached.conn = await cached.promise
   } catch (e) {
-    cached.promise = null
+  cached.promise = null
+  // Open circuit on error (default 15s)
+  global.__dbDownUntil = Date.now() + Number(process.env.DB_CIRCUIT_BREAK_MS || 15000)
     throw e
   }
 

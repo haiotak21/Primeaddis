@@ -1,84 +1,39 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { PropertyCard } from "@/components/properties/property-card";
+import { HomeLatest } from "@/components/properties/home-latest";
 import { getHomeProperties } from "@/lib/home-properties";
+import { Hero } from "@/components/home/hero";
+import { TestimonialsSection } from "@/components/testimonials/testimonials";
 
 export default async function HomePage() {
   const properties = await getHomeProperties(7);
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-primary/10 to-background py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mb-8 flex justify-center">
-              <Image
-                src="/logo.png"
-                alt="PrimeAddis"
-                width={300}
-                height={80}
-                className="h-16 w-auto"
-                priority
-              />
-            </div>
-            <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">
-              Find Your Dream Property
-            </h1>
-            <p className="mt-6 text-pretty text-lg text-muted-foreground">
-              Discover the perfect home, office, or investment property with
-              PrimeAddis
-            </p>
-
-            <div className="mt-10 flex justify-center">
-              <div className="flex w-full max-w-2xl gap-2">
-                <Input
-                  placeholder="Search by location, property type..."
-                  className="flex-1"
-                />
-                <Button size="lg">Search</Button>
-              </div>
-            </div>
-
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link href="/properties?listingType=sale">
-                <Button variant="outline">Buy</Button>
-              </Link>
-              <Link href="/properties?listingType=rent">
-                <Button variant="outline">Rent</Button>
-              </Link>
-              <Link href="/properties/new">
-                <Button variant="outline">List Property</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen home-theme bg-background text-foreground">
+      {/* Hero Section (full-screen) */}
+      <Hero />
 
       {/* Properties Preview Section */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl font-bold">Latest Properties</h2>
-            <Link href="/properties">
-              <Button variant="outline">See more</Button>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#03063b]">
+              Latest Properties
+            </h2>
+            <Link
+              href="/properties"
+              className="hidden sm:inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white transition-colors"
+            >
+              See more
+              <span className="ml-1">→</span>
             </Link>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {properties && properties.length > 0 ? (
-              properties.map((property: any) => (
-                <PropertyCard key={property._id} property={property} />
-              ))
-            ) : (
-              <div className="col-span-full text-center text-muted-foreground">
-                No properties found.
-              </div>
-            )}
-          </div>
+          <HomeLatest properties={properties as any} />
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
 
       {/* Features Section */}
       <section className="py-20">

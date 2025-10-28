@@ -32,13 +32,45 @@ export const authOptions: NextAuthOptions = {
           credentialsEmail === superEmail.trim().toLowerCase() &&
           credentials.password === superPassword
         ) {
-          return {
-            // Use a valid 24-char hex string so Mongoose can cast safely
-            id: "000000000000000000000000",
-            email: superEmail,
-            name: "Super Admin",
-            role: "superadmin" as any,
-            image: null,
+          // Prefer a real DB user for superadmin if DB is reachable, so
+          // profile changes persist across sessions and provide a stable id.
+          try {
+            await connectDB()
+            let dbUser = await User.findOne({ email: superEmail }).select("name email role profileImage")
+            if (!dbUser) {
+              dbUser = await User.create({
+                name: "Super Admin",
+                email: superEmail,
+                role: "superadmin",
+                profileImage: null,
+                isActive: true,
+                lastLogin: new Date(),
+              })
+            } else {
+              // Ensure role is elevated to superadmin for this email
+              dbUser.lastLogin = new Date()
+              if (dbUser.role !== "superadmin") {
+                dbUser.role = "superadmin" as any
+              }
+              await dbUser.save()
+            }
+            const su: any = dbUser
+            return {
+              id: su._id.toString(),
+              email: su.email,
+              name: su.name || "Super Admin",
+              role: su.role || ("superadmin" as any),
+              image: su.profileImage || null,
+            }
+          } catch {
+            // DB not available: fall back to ephemeral superadmin (non-persistent)
+            return {
+              id: "000000000000000000000000",
+              email: superEmail,
+              name: "Super Admin",
+              role: "superadmin" as any,
+              image: null,
+            }
           }
         }
 
@@ -96,11 +128,23 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               email,
               profileImage: (user as any).image,
-              role: "user",
+              role:
+                process.env.SUPERADMIN_EMAIL &&
+                email === process.env.SUPERADMIN_EMAIL.trim().toLowerCase()
+                  ? ("superadmin" as any)
+                  : ("user" as any),
               lastLogin: new Date(),
             })
           } else {
             existingUser.lastLogin = new Date()
+            // Elevate role if this email is configured as superadmin
+            if (
+              process.env.SUPERADMIN_EMAIL &&
+              email === process.env.SUPERADMIN_EMAIL.trim().toLowerCase() &&
+              existingUser.role !== "superadmin"
+            ) {
+              (existingUser as any).role = "superadmin"
+            }
             await existingUser.save()
           }
         } catch (e) {
@@ -112,17 +156,36 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async jwt({ token, user, trigger, session }) {
+      const isSuperEmail = (email?: string | null) =>
+        !!(
+          email &&
+          process.env.SUPERADMIN_EMAIL &&
+          email.trim().toLowerCase() === process.env.SUPERADMIN_EMAIL.trim().toLowerCase()
+        )
+      const safeImage = (val: unknown) => {
+        if (typeof val !== "string") return undefined
+        const v = val.trim()
+        // Only allow http(s) URLs in JWT to avoid oversized cookies (e.g., data URLs)
+        if (/^https?:\/\//i.test(v) && v.length < 1024) return v
+        return undefined
+      }
       if (user) {
         token.id = (user as any).id
         const email = (user as any).email as string | undefined
         const uRole = (user as any).role as string | undefined
-        // If we get a role from the auth flow, prefer it. Otherwise default to superadmin only if email matches env, else user.
-        token.role = uRole ?? (email && process.env.SUPERADMIN_EMAIL && email.toLowerCase() === process.env.SUPERADMIN_EMAIL.toLowerCase() ? "superadmin" : "user")
+        // Force superadmin for the configured email regardless of stored role; else use provided role or prior token/user default
+        token.role = isSuperEmail(email) ? "superadmin" : (uRole ?? ((token as any).role ?? "user"))
+        // Ensure base identity fields are present on token for session mapping
+        token.name = (user as any).name ?? token.name
+        token.image = safeImage((user as any).image) ?? token.image
       }
 
       // Handle session update
       if (trigger === "update" && session) {
+        // Merge selected fields from session into token to allow updating name/image
         token = { ...token, ...session }
+        const updatedImage = safeImage((session as any).image)
+        if (updatedImage) (token as any).image = updatedImage
       }
 
       return token
@@ -132,8 +195,18 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
         const email = session.user.email
         const tokenRole = token.role as string | undefined
-        // Ensure role is always set; fall back to superadmin if email matches env, else user
-        session.user.role = tokenRole ?? (email && process.env.SUPERADMIN_EMAIL && email.toLowerCase() === process.env.SUPERADMIN_EMAIL.toLowerCase() ? "superadmin" : "user")
+        // Force superadmin for configured email to avoid accidental demotion
+        session.user.role =
+          (email && process.env.SUPERADMIN_EMAIL && email.toLowerCase() === process.env.SUPERADMIN_EMAIL.toLowerCase())
+            ? "superadmin"
+            : (tokenRole ?? "user")
+        // Map token identity fields back to session.user so UI reflects updates without full reload
+        if (typeof token.name === "string" && token.name) {
+          session.user.name = token.name
+        }
+        if (typeof token.image === "string" && /^https?:\/\//i.test(token.image)) {
+          session.user.image = token.image
+        }
       }
 
       return session
@@ -147,5 +220,16 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Be explicit about JWT handling and provide a stable dev fallback secret to avoid JWE/JWS mismatches
+  jwt: {
+    maxAge: 24 * 60 * 60,
+  },
+  // NOTE: In dev, NEXTAUTH_SECRET may be missing and NextAuth would generate a new random secret
+  // on each reload, causing "Invalid Compact JWE/JWS" when decoding existing cookies.
+  // We pin a deterministic dev fallback to keep tokens valid across reloads.
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    (process.env.NODE_ENV !== "production"
+      ? "dev_fallback_nextauth_secret_change_me"
+      : undefined),
 }

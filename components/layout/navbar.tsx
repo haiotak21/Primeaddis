@@ -75,12 +75,11 @@ export function Navbar() {
   };
 
   return (
-    <nav className="border-b bg-background">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              {/* Light logo */}
+    <nav className="relative">
+      <div className="sticky top-[34px] z-50 w-full">
+        <header className="mx-auto max-w-[1380px] flex h-[90px] w-full items-center justify-between rounded-[70px] bg-[#FAFAFA] dark:bg-background/80 dark:backdrop-blur-sm dark:border dark:border-white/10 px-6 md:px-8 shadow-sm">
+          <div className="flex items-center gap-10">
+            <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/logo.png"
                 alt={t("site.title")}
@@ -89,23 +88,17 @@ export function Navbar() {
                 className="h-8 w-auto block dark:hidden"
                 priority
               />
-              {/* Dark logo: uses exact file name in /public */}
               <Image
                 src="/prime addis white 1.png"
                 alt={t("site.title")}
                 width={180}
                 height={40}
-                onClick={() => {
-                  setLangOpen((v) => !v);
-                  setCurrencyOpen(false);
-                }}
                 className="h-8 w-auto hidden dark:block"
                 priority
               />
             </Link>
 
-            <div className="ml-2 md:ml-10 flex md:hidden">
-              {/* Mobile menu toggle */}
+            <div className="ml-2 flex lg:hidden">
               <button
                 className="inline-flex items-center justify-center rounded p-2 hover:bg-muted focus:outline-none"
                 aria-label="Open menu"
@@ -113,7 +106,6 @@ export function Navbar() {
                 aria-expanded={mobileMenuOpen}
                 onClick={() => setMobileMenuOpen((v) => !v)}
               >
-                {/* Hamburger icon */}
                 <svg
                   className="h-6 w-6"
                   viewBox="0 0 24 24"
@@ -126,158 +118,162 @@ export function Navbar() {
               </button>
             </div>
 
-            <div className="ml-10 hidden space-x-4 md:flex">
+            <nav className="hidden lg:flex items-center gap-8">
               <Link
                 href="/properties"
                 prefetch
-                className="text-sm font-medium hover:text-primary"
+                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors whitespace-nowrap"
               >
                 {t("nav.properties")}
               </Link>
               <Link
                 href="/agents"
                 prefetch
-                className="text-sm font-medium hover:text-primary"
+                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors"
               >
                 Agents
               </Link>
               <Link
                 href="/about"
                 prefetch
-                className="text-sm font-medium hover:text-primary"
+                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors"
               >
                 About
               </Link>
-            </div>
+            </nav>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            {/* Language Toggle Dropdown */}
-            <div className="relative">
-              <button
-                className="flex items-center px-2 py-1 rounded hover:bg-muted focus:outline-none"
-                id="lang-toggle"
-                aria-haspopup="listbox"
-                aria-expanded={langOpen}
-                onClick={() => {
-                  setLangOpen((v) => !v);
-                  setCurrencyOpen(false);
-                }}
-              >
-                <GlobeIcon className="h-5 w-5 mr-1" />
-                <span className="font-medium uppercase text-xs">{locale}</span>
-                <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <div
-                className={`absolute right-0 mt-2 w-20 rounded bg-popover shadow-lg z-50 ${
-                  langOpen ? "" : "hidden"
-                }`}
-                id="lang-menu"
-              >
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4">
+              <div className="relative">
                 <button
-                  className={`w-full text-left px-3 py-2 text-xs rounded ${
-                    locale === "en" ? "bg-primary text-white" : "hover:bg-muted"
-                  }`}
+                  className="flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+                  id="lang-toggle"
+                  aria-haspopup="listbox"
+                  aria-expanded={langOpen}
                   onClick={() => {
-                    document.cookie = `NEXT_LOCALE=en; path=/; max-age=31536000`;
-                    router.refresh();
+                    setLangOpen((v) => !v);
+                    setCurrencyOpen(false);
                   }}
                 >
-                  EN
+                  <span className="uppercase">{locale}</span>
+                  <ChevronDown className="text-base h-4 w-4" />
                 </button>
-                <button
-                  className={`w-full text-left px-3 py-2 text-xs rounded ${
-                    locale === "am" ? "bg-primary text-white" : "hover:bg-muted"
+                <div
+                  className={`absolute right-0 mt-2 w-20 rounded bg-popover shadow-lg z-50 ${
+                    langOpen ? "" : "hidden"
                   }`}
+                  id="lang-menu"
+                >
+                  <button
+                    className={`w-full text-left px-3 py-2 text-xs rounded ${
+                      locale === "en"
+                        ? "bg-primary text-white"
+                        : "hover:bg-muted"
+                    }`}
+                    onClick={() => {
+                      document.cookie = `NEXT_LOCALE=en; path=/; max-age=31536000`;
+                      router.refresh();
+                    }}
+                  >
+                    EN
+                  </button>
+                  <button
+                    className={`w-full text-left px-3 py-2 text-xs rounded ${
+                      locale === "am"
+                        ? "bg-primary text-white"
+                        : "hover:bg-muted"
+                    }`}
+                    onClick={() => {
+                      document.cookie = `NEXT_LOCALE=am; path=/; max-age=31536000`;
+                      router.refresh();
+                    }}
+                  >
+                    AM
+                  </button>
+                </div>
+              </div>
+              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+              <div className="relative">
+                <button
+                  className="flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+                  id="currency-toggle"
+                  aria-haspopup="listbox"
+                  aria-expanded={currencyOpen}
                   onClick={() => {
-                    document.cookie = `NEXT_LOCALE=am; path=/; max-age=31536000`;
-                    router.refresh();
+                    setCurrencyOpen((v) => !v);
+                    setLangOpen(false);
                   }}
                 >
-                  AM
+                  <span>{currency}</span>
+                  <ChevronDown className="text-base h-4 w-4" />
                 </button>
+                <div
+                  className={`absolute right-0 mt-2 w-20 rounded bg-popover shadow-lg z-50 ${
+                    currencyOpen ? "" : "hidden"
+                  }`}
+                  id="currency-menu"
+                >
+                  <button
+                    className={`w-full text-left px-3 py-2 text-xs rounded ${
+                      currency === "USD"
+                        ? "bg-primary text-white"
+                        : "hover:bg-muted"
+                    }`}
+                    onClick={() => setCurrency("USD")}
+                  >
+                    USD
+                  </button>
+                  <button
+                    className={`w-full text-left px-3 py-2 text-xs rounded ${
+                      currency === "ETB"
+                        ? "bg-primary text-white"
+                        : "hover:bg-muted"
+                    }`}
+                    onClick={() => setCurrency("ETB")}
+                  >
+                    ETB
+                  </button>
+                </div>
               </div>
-            </div>
-            {/* Currency Toggle Dropdown */}
-            <div className="relative">
+              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
               <button
-                className="flex items-center px-2 py-1 rounded hover:bg-muted focus:outline-none"
-                id="currency-toggle"
-                aria-haspopup="listbox"
-                aria-expanded={currencyOpen}
-                onClick={() => {
-                  setCurrencyOpen((v) => !v);
-                  setLangOpen(false);
-                }}
+                className="h-10 w-10 flex items-center justify-center text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                aria-label="Toggle theme"
               >
-                <span className="font-medium text-xs">{currency}</span>
-                <ChevronDown className="ml-1 h-4 w-4" />
+                {mounted ? (
+                  theme === "dark" ? (
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 1 0 9.79 9.79z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <circle cx="12" cy="12" r="5" />
+                      <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 6.95l-1.41-1.41M6.46 6.46L5.05 5.05m12.02 0l-1.41 1.41M6.46 17.54l-1.41 1.41" />
+                    </svg>
+                  )
+                ) : null}
               </button>
-              <div
-                className={`absolute right-0 mt-2 w-20 rounded bg-popover shadow-lg z-50 ${
-                  currencyOpen ? "" : "hidden"
-                }`}
-                id="currency-menu"
-              >
-                <button
-                  className={`w-full text-left px-3 py-2 text-xs rounded ${
-                    currency === "USD"
-                      ? "bg-primary text-white"
-                      : "hover:bg-muted"
-                  }`}
-                  onClick={() => setCurrency("USD")}
-                >
-                  USD
-                </button>
-                <button
-                  className={`w-full text-left px-3 py-2 text-xs rounded ${
-                    currency === "ETB"
-                      ? "bg-primary text-white"
-                      : "hover:bg-muted"
-                  }`}
-                  onClick={() => setCurrency("ETB")}
-                >
-                  ETB
-                </button>
-              </div>
             </div>
-            {/* Theme Toggle */}
-            <button
-              className="flex items-center px-2 py-1 rounded hover:bg-muted focus:outline-none"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label="Toggle theme"
-            >
-              {mounted ? (
-                theme === "dark" ? (
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 1 0 9.79 9.79z" />
-                  </svg>
-                ) : (
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="12" cy="12" r="5" />
-                    <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 6.95l-1.41-1.41M6.46 6.46L5.05 5.05m12.02 0l-1.41 1.41M6.46 17.54l-1.41 1.41" />
-                  </svg>
-                )
-              ) : null}
-            </button>
+
             {status === "loading" ? (
               <div className="h-8 w-20 animate-pulse rounded bg-muted" />
             ) : session ? (
               <>
                 <NotificationDropdown />
-
                 <Link
                   href="/properties/new"
                   prefetch
@@ -291,7 +287,6 @@ export function Navbar() {
                     List Property
                   </Button>
                 </Link>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -309,82 +304,152 @@ export function Navbar() {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">
-                          {session.user.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {session.user.email}
-                        </p>
-                        <p className="text-xs font-medium text-primary capitalize">
-                          {session.user.role}
-                        </p>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-72 p-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl ring-1 ring-zinc-200 dark:ring-zinc-800 overflow-hidden"
+                  >
+                    {/* Header */}
+                    <div className="p-4">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          alt="User avatar"
+                          className="w-10 h-10 rounded-full object-cover"
+                          src={session.user.image || "/placeholder.svg"}
+                        />
+                        <div>
+                          <p className="font-semibold text-sm text-zinc-800 dark:text-zinc-100">
+                            {session.user.name}
+                          </p>
+                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            {session.user.email}
+                          </p>
+                        </div>
                       </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href={
-                          session.user.role === "admin" ||
-                          session.user.role === "superadmin"
-                            ? "/admin/properties"
-                            : "/dashboard"
-                        }
-                        prefetch
+                      <span className="mt-2 inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors capitalize">
+                        {session.user.role}
+                      </span>
+                    </div>
+
+                    <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+
+                    {/* Main links */}
+                    <div className="p-2">
+                      <DropdownMenuItem
+                        asChild
+                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
                       >
-                        Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" prefetch>
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/favorites" prefetch>
-                        Favorites
-                      </Link>
-                    </DropdownMenuItem>
+                        <Link
+                          href={
+                            session.user.role === "admin" ||
+                            session.user.role === "superadmin"
+                              ? "/admin/properties"
+                              : "/dashboard"
+                          }
+                          prefetch
+                          className="flex items-center w-full"
+                        >
+                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                            grid_view
+                          </span>
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                      >
+                        <Link
+                          href="/profile"
+                          prefetch
+                          className="flex items-center w-full"
+                        >
+                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                            person
+                          </span>
+                          Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        asChild
+                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                      >
+                        <Link
+                          href="/favorites"
+                          prefetch
+                          className="flex items-center w-full"
+                        >
+                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                            favorite
+                          </span>
+                          Favorites
+                        </Link>
+                      </DropdownMenuItem>
+                    </div>
+
                     {(session.user.role === "admin" ||
                       session.user.role === "superadmin") && (
                       <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link href="/admin" prefetch>
-                            Admin Panel
-                          </Link>
-                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                        <div className="p-2">
+                          <DropdownMenuItem
+                            asChild
+                            className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                          >
+                            <Link
+                              href="/admin"
+                              prefetch
+                              className="flex items-center w-full"
+                            >
+                              <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                                admin_panel_settings
+                              </span>
+                              Admin Panel
+                            </Link>
+                          </DropdownMenuItem>
+                        </div>
                       </>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => signOut({ callbackUrl: "/" })}
-                    >
-                      Sign Out
-                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
+                    <div className="p-2">
+                      <DropdownMenuItem
+                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 cursor-pointer"
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                      >
+                        <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                          logout
+                        </span>
+                        Sign Out
+                      </DropdownMenuItem>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <>
-                <Link href="/auth/signin" prefetch>
-                  <Button variant="ghost" size="sm">
-                    Sign In
-                  </Button>
+                <Link
+                  href="/auth/signin"
+                  prefetch
+                  className="hidden sm:inline-block px-5 py-2.5 text-sm font-semibold text-gray-800 dark:text-slate-50 hover:text-primary dark:hover:text-primary transition-colors"
+                >
+                  Sign In
                 </Link>
                 <Link href="/auth/signup" prefetch>
-                  <Button size="sm">Sign Up</Button>
+                  <span className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-gray-900 dark:bg-primary text-slate-50 text-sm font-semibold tracking-wide transition-colors hover:bg-gray-800 dark:hover:bg-primary/90">
+                    Sign Up
+                  </span>
                 </Link>
               </>
             )}
           </div>
-        </div>
+        </header>
       </div>
       {/* Mobile menu panel */}
       {mobileMenuOpen && (
-        <div id="mobile-menu" className="md:hidden border-t bg-background">
+        <div
+          id="mobile-menu"
+          className="md:hidden border-t bg-background mt-[140px]"
+        >
           <div className="space-y-1 px-4 py-3">
             <Link
               href="/properties"
