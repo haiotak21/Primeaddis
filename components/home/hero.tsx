@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 
 const SLIDES = [
@@ -28,6 +28,8 @@ const SLIDES = [
 export function Hero() {
   const [index, setIndex] = useState(0);
   const total = SLIDES.length;
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const next = useCallback(() => setIndex((i) => (i + 1) % total), [total]);
   const prev = useCallback(
@@ -36,7 +38,28 @@ export function Hero() {
   );
 
   return (
-    <section className="relative flex h-screen w-full items-center justify-center">
+    <section
+      className="relative flex min-h-[70svh] sm:min-h-[85vh] md:min-h-screen w-full items-center justify-center overflow-hidden"
+      onTouchStart={(e) => {
+        const t = e.touches[0];
+        touchStartX.current = t.clientX;
+        touchStartY.current = t.clientY;
+      }}
+      onTouchEnd={(e) => {
+        if (touchStartX.current === null) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchStartX.current;
+        const dy =
+          touchStartY.current === null ? 0 : t.clientY - touchStartY.current;
+        // swipe threshold and horizontal dominance
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) next();
+          else prev();
+        }
+        touchStartX.current = null;
+        touchStartY.current = null;
+      }}
+    >
       {/* Background image with dark overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/50" />
@@ -44,21 +67,26 @@ export function Hero() {
           className="h-full w-full object-cover"
           src={SLIDES[index].image}
           alt="A luxurious modern house with a pristine lawn, large windows, and a sophisticated architectural design at dusk."
+          loading="eager"
+          decoding="async"
         />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center gap-8 px-4 text-center text-white">
+      <div className="relative z-10 flex flex-col items-center gap-5 px-4 sm:px-6 pt-16 sm:pt-0 text-center text-white">
         <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl md:text-6xl">
+          <h1 className="text-3xl font-black leading-tight tracking-tight sm:text-5xl md:text-6xl">
             {SLIDES[index].title}
           </h1>
           <h2 className="mx-auto max-w-2xl text-base font-normal leading-normal text-slate-200 sm:text-lg">
             {SLIDES[index].subtitle}
           </h2>
         </div>
-        <Link href="/properties" className="focus:outline-none">
-          <span className="flex h-12 min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-primary px-6 text-base font-bold text-white transition-colors hover:bg-primary/90 hover:shadow-lg focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background">
+        <Link
+          href="/properties"
+          className="w-full sm:w-auto focus:outline-none"
+        >
+          <span className="flex h-10 sm:h-12 w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md bg-primary px-5 sm:px-6 text-sm sm:text-base font-bold text-white transition-colors hover:bg-primary/90 hover:shadow-lg focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background">
             Explore Properties
           </span>
         </Link>
@@ -68,7 +96,7 @@ export function Hero() {
       <button
         aria-label="Previous slide"
         onClick={prev}
-        className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-sm ring-1 ring-white/30 backdrop-blur hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black/40"
+        className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-10 hidden sm:inline-flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-sm ring-1 ring-white/30 backdrop-blur hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black/40"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +112,7 @@ export function Hero() {
       <button
         aria-label="Next slide"
         onClick={next}
-        className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-sm ring-1 ring-white/30 backdrop-blur hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black/40"
+        className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-10 hidden sm:inline-flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-sm ring-1 ring-white/30 backdrop-blur hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black/40"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +127,7 @@ export function Hero() {
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-10 left-1/2 z-10 -translate-x-1/2">
+      <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-center space-x-2">
           {SLIDES.map((_, i) => (
             <button

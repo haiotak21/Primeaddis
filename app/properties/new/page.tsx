@@ -67,14 +67,22 @@ export default function NewPropertyPage() {
         if (!res.ok)
           throw new Error((await res.json())?.error || "Upload failed");
         const data = await res.json();
-        const urls: string[] = (data.uploads || [])
+        let urls: string[] = (data.uploads || [])
           .map((u: any) => u.url)
           .filter(Boolean);
         if (urls.length) {
-          setFormData((prev) => ({
-            ...prev,
-            images: [...prev.images, ...urls],
-          }));
+          setFormData((prev) => {
+            // Enforce max 10 images total
+            const remaining = Math.max(0, 10 - (prev.images?.length || 0));
+            const toAdd = urls.slice(0, remaining);
+            if (toAdd.length < urls.length) {
+              setError("You can upload up to 10 images total.");
+            }
+            return {
+              ...prev,
+              images: [...(prev.images || []), ...toAdd],
+            };
+          });
         }
       } catch (err: any) {
         console.error("Upload error:", err?.message || err);
@@ -150,6 +158,11 @@ export default function NewPropertyPage() {
       if (imagesArr.length < 1) {
         setLoading(false);
         setError("Please add at least one image (URL or upload).");
+        return;
+      }
+      if (imagesArr.length > 10) {
+        setLoading(false);
+        setError("A maximum of 10 images is allowed.");
         return;
       }
 
@@ -287,13 +300,13 @@ export default function NewPropertyPage() {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
     };
     content = (
-      <div className="min-h-screen bg-[#f4fafe]">
+      <div className="min-h-screen bg-[#f4fafe] dark:bg-[#0f1923] dark:text-white">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 md:px-10 lg:px-20 py-8">
           <div className="mb-8">
-            <p className="text-[#03063b] text-4xl font-black leading-tight tracking-[-0.033em]">
+            <p className="text-[#03063b] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">
               Create Property
             </p>
-            <p className="text-[#47739e] text-base mt-2">
+            <p className="text-[#47739e] dark:text-[#a0b3c6] text-base mt-2">
               Add a new property to the marketplace
             </p>
           </div>
@@ -306,18 +319,18 @@ export default function NewPropertyPage() {
             )}
 
             {/* Basic Information */}
-            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
-              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+            <div className="rounded-xl border border-[#dfe6e9] dark:border-primary/20 bg-white dark:bg-gray-900/30 p-6 shadow-sm">
+              <h2 className="text-[#03063b] dark:text-white text-[22px] font-bold mb-6">
                 Basic Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Property Title
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="Enter property title"
                       value={formData.title}
                       onChange={(e) =>
@@ -329,11 +342,11 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Price ($)
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="Enter price"
                       type="number"
                       value={formData.price}
@@ -346,11 +359,11 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Property Type
                     </p>
                     <select
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] bg-white dark:bg-[#2c3e50] dark:text-white"
                       value={formData.type}
                       onChange={(e) =>
                         setFormData({ ...formData, type: e.target.value })
@@ -366,11 +379,11 @@ export default function NewPropertyPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Description
                     </p>
                     <textarea
-                      className="min-h-36 px-4 py-3 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="min-h-36 px-4 py-3 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="Add a detailed description of the property"
                       value={formData.description}
                       onChange={(e) =>
@@ -385,11 +398,11 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Real Estate Agency
                     </p>
                     <select
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] bg-white dark:bg-[#2c3e50] dark:text-white"
                       value={formData.realEstate}
                       onChange={(e) =>
                         setFormData({ ...formData, realEstate: e.target.value })
@@ -406,11 +419,11 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Listing Type
                     </p>
                     <select
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] bg-white"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] bg-white dark:bg-[#2c3e50] dark:text-white"
                       value={formData.listingType}
                       onChange={(e) =>
                         setFormData({
@@ -426,18 +439,18 @@ export default function NewPropertyPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Amenities
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="e.g., Swimming Pool, Gym, Garden"
                       value={formData.amenities}
                       onChange={(e) =>
                         setFormData({ ...formData, amenities: e.target.value })
                       }
                     />
-                    <p className="text-[#47739e] text-sm mt-1.5">
+                    <p className="text-[#47739e] dark:text-[#a0b3c6] text-sm mt-1.5">
                       Enter amenities separated by commas.
                     </p>
                   </label>
@@ -446,18 +459,18 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Location */}
-            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
-              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+            <div className="rounded-xl border border-[#dfe6e9] dark:border-primary/20 bg-white dark:bg-gray-900/30 p-6 shadow-sm">
+              <h2 className="text-[#03063b] dark:text-white text-[22px] font-bold mb-6">
                 Location
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div className="flex flex-col gap-6">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Address
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="e.g., 123 Main Street"
                       value={formData.address}
                       onChange={(e) =>
@@ -467,11 +480,11 @@ export default function NewPropertyPage() {
                     />
                   </label>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       City
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="e.g., Addis Ababa"
                       value={formData.city}
                       onChange={(e) =>
@@ -481,11 +494,11 @@ export default function NewPropertyPage() {
                     />
                   </label>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       State/Region
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66]"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="e.g., Addis Ababa"
                       value={formData.region}
                       onChange={(e) =>
@@ -499,7 +512,7 @@ export default function NewPropertyPage() {
                   <button
                     type="button"
                     onClick={scrollToMap}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b8bff]/10 px-4 py-2.5 text-sm font-semibold text-[#0b8bff] transition-colors hover:bg-[#0b8bff]/20"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b8bff]/10 dark:bg-primary/20 px-4 py-2.5 text-sm font-semibold text-[#0b8bff] dark:text-primary transition-colors hover:bg-[#0b8bff]/20 dark:hover:bg-primary/30"
                   >
                     <span className="material-symbols-outlined text-base">
                       add_location_alt
@@ -514,28 +527,28 @@ export default function NewPropertyPage() {
                       onResolve={handleResolve}
                     />
                   </div>
-                  <p className="text-xs text-[#47739e] text-center">
+                  <p className="text-xs text-[#47739e] dark:text-[#a0b3c6] text-center">
                     Click on the location in Ethiopia to set coordinates
                     automatically.
                   </p>
                 </div>
                 <div className="md:col-span-2 grid grid-cols-2 gap-6">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Latitude
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg bg-gray-100"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg bg-gray-100 dark:bg-[#2c3e50]/70 dark:text-white"
                       readOnly
                       value={formData.lat}
                     />
                   </label>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Longitude
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg bg-gray-100"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg bg-gray-100 dark:bg-[#2c3e50]/70 dark:text-white"
                       readOnly
                       value={formData.lng}
                     />
@@ -545,17 +558,17 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Specifications */}
-            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
-              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+            <div className="rounded-xl border border-[#dfe6e9] dark:border-primary/20 bg-white dark:bg-gray-900/30 p-6 shadow-sm">
+              <h2 className="text-[#03063b] dark:text-white text-[22px] font-bold mb-6">
                 Specifications
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <label className="flex flex-col">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Bedrooms
                   </p>
                   <input
-                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     placeholder="e.g., 3"
                     type="number"
                     value={formData.bedrooms}
@@ -565,11 +578,11 @@ export default function NewPropertyPage() {
                   />
                 </label>
                 <label className="flex flex-col">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Bathrooms
                   </p>
                   <input
-                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     placeholder="e.g., 2"
                     type="number"
                     value={formData.bathrooms}
@@ -579,11 +592,11 @@ export default function NewPropertyPage() {
                   />
                 </label>
                 <label className="flex flex-col">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Area (sq ft)
                   </p>
                   <input
-                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     placeholder="e.g., 1800"
                     type="number"
                     value={formData.area}
@@ -594,11 +607,11 @@ export default function NewPropertyPage() {
                   />
                 </label>
                 <label className="flex flex-col">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Year Built
                   </p>
                   <input
-                    className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                    className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     placeholder="e.g., 2015"
                     type="number"
                     value={formData.yearBuilt}
@@ -611,29 +624,33 @@ export default function NewPropertyPage() {
             </div>
 
             {/* Media */}
-            <div className="rounded-xl border border-[#dfe6e9] bg-white p-6 shadow-sm">
-              <h2 className="text-[#03063b] text-[22px] font-bold mb-6">
+            <div className="rounded-xl border border-[#dfe6e9] dark:border-primary/20 bg-white dark:bg-gray-900/30 p-6 shadow-sm">
+              <h2 className="text-[#03063b] dark:text-white text-[22px] font-bold mb-6">
                 Media
               </h2>
               <div className="flex flex-col gap-6">
                 <div>
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Property Images
                   </p>
                   <div className="flex justify-center items-center w-full">
                     {/* Keep existing FileUpload behavior within a dropzone-styled container */}
-                    <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-[#dfe6e9] border-dashed rounded-lg cursor-pointer bg-[#f4fafe]/30 hover:bg-[#f4fafe]/60">
-                      <FileUpload eventName="file-upload:change" multiple />
+                    <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-[#dfe6e9] dark:border-[#2c3e50] border-dashed rounded-lg cursor-pointer bg-[#f4fafe]/30 dark:bg-[#2c3e50]/60 hover:bg-[#f4fafe]/60 dark:hover:bg-[#2c3e50]">
+                      <FileUpload
+                        eventName="file-upload:change"
+                        multiple
+                        maxFiles={10}
+                      />
                     </div>
                   </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Property Image Insert URL
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="https://example.com/image.jpg"
                       value={formData.imagesUrlInput}
                       onChange={(e) =>
@@ -647,14 +664,14 @@ export default function NewPropertyPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Video URL{" "}
-                      <span className="text-[#47739e] font-normal">
+                      <span className="text-[#47739e] dark:text-[#a0b3c6] font-normal">
                         (Optional)
                       </span>
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="https://youtube.com/watch?v=..."
                       value={formData.videoUrl}
                       onChange={(e) =>
@@ -663,14 +680,14 @@ export default function NewPropertyPage() {
                     />
                   </label>
                   <label className="flex flex-col">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       VR Tour Link{" "}
-                      <span className="text-[#47739e] font-normal">
+                      <span className="text-[#47739e] dark:text-[#a0b3c6] font-normal">
                         (Optional)
                       </span>
                     </p>
                     <input
-                      className="h-12 px-4 border border-[#dfe6e9] rounded-lg"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       placeholder="https://example.com/vr-tour"
                       value={formData.vrTourUrl}
                       onChange={(e) =>
@@ -699,7 +716,7 @@ export default function NewPropertyPage() {
                         key={idx}
                         src={url}
                         alt={`Property image ${idx + 1}`}
-                        className="w-24 h-24 object-cover rounded border"
+                        className="w-24 h-24 object-cover rounded border dark:border-primary/20"
                       />
                     ))}
                 </div>
@@ -711,7 +728,7 @@ export default function NewPropertyPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto rounded-lg bg-[#0b8bff] hover:bg-[#0b8bff]/90 text-white px-8 py-3"
+                className="w-full sm:w-auto rounded-lg bg-[#0b8bff] dark:bg-primary hover:bg-[#0b8bff]/90 dark:hover:bg-primary/90 text-white px-8 py-3"
               >
                 {loading ? "Creating..." : "Create Property"}
               </Button>
@@ -719,7 +736,7 @@ export default function NewPropertyPage() {
                 type="button"
                 variant="outline"
                 onClick={() => router.push("/dashboard")}
-                className="w-full sm:w-auto border border-[#dfe6e9] text-[#47739e] px-8 py-3"
+                className="w-full sm:w-auto border border-[#dfe6e9] dark:border-[#2c3e50] text-[#47739e] dark:text-[#a0b3c6] hover:bg-white/50 dark:hover:bg-white/10 px-8 py-3"
               >
                 Cancel
               </Button>

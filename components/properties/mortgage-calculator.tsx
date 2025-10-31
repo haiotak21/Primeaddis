@@ -27,7 +27,7 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
   }, [totalAmount, downPayment, rateAnnual, years]);
 
   return (
-    <Card className="bg-white rounded-xl border border-[#dde8f0]">
+    <Card className="bg-white rounded-xl border border-[#dde8f0] dark:bg-gray-900/30 dark:border-primary/20">
       <CardHeader>
         <CardTitle className="text-xl font-bold">Mortgage Calculator</CardTitle>
       </CardHeader>
@@ -35,14 +35,14 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
         <div className="space-y-4">
           <div>
             <Label
-              className="text-sm font-medium text-[#03063b]/80"
+              className="text-sm font-medium text-[#03063b]/80 dark:text-gray-300"
               htmlFor="mc-total-amount"
             >
               Total Amount ($)
             </Label>
             <Input
               id="mc-total-amount"
-              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 dark:bg-input/30 dark:text-white dark:placeholder:text-[#a0b3c6] dark:border-primary/20"
               type="number"
               value={totalAmount}
               onChange={(e) => setTotalAmount(Number(e.target.value))}
@@ -50,14 +50,14 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
           </div>
           <div>
             <Label
-              className="text-sm font-medium text-[#03063b]/80"
+              className="text-sm font-medium text-[#03063b]/80 dark:text-gray-300"
               htmlFor="mc-down-payment"
             >
               Down Payment ($)
             </Label>
             <Input
               id="mc-down-payment"
-              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 dark:bg-input/30 dark:text-white dark:placeholder:text-[#a0b3c6] dark:border-primary/20"
               type="number"
               value={downPayment}
               onChange={(e) => setDownPayment(Number(e.target.value))}
@@ -65,14 +65,14 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
           </div>
           <div>
             <Label
-              className="text-sm font-medium text-[#03063b]/80"
+              className="text-sm font-medium text-[#03063b]/80 dark:text-gray-300"
               htmlFor="mc-interest-rate"
             >
               Interest Rate (%)
             </Label>
             <Input
               id="mc-interest-rate"
-              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 dark:bg-input/30 dark:text-white dark:placeholder:text-[#a0b3c6] dark:border-primary/20"
               type="number"
               step={0.1}
               value={rateAnnual}
@@ -81,14 +81,14 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
           </div>
           <div>
             <Label
-              className="text-sm font-medium text-[#03063b]/80"
+              className="text-sm font-medium text-[#03063b]/80 dark:text-gray-300"
               htmlFor="mc-loan-term"
             >
               Loan Term (Years)
             </Label>
             <Input
               id="mc-loan-term"
-              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+              className="mt-1 block w-full rounded-lg border-[#dde8f0] bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 dark:bg-input/30 dark:text-white dark:placeholder:text-[#a0b3c6] dark:border-primary/20"
               type="number"
               value={years}
               onChange={(e) => setYears(Number(e.target.value))}
@@ -96,8 +96,10 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[#dde8f0] text-center">
-          <p className="text-[#03063b]/70 text-sm">Estimated Monthly Payment</p>
+        <div className="mt-6 pt-4 border-t border-[#dde8f0] dark:border-primary/20 text-center">
+          <p className="text-[#03063b]/70 dark:text-gray-300 text-sm">
+            Estimated Monthly Payment
+          </p>
           <p className="text-3xl font-black text-[#0b8bff]">
             <CurrencyAmount amountUsd={monthly} />
           </p>

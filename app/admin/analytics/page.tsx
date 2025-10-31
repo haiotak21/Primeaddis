@@ -47,22 +47,24 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4fafe]">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-4xl font-black leading-tight tracking-tight">
             Analytics Dashboard
           </h1>
-          <p className="mt-2 text-[#47739e]">Platform insights and metrics</p>
+          <p className="mt-2 text-muted-foreground">
+            Platform insights and metrics
+          </p>
         </div>
 
         {/* User Analytics */}
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-semibold">User Metrics</h2>
           <div className="grid gap-4 md:grid-cols-4">
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Total Users
                 </CardTitle>
               </CardHeader>
@@ -73,9 +75,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Active Users
                 </CardTitle>
               </CardHeader>
@@ -86,11 +88,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
-                  Agents
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Agents</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -99,9 +99,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   New This Month
                 </CardTitle>
               </CardHeader>
@@ -118,9 +118,9 @@ export default function AdminAnalyticsPage() {
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-semibold">Property Metrics</h2>
           <div className="grid gap-4 md:grid-cols-4">
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Total Properties
                 </CardTitle>
               </CardHeader>
@@ -131,9 +131,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Active Listings
                 </CardTitle>
               </CardHeader>
@@ -144,9 +144,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Pending Approval
                 </CardTitle>
               </CardHeader>
@@ -157,11 +157,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
-                  Featured
-                </CardTitle>
+                <CardTitle className="text-sm font-medium">Featured</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -176,9 +174,9 @@ export default function AdminAnalyticsPage() {
         <div>
           <h2 className="mb-4 text-xl font-semibold">Revenue Metrics</h2>
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Total Revenue
                 </CardTitle>
               </CardHeader>
@@ -189,9 +187,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   This Month
                 </CardTitle>
               </CardHeader>
@@ -202,9 +200,9 @@ export default function AdminAnalyticsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border border-[#dfe6e9] shadow-sm">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-sm font-medium text-[#03063b]">
+                <CardTitle className="text-sm font-medium">
                   Average Transaction
                 </CardTitle>
               </CardHeader>

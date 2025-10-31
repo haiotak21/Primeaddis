@@ -178,19 +178,21 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4fafe]">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight">
             User Management
           </h1>
-          <p className="mt-2 text-[#47739e]">View and manage platform users</p>
+          <p className="mt-1 sm:mt-2 text-muted-foreground text-sm sm:text-base">
+            View and manage platform users
+          </p>
         </div>
 
-        <Card className="border border-[#dfe6e9] shadow-sm">
+        <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-[#03063b]">All Users</CardTitle>
-            <CardDescription className="text-[#47739e]">
+            <CardTitle className="text-lg sm:text-xl">All Users</CardTitle>
+            <CardDescription className="text-muted-foreground text-sm">
               Total: {users.length} users
             </CardDescription>
           </CardHeader>
@@ -202,21 +204,21 @@ export default function AdminUsersPage() {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
                   <Input
                     placeholder="admin@example.com"
                     value={promoteEmail}
                     onChange={(e) => setPromoteEmail(e.target.value)}
-                    className="w-64"
+                    className="w-full sm:w-64"
                   />
                   <Button
-                    className="bg-[#0b8bff] hover:bg-[#0b8bff]/90"
+                    className="bg-primary hover:bg-primary/90"
                     onClick={handlePromote}
                   >
                     Add Admin
                   </Button>
                 </div>
-                <p className="text-xs text-[#47739e]">
+                <p className="text-xs text-muted-foreground">
                   Super admin can promote an existing user by email to Admin
                   role.
                 </p>
@@ -226,17 +228,21 @@ export default function AdminUsersPage() {
               {users.map((user: any) => (
                 <div
                   key={user._id}
-                  className="flex items-center justify-between border-b pb-4 last:border-0 border-[#dfe6e9]"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4 last:border-0 border-primary/20"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-[#03063b]">{user.name}</p>
-                    <p className="text-sm text-[#47739e]">{user.email}</p>
-                    <p className="text-xs text-[#47739e]">
+                    <p className="font-medium text-sm sm:text-base">
+                      {user.name}
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {user.email}
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">
                       Joined {formatDate(user.createdAt)}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                     <div>
                       <Badge variant={user.isActive ? "default" : "secondary"}>
                         {user.isActive ? "Active" : "Inactive"}
@@ -244,14 +250,14 @@ export default function AdminUsersPage() {
                     </div>
 
                     {session?.user.role === "superadmin" ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                         <Select
                           value={user.role}
                           onValueChange={(value) =>
                             handleRoleChange(user._id, value)
                           }
                         >
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger className="w-full sm:w-32">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -266,7 +272,7 @@ export default function AdminUsersPage() {
                           <Input
                             type="password"
                             placeholder="Set password"
-                            className="w-48"
+                            className="w-full sm:w-48"
                             value={passwordInputs[user._id] || ""}
                             onChange={(e) =>
                               setPasswordInputs((prev) => ({
@@ -276,31 +282,34 @@ export default function AdminUsersPage() {
                             }
                           />
                         )}
-                        {(user.role === "agent" || user.role === "admin") && (
-                          <Button
-                            variant="default"
-                            onClick={() =>
-                              handleSavePassword(user._id, user.role)
-                            }
-                          >
-                            Save
-                          </Button>
-                        )}
+                        <div className="flex w-full justify-between sm:w-auto sm:justify-start gap-2">
+                          {(user.role === "agent" || user.role === "admin") && (
+                            <Button
+                              variant="default"
+                              onClick={() =>
+                                handleSavePassword(user._id, user.role)
+                              }
+                            >
+                              Save
+                            </Button>
+                          )}
+                          {session?.user.role === "superadmin" &&
+                            user.role === "admin" && (
+                              <Button
+                                variant="destructive"
+                                onClick={() => handleDeleteUser(user._id)}
+                                className="sm:ml-0"
+                              >
+                                Delete
+                              </Button>
+                            )}
+                        </div>
                       </div>
                     ) : (
                       <Badge className="w-32 justify-center capitalize">
                         {user.role}
                       </Badge>
                     )}
-                    {session?.user.role === "superadmin" &&
-                      user.role === "admin" && (
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleDeleteUser(user._id)}
-                        >
-                          Delete
-                        </Button>
-                      )}
                   </div>
                 </div>
               ))}

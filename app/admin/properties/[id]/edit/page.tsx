@@ -159,10 +159,10 @@ export default function AdminPropertyEditPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4fafe]">
+    <div className="min-h-screen bg-[#f4fafe] dark:bg-[#0f1923] dark:text-white">
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-[#03063b] dark:text-white text-4xl font-black leading-tight tracking-tight">
             Edit Property
           </h1>
         </div>
@@ -175,18 +175,18 @@ export default function AdminPropertyEditPage() {
           )}
 
           {/* Basic Information */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <h3 className="text-[#03063b] text-lg font-bold mb-6">
+          <div className="bg-white dark:bg-gray-900/30 border border-[#dfe6e9] dark:border-primary/20 p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] dark:text-white text-lg font-bold mb-6">
               Basic Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Property Title
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
@@ -196,11 +196,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Description
                   </p>
                   <textarea
-                    className="min-h-32 p-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="min-h-32 p-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
@@ -210,12 +210,12 @@ export default function AdminPropertyEditPage() {
               </div>
               <div>
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Price ($)
                   </p>
                   <input
                     type="number"
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({ ...formData, price: e.target.value })
@@ -225,11 +225,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div>
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Property Type
                   </p>
                   <select
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
                     value={formData.type}
                     onChange={(e) =>
                       setFormData({ ...formData, type: e.target.value })
@@ -245,11 +245,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Listing Type
                   </p>
                   <select
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
                     value={formData.listingType}
                     onChange={(e) =>
                       setFormData({ ...formData, listingType: e.target.value })
@@ -264,16 +264,18 @@ export default function AdminPropertyEditPage() {
           </div>
 
           {/* Location */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <h3 className="text-[#03063b] text-lg font-bold mb-6">Location</h3>
+          <div className="bg-white dark:bg-gray-900/30 border border-[#dfe6e9] dark:border-primary/20 p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] dark:text-white text-lg font-bold mb-6">
+              Location
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Address
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.address}
                     onChange={(e) =>
                       setFormData({ ...formData, address: e.target.value })
@@ -283,11 +285,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div>
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     City
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.city}
                     onChange={(e) =>
                       setFormData({ ...formData, city: e.target.value })
@@ -297,11 +299,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Region
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe] focus:border-[#0b8bff] focus:ring-[#0b8bff]/50"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.region}
                     onChange={(e) =>
                       setFormData({ ...formData, region: e.target.value })
@@ -318,7 +320,7 @@ export default function AdminPropertyEditPage() {
                     onResolve={handleResolve}
                   />
                 </div>
-                <p className="text-gray-500 text-sm mt-2">
+                <p className="text-gray-500 dark:text-[#a0b3c6] text-sm mt-2">
                   Click on the location in Ethiopia to fill coordinates
                   automatically.
                 </p>
@@ -327,14 +329,14 @@ export default function AdminPropertyEditPage() {
                 <button
                   type="button"
                   onClick={scrollToMap}
-                  className="flex-1 text-white bg-[#0b8bff] hover:bg-[#0b8bff]/90 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
+                  className="flex-1 text-white bg-[#0b8bff] dark:bg-primary hover:bg-[#0b8bff]/90 dark:hover:bg-primary/90 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
                 >
                   Add from map
                 </button>
                 <button
                   type="button"
                   onClick={() => scrollToMap()}
-                  className="flex-1 text-[#0b8bff] bg-[#0b8bff]/10 hover:bg-[#0b8bff]/20 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
+                  className="flex-1 text-[#0b8bff] dark:text-primary bg-[#0b8bff]/10 dark:bg-primary/20 hover:bg-[#0b8bff]/20 dark:hover:bg-primary/30 focus:ring-4 focus:outline-none focus:ring-[#0b8bff]/30 font-medium rounded-lg text-sm px-5 py-3 text-center"
                 >
                   Add manually
                 </button>
@@ -344,18 +346,18 @@ export default function AdminPropertyEditPage() {
 
           {/* Specifications & Amenities */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="text-[#03063b] text-lg font-bold mb-6">
+            <div className="bg-white dark:bg-gray-900/30 border border-[#dfe6e9] dark:border-primary/20 p-6 rounded-xl shadow-sm">
+              <h3 className="text-[#03063b] dark:text-white text-lg font-bold mb-6">
                 Specifications
               </h3>
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="flex flex-col w-full">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Bedrooms
                     </p>
                     <input
-                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       type="number"
                       value={formData.bedrooms}
                       onChange={(e) =>
@@ -366,11 +368,11 @@ export default function AdminPropertyEditPage() {
                 </div>
                 <div>
                   <label className="flex flex-col w-full">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Bathrooms
                     </p>
                     <input
-                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       type="number"
                       value={formData.bathrooms}
                       onChange={(e) =>
@@ -381,11 +383,11 @@ export default function AdminPropertyEditPage() {
                 </div>
                 <div>
                   <label className="flex flex-col w-full">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Area (sqft)
                     </p>
                     <input
-                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       type="number"
                       value={formData.area}
                       onChange={(e) =>
@@ -396,11 +398,11 @@ export default function AdminPropertyEditPage() {
                 </div>
                 <div>
                   <label className="flex flex-col w-full">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Year Built
                     </p>
                     <input
-                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       type="number"
                       value={formData.yearBuilt}
                       onChange={(e) =>
@@ -411,18 +413,18 @@ export default function AdminPropertyEditPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="text-[#03063b] text-lg font-bold mb-6">
+            <div className="bg-white dark:bg-gray-900/30 border border-[#dfe6e9] dark:border-primary/20 p-6 rounded-xl shadow-sm">
+              <h3 className="text-[#03063b] dark:text-white text-lg font-bold mb-6">
                 Amenities
               </h3>
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label className="flex flex-col w-full">
-                    <p className="text-[#03063b] text-base font-medium pb-2">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Amenities (comma-separated)
                     </p>
                     <input
-                      className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                       value={formData.amenities}
                       onChange={(e) =>
                         setFormData({ ...formData, amenities: e.target.value })
@@ -435,16 +437,18 @@ export default function AdminPropertyEditPage() {
           </div>
 
           {/* Media */}
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <h3 className="text-[#03063b] text-lg font-bold mb-6">Media</h3>
+          <div className="bg-white dark:bg-gray-900/30 border border-[#dfe6e9] dark:border-primary/20 p-6 rounded-xl shadow-sm">
+            <h3 className="text-[#03063b] dark:text-white text-lg font-bold mb-6">
+              Media
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     Images (comma-separated URLs)
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.images}
                     onChange={(e) =>
                       setFormData({ ...formData, images: e.target.value })
@@ -454,11 +458,11 @@ export default function AdminPropertyEditPage() {
               </div>
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <p className="text-[#03063b] text-base font-medium pb-2">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                     VR Tour Link
                   </p>
                   <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 bg-[#f4fafe]"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
                     value={formData.vrTourUrl}
                     onChange={(e) =>
                       setFormData({ ...formData, vrTourUrl: e.target.value })
@@ -475,14 +479,14 @@ export default function AdminPropertyEditPage() {
               type="button"
               variant="outline"
               onClick={() => router.back()}
-              className="text-gray-600 bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-lg"
+              className="px-8 py-3 rounded-lg border border-[#dfe6e9] dark:border-[#2c3e50] text-[#47739e] dark:text-[#a0b3c6] hover:bg-white/60 dark:hover:bg-white/10"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={saving}
-              className="bg-[#0b8bff] hover:bg-[#0b8bff]/90 text-white px-8 py-3 rounded-lg"
+              className="bg-[#0b8bff] dark:bg-primary hover:bg-[#0b8bff]/90 dark:hover:bg-primary/90 text-white px-8 py-3 rounded-lg"
             >
               {saving ? "Saving..." : "Save Changes"}
             </Button>

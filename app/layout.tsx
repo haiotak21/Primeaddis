@@ -16,6 +16,7 @@ import messages from "../messages.json";
 import { cookies } from "next/headers";
 import TawkWidget from "@/components/common/tawk-widget";
 import { ThemeProvider } from "@/components/theme-provider";
+import ChunkReloadOnce from "@/components/providers/chunk-reload";
 
 export const metadata: Metadata = {
   title: "PrimeAddis - Find Your Dream Property",
@@ -79,6 +80,7 @@ export default async function RootLayout({
                   </div>
                   <TawkWidget />
                   {/* Main app content stays in the new app theme */}
+                  <ChunkReloadOnce />
                   <Suspense fallback={<div>Loading...</div>}>
                     {children}
                   </Suspense>

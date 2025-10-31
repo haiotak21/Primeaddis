@@ -10,10 +10,7 @@ const PropertyMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div
-        style={{ height: 400, width: "100%" }}
-        className="flex items-center justify-center rounded-md border"
-      >
+      <div className="w-full h-56 sm:h-[400px] flex items-center justify-center rounded-md border">
         Loading map...
       </div>
     ),

@@ -56,43 +56,57 @@ export function SignInForm() {
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Sign in to your PrimeAddis account</CardDescription>
+      <CardHeader className="px-4 pt-2 pb-2 sm:px-6 sm:py-6 items-center sm:items-start text-center sm:text-left">
+        <CardTitle className="text-lg sm:text-xl leading-tight font-semibold">
+          Sign In
+        </CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
+          Sign in to your PrimeAddis account
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="px-4 pt-1 pb-3 sm:px-6 sm:pt-6 sm:pb-6">
+        <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="email" className="text-xs sm:text-sm">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="password" className="text-xs sm:text-sm">
+              Password
+            </Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full h-9 sm:h-10 text-sm sm:text-base"
+            disabled={loading}
+          >
             {loading ? "Signing in..." : "Sign In"}
           </Button>
 
@@ -110,7 +124,7 @@ export function SignInForm() {
           <Button
             type="button"
             variant="outline"
-            className="w-full bg-transparent"
+            className="w-full bg-transparent h-9 sm:h-10 text-sm sm:text-base"
             onClick={handleGoogleSignIn}
             disabled={loading}
           >

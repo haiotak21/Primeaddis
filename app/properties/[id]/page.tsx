@@ -160,9 +160,9 @@ export default async function PropertyDetailPage({
   } as any;
 
   return (
-    <div className="bg-[#f4fafe] text-[#03063b] min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       <main className="container mx-auto max-w-7xl px-4 py-8">
-        {/* Gallery - 4x2 grid with main image and thumbnails */}
+        {/* Gallery - renders exactly as many images as uploaded (no duplicates) */}
         <div className="mb-8 @container">
           <div className="grid grid-cols-4 grid-rows-2 gap-4 h-[500px]">
             {/* Main Image */}
@@ -175,53 +175,61 @@ export default async function PropertyDetailPage({
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
               />
-            </div>
-
-            {/* Top-right small */}
-            <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
-              <Image
-                src={
-                  property.images?.[1] ||
-                  property.images?.[0] ||
-                  "/placeholder.svg"
-                }
-                alt={`${property.title} photo 2`}
-                fill
-                className="object-cover"
-              />
-            </div>
-            {/* Top-right small 2 */}
-            <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
-              <Image
-                src={
-                  property.images?.[2] ||
-                  property.images?.[0] ||
-                  "/placeholder.svg"
-                }
-                alt={`${property.title} photo 3`}
-                fill
-                className="object-cover"
-              />
-            </div>
-            {/* Bottom-right wide with overlay */}
-            <div className="hidden md:block col-span-2 row-span-1 rounded-xl overflow-hidden relative">
-              <Image
-                src={
-                  property.images?.[3] ||
-                  property.images?.[0] ||
-                  "/placeholder.svg"
-                }
-                alt={`${property.title} photo 4`}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              {/* On mobile, provide a modal trigger overlay since right-side tiles are hidden */}
+              <div className="absolute inset-0 md:hidden bg-black/20 flex items-center justify-center">
                 <GalleryModalButton
                   images={property.images || []}
                   title={property.title}
                 />
               </div>
+              {/* On desktop, if the bottom-right tile isn't rendered (no 4th image), show the modal trigger over the main image */}
+              {!property.images?.[3] && (
+                <div className="absolute inset-0 hidden md:flex bg-black/20 items-center justify-center">
+                  <GalleryModalButton
+                    images={property.images || []}
+                    title={property.title}
+                  />
+                </div>
+              )}
             </div>
+
+            {/* Right-side thumbnails on md+ only, but only render if the image exists */}
+            {property.images?.[1] && (
+              <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
+                <Image
+                  src={property.images[1]}
+                  alt={`${property.title} photo 2`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            {property.images?.[2] && (
+              <div className="hidden md:block col-span-1 row-span-1 rounded-xl overflow-hidden relative">
+                <Image
+                  src={property.images[2]}
+                  alt={`${property.title} photo 3`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            {property.images?.[3] && (
+              <div className="hidden md:block col-span-2 row-span-1 rounded-xl overflow-hidden relative">
+                <Image
+                  src={property.images[3]}
+                  alt={`${property.title} photo 4`}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <GalleryModalButton
+                    images={property.images || []}
+                    title={property.title}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -230,13 +238,13 @@ export default async function PropertyDetailPage({
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Title and actions */}
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-black leading-tight tracking-tight">
+                  <h1 className="text-3xl font-black leading-tight tracking-tight text-foreground">
                     {property.title}
                   </h1>
-                  <div className="mt-1 flex items-center text-base text-[#03063b]/70">
+                  <div className="mt-1 flex items-center text-base text-muted-foreground">
                     <span className="material-symbols-outlined text-lg mr-2">
                       location_on
                     </span>
@@ -248,7 +256,7 @@ export default async function PropertyDetailPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className="size-10 rounded-full border border-[#dde8f0] flex items-center justify-center hover:bg-[#f4fafe] transition-colors"
+                    className="size-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
                     aria-label="Favorite"
                   >
                     <span className="material-symbols-outlined">
@@ -260,50 +268,54 @@ export default async function PropertyDetailPage({
               </div>
 
               {/* Quick specs */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[#dde8f0] mt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border mt-4">
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                  <span className="material-symbols-outlined text-3xl text-primary">
                     bed
                   </span>
                   <div>
-                    <div className="text-[#03063b] text-lg font-bold">
+                    <div className="text-foreground text-lg font-bold">
                       {property.specifications.bedrooms || 0}
                     </div>
-                    <div className="text-[#03063b]/70 text-sm">Bedrooms</div>
+                    <div className="text-muted-foreground text-sm">
+                      Bedrooms
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                  <span className="material-symbols-outlined text-3xl text-primary">
                     bathtub
                   </span>
                   <div>
-                    <div className="text-[#03063b] text-lg font-bold">
+                    <div className="text-foreground text-lg font-bold">
                       {property.specifications.bathrooms || 0}
                     </div>
-                    <div className="text-[#03063b]/70 text-sm">Bathrooms</div>
+                    <div className="text-muted-foreground text-sm">
+                      Bathrooms
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                  <span className="material-symbols-outlined text-3xl text-primary">
                     square_foot
                   </span>
                   <div>
-                    <div className="text-[#03063b] text-lg font-bold">
+                    <div className="text-foreground text-lg font-bold">
                       {property.specifications.area?.toLocaleString()} sq
                       {"\u00A0"}ft
                     </div>
-                    <div className="text-[#03063b]/70 text-sm">Sqft</div>
+                    <div className="text-muted-foreground text-sm">Sqft</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-3xl text-[#0b8bff]">
+                  <span className="material-symbols-outlined text-3xl text-primary">
                     home_work
                   </span>
                   <div>
-                    <div className="text-[#03063b] text-lg font-bold capitalize">
+                    <div className="text-foreground text-lg font-bold capitalize">
                       {property.type}
                     </div>
-                    <div className="text-[#03063b]/70 text-sm">
+                    <div className="text-muted-foreground text-sm">
                       Property Type
                     </div>
                   </div>
@@ -312,16 +324,16 @@ export default async function PropertyDetailPage({
             </div>
 
             {/* About this property */}
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
               <h3 className="text-xl font-bold mb-3">About this property</h3>
-              <div className="text-[#03063b]/80 space-y-4 text-base leading-relaxed">
+              <div className="text-muted-foreground space-y-4 text-base leading-relaxed">
                 <p className="whitespace-pre-line">{property.description}</p>
               </div>
             </div>
 
             {/* Amenities */}
             {property.amenities?.length > 0 && (
-              <div className="rounded-2xl border bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
                 <h3 className="text-xl font-bold mb-4">Amenities</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-sm">
                   {property.amenities.map((amenity: string, idx: number) => {
@@ -341,7 +353,7 @@ export default async function PropertyDetailPage({
                     else if (a.includes("security")) icon = "security";
                     return (
                       <div key={idx} className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-[#0b8bff]">
+                        <span className="material-symbols-outlined text-primary">
                           {icon}
                         </span>
                         <span>{amenity}</span>
@@ -358,9 +370,9 @@ export default async function PropertyDetailPage({
           {/* Right Column - Sidebar */}
           <aside className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
-              <div className="rounded-2xl border bg-white p-6 shadow-sm">
-                <p className="text-sm text-[#03063b]/70">Asking Price</p>
-                <div className="text-4xl font-black text-[#03063b] mb-4">
+              <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
+                <p className="text-sm text-muted-foreground">Asking Price</p>
+                <div className="text-4xl font-black text-foreground mb-4">
                   <CurrencyAmount amountUsd={property.price} />
                 </div>
                 <div className="mt-4 space-y-3">
@@ -381,7 +393,7 @@ export default async function PropertyDetailPage({
                   {property.vrTourUrl && (
                     <Button
                       asChild
-                      className="w-full h-12 px-6 rounded-lg bg-[#0b8bff]/10 text-[#0b8bff] hover:bg-[#0b8bff]/20 text-base font-bold tracking-wide"
+                      className="w-full h-12 px-6 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-base font-bold tracking-wide"
                     >
                       <a href={`/properties/${property._id}/vr`}>
                         View VR Tour
@@ -428,13 +440,13 @@ export default async function PropertyDetailPage({
               </div>
 
               {/* Compare only (share removed as it's already available elsewhere) */}
-              <div className="rounded-2xl border bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-4 shadow-sm">
                 <div className="flex items-center justify-center">
                   <CompareButton
                     property={safeProperty}
                     variant="ghost"
                     size="lg"
-                    className="gap-2 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-2 has-[>svg]:px-3 w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#0b8bff]/10 text-[#0b8bff] text-base font-bold leading-normal tracking-wide hover:bg-[#0b8bff]/20 transition-colors"
+                    className="gap-2 whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-2 has-[>svg]:px-3 w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary/10 text-primary text-base font-bold leading-normal tracking-wide hover:bg-primary/20 transition-colors"
                   />
                 </div>
               </div>

@@ -40,20 +40,21 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  /* Match provided dark UI design tokens */
+  --background: #03063b;
+  --foreground: #f4fafe;
+  --card: #03063b;
+  --card-foreground: #f4fafe;
+  --popover: #03063b;
+  --popover-foreground: #f4fafe;
+  --primary: #0b8bff;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary-foreground: #f4fafe;
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent-foreground: #f4fafe;
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
   --border: oklch(0.269 0 0);
@@ -65,11 +66,11 @@
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
   --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-foreground: #f4fafe;
   --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: #f4fafe;
   --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent-foreground: #f4fafe;
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
 }
@@ -120,7 +121,20 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+}
+
+/* When on admin pages, hide the global footer rendered by the root layout */
+body.hide-footer footer {
+  display: none !important;
+}
+
+/* On admin routes, hide the global site header (Navbar) on mobile only */
+@media (max-width: 1023px) {
+  /* <lg */
+  body.hide-admin-header .default-theme > nav {
+    display: none !important;
   }
 }
 
@@ -132,24 +146,24 @@
   display: none; /* Chrome, Safari */
 }
 
-/* Home page scoped theme overrides */
-.home-theme {
+/* Home page scoped theme overrides (light mode only) */
+html:not(.dark) .home-theme {
   --background: #f4fafe;
   --foreground: #03063b;
   --primary: #0b8bff;
   --primary-foreground: #ffffff;
 }
 
-/* Properties listing page scoped theme overrides */
-.property-theme {
+/* Properties listing page scoped theme overrides (light mode only) */
+html:not(.dark) .property-theme {
   --background: #f4fafe;
   --foreground: #03063b;
   --primary: #0b8bff;
   --primary-foreground: #ffffff;
 }
 
-/* Global app theme (apply everywhere except explicitly reset areas) */
-.app-theme {
+/* Global app theme (apply everywhere except explicitly reset areas) - light mode only */
+html:not(.dark) .app-theme {
   --background: #f4fafe;
   --foreground: #03063b;
   --primary: #0b8bff;

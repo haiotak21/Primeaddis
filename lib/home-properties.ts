@@ -5,7 +5,12 @@ import { connectDB } from "@/lib/database";
 import { serializeBson } from "@/lib/serialize";
 
 export async function getHomeProperties(limit = 7) {
-  await connectDB();
+  try {
+    await connectDB();
+  } catch (e) {
+    console.warn("Home properties: DB unavailable, showing empty list");
+    return [];
+  }
   // Only show active properties, sorted by newest
   const properties = await Property.find({ status: "active" })
     .sort({ createdAt: -1 })

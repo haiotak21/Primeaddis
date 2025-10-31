@@ -14,10 +14,10 @@ export default async function HomePage() {
       <Hero />
 
       {/* Properties Preview Section */}
-      <section className="py-20">
+      <section className="pt-6 pb-6 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#03063b]">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Latest Properties
             </h2>
             <Link
@@ -46,9 +46,9 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <Card className="border-primary/20 dark:bg-gray-900/30">
+              <CardContent className="pt-6 text-center sm:text-left">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mx-auto sm:mx-0">
                   <svg
                     className="h-6 w-6 text-primary"
                     fill="none"
@@ -71,9 +71,9 @@ export default async function HomePage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <Card className="border-primary/20 dark:bg-gray-900/30">
+              <CardContent className="pt-6 text-center sm:text-left">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mx-auto sm:mx-0">
                   <svg
                     className="h-6 w-6 text-primary"
                     fill="none"
@@ -95,9 +95,9 @@ export default async function HomePage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <Card className="border-primary/20 dark:bg-gray-900/30">
+              <CardContent className="pt-6 text-center sm:text-left">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 mx-auto sm:mx-0">
                   <svg
                     className="h-6 w-6 text-primary"
                     fill="none"
@@ -129,17 +129,21 @@ export default async function HomePage() {
           <p className="mt-4 text-lg opacity-90">
             Join thousands of users finding their perfect properties
           </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link href="/auth/signup">
-              <Button size="lg" variant="secondary">
+          <div className="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+            <Link href="/auth/signup" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="w-full sm:w-auto"
+              >
                 Sign Up Free
               </Button>
             </Link>
-            <Link href="/properties">
+            <Link href="/properties" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
+                className="w-full sm:w-auto border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
               >
                 Browse Properties
               </Button>

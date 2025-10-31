@@ -101,14 +101,7 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
   };
 
   return (
-    <div
-      style={{
-        height: 400,
-        width: "100%",
-        borderRadius: 8,
-        overflow: "hidden",
-      }}
-    >
+    <div className="w-full h-56 sm:h-[400px] rounded-lg overflow-hidden">
       {/* Type casting to satisfy react-leaflet v5 types in this setup */}
       {
         <MapContainer

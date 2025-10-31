@@ -5,17 +5,34 @@ export interface FileUploadProps {
   id?: string;
   eventName?: string; // CustomEvent name to dispatch with selected files
   multiple?: boolean;
+  maxFiles?: number; // Optional client-side cap (e.g., 10)
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   id,
   eventName = "file-upload:change",
   multiple = true,
+  maxFiles,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : [];
+    let files = e.target.files ? Array.from(e.target.files) : [];
+    if (
+      typeof maxFiles === "number" &&
+      maxFiles > 0 &&
+      files.length > maxFiles
+    ) {
+      // Trim to max and provide a subtle alert; consumers can also validate downstream
+      files = files.slice(0, maxFiles);
+      try {
+        // Best-effort notification; avoid coupling to any specific UI lib
+        if (typeof window !== "undefined") {
+          // eslint-disable-next-line no-alert
+          window.alert(`You can upload up to ${maxFiles} image(s) at a time.`);
+        }
+      } catch {}
+    }
     // Dispatch a serializable event with files in detail; note: File objects are not serializable
     // but events are only observed on the client side. We keep props serializable by not passing functions.
     window.dispatchEvent(
@@ -54,7 +71,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           />
         </svg>
         <span className="text-gray-500 dark:text-gray-400 text-sm">
-          Click to select or drop image(s)
+          Click to select or drop image(s){" "}
+          {typeof maxFiles === "number" && maxFiles > 0
+            ? `• up to ${maxFiles}`
+            : ""}
         </span>
       </div>
     </div>

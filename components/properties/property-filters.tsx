@@ -61,25 +61,25 @@ export function PropertyFilters() {
   };
 
   return (
-    <Card className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <Card className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       <CardHeader className="p-0">
-        <CardTitle className="text-xl font-bold text-gray-800 dark:text-white">
+        <CardTitle className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">
           Filter Properties
         </CardTitle>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 sm:mt-1">
           Refine your search
         </p>
       </CardHeader>
-      <CardContent className="space-y-6 mt-6 p-0">
+      <CardContent className="space-y-4 sm:space-y-6 mt-4 sm:mt-6 p-0">
         <div>
-          <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Property Type
           </Label>
           <Select
             value={filters.type}
             onValueChange={(value) => handleFilterChange("type", value)}
           >
-            <SelectTrigger className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary">
+            <SelectTrigger className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
@@ -93,14 +93,14 @@ export function PropertyFilters() {
         </div>
 
         <div>
-          <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Listing Type
           </Label>
           <Select
             value={filters.listingType}
             onValueChange={(value) => handleFilterChange("listingType", value)}
           >
-            <SelectTrigger className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary">
+            <SelectTrigger className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm">
               <SelectValue placeholder="For Sale" />
             </SelectTrigger>
             <SelectContent>
@@ -111,14 +111,14 @@ export function PropertyFilters() {
         </div>
 
         <div>
-          <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Bedrooms
           </Label>
           <Select
             value={filters.bedrooms}
             onValueChange={(value) => handleFilterChange("bedrooms", value)}
           >
-            <SelectTrigger className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary">
+            <SelectTrigger className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm">
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
@@ -131,11 +131,11 @@ export function PropertyFilters() {
         </div>
 
         <div>
-          <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             City
           </Label>
           <Input
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary"
+            className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm"
             placeholder="Enter a city"
             value={filters.city}
             onChange={(e) => handleFilterChange("city", e.target.value)}
@@ -153,14 +153,14 @@ export function PropertyFilters() {
           />
           <label
             htmlFor="financing"
-            className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+            className="ml-2 block text-xs sm:text-sm text-gray-900 dark:text-gray-300"
           >
             Acceptable for financing
           </label>
         </div>
 
         <div>
-          <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Price Range
           </Label>
           <div className="relative pt-1">
@@ -183,14 +183,14 @@ export function PropertyFilters() {
         <div className="space-y-2">
           <Button
             onClick={applyFilters}
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+            className="w-full bg-primary text-white py-2 sm:py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors text-[13px] sm:text-sm"
           >
             Apply Filters
           </Button>
           <Button
             onClick={clearFilters}
             variant="ghost"
-            className="w-full text-gray-600 dark:text-gray-300 py-3 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-full text-gray-600 dark:text-gray-300 py-2 sm:py-3 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-[13px] sm:text-sm"
           >
             Clear
           </Button>

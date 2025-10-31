@@ -66,40 +66,42 @@ export default function AdminReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4fafe]">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-4xl font-black leading-tight tracking-tight">
             Review Management
           </h1>
-          <p className="mt-2 text-[#47739e]">
+          <p className="mt-2 text-muted-foreground">
             Monitor and moderate property reviews
           </p>
         </div>
 
-        <Card className="border border-[#dfe6e9] shadow-sm">
+        <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-[#03063b]">All Reviews</CardTitle>
-            <CardDescription className="text-[#47739e]">
+            <CardTitle>All Reviews</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Total: {reviews.length} reviews
             </CardDescription>
           </CardHeader>
           <CardContent>
             {reviews.length === 0 ? (
-              <p className="text-center text-[#47739e]">No reviews yet</p>
+              <p className="text-center text-muted-foreground">
+                No reviews yet
+              </p>
             ) : (
               <div className="space-y-6">
                 {reviews.map((review) => (
                   <div
                     key={review._id}
-                    className="border-b border-[#dfe6e9] pb-6 last:border-0"
+                    className="border-b border-primary/20 pb-6 last:border-0"
                   >
                     <div className="mb-2 flex items-start justify-between">
                       <div>
-                        <p className="font-medium text-[#03063b]">
+                        <p className="font-medium">
                           {review.userId?.name || "Unknown User"}
                         </p>
-                        <p className="text-sm text-[#47739e]">
+                        <p className="text-sm text-muted-foreground">
                           Property:{" "}
                           {review.propertyId?.title || "Deleted Property"}
                         </p>
@@ -116,10 +118,8 @@ export default function AdminReviewsPage() {
                       </div>
                     </div>
 
-                    <p className="mb-2 text-sm text-[#03063b]">
-                      {review.comment}
-                    </p>
-                    <p className="text-xs text-[#47739e]">
+                    <p className="mb-2 text-sm">{review.comment}</p>
+                    <p className="text-xs text-muted-foreground">
                       {formatDate(review.createdAt)}
                     </p>
                   </div>

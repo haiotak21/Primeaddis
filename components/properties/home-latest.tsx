@@ -48,19 +48,19 @@ export function HomeLatest({ properties }: Props) {
     <div className="relative">
       <div
         ref={scrollerRef}
-        className="flex overflow-x-auto space-x-8 pb-4 no-scrollbar"
+        className="flex overflow-x-auto space-x-6 sm:space-x-8 pb-4 no-scrollbar snap-x snap-mandatory"
       >
         {properties.map((p) => (
           <div
             key={String(p._id)}
-            className="flex-shrink-0 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)]"
+            className="flex-shrink-0 snap-start w-[85%] sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.333rem)]"
           >
             <HomePropertyCard property={p as any} />
           </div>
         ))}
       </div>
 
-      <div className="mt-8 flex justify-end">
+      <div className="mt-8 hidden sm:flex justify-end">
         <div className="flex items-center space-x-2">
           <Button
             type="button"

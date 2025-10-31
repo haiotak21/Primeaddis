@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -33,6 +33,8 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => setMounted(true), []);
 
@@ -76,10 +78,35 @@ export function Navbar() {
 
   return (
     <nav className="relative">
-      <div className="sticky top-[34px] z-50 w-full">
-        <header className="mx-auto max-w-[1380px] flex h-[90px] w-full items-center justify-between rounded-[70px] bg-[#FAFAFA] dark:bg-background/80 dark:backdrop-blur-sm dark:border dark:border-white/10 px-6 md:px-8 shadow-sm">
+      <div
+        className={`${
+          isHome
+            ? "absolute top-0 md:sticky md:top-[34px]"
+            : "sticky top-0 md:top-[34px]"
+        } z-50 w-full`}
+      >
+        <header
+          className={`relative mx-auto max-w-[1380px] flex h-14 sm:h-16 lg:h-[90px] w-full items-center justify-between rounded-full px-3 sm:px-4 md:px-8 ${
+            mobileMenuOpen
+              ? "bg-transparent shadow-none"
+              : "bg-white shadow-lg dark:bg-[#2D3748]"
+          } border border-transparent dark:border-[#4A5568]`}
+        >
           <div className="flex items-center gap-10">
-            <Link href="/" className="flex items-center gap-3">
+            {/* Centered logo on mobile (absolute) */}
+            <div className="sm:hidden absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">
+              <Image
+                src="/logo.png"
+                alt={t("site.title")}
+                width={180}
+                height={40}
+                className="h-7 w-auto"
+                priority
+              />
+            </div>
+
+            {/* Default logo (hidden on mobile) */}
+            <Link href="/" className="hidden sm:flex items-center gap-3">
               <Image
                 src="/logo.png"
                 alt={t("site.title")}
@@ -100,54 +127,70 @@ export function Navbar() {
 
             <div className="ml-2 flex lg:hidden">
               <button
-                className="inline-flex items-center justify-center rounded p-2 hover:bg-muted focus:outline-none"
+                className="inline-flex items-center justify-center rounded p-2 text-gray-800 dark:text-slate-200 sm:text-inherit hover:bg-transparent sm:hover:bg-muted focus:outline-none"
                 aria-label="Open menu"
                 aria-controls="mobile-menu"
                 aria-expanded={mobileMenuOpen}
                 onClick={() => setMobileMenuOpen((v) => !v)}
               >
-                <svg
-                  className="h-6 w-6"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                {mobileMenuOpen ? (
+                  <svg
+                    className="h-6 w-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M6 6l12 12M6 18L18 6" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-6 w-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
               </button>
             </div>
 
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
               <Link
                 href="/properties"
                 prefetch
-                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors whitespace-nowrap"
+                className="text-gray-800 dark:text-gray-300 text-base font-medium hover:text-primary dark:hover:text-white transition-colors whitespace-nowrap"
               >
                 {t("nav.properties")}
               </Link>
               <Link
                 href="/agents"
                 prefetch
-                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors"
+                className="text-gray-800 dark:text-gray-300 text-base font-medium hover:text-primary dark:hover:text-white transition-colors"
               >
                 Agents
               </Link>
               <Link
                 href="/about"
                 prefetch
-                className="text-gray-800 dark:text-slate-300 text-base font-medium hover:text-primary dark:hover:text-primary transition-colors"
+                className="text-gray-800 dark:text-gray-300 text-base font-medium hover:text-primary dark:hover:text-white transition-colors"
               >
                 About
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-4">
+          <div
+            className={`flex items-center gap-3 sm:gap-4 ${
+              mobileMenuOpen ? "invisible sm:visible" : ""
+            }`}
+          >
+            <div className="hidden md:flex items-center gap-3 sm:gap-4">
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+                  className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors"
                   id="lang-toggle"
                   aria-haspopup="listbox"
                   aria-expanded={langOpen}
@@ -193,10 +236,10 @@ export function Navbar() {
                   </button>
                 </div>
               </div>
-              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+              <div className="w-px h-6 bg-gray-300 dark:bg-[#4A5568]" />
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-medium transition-colors"
+                  className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white text-sm font-medium transition-colors"
                   id="currency-toggle"
                   aria-haspopup="listbox"
                   aria-expanded={currencyOpen}
@@ -236,9 +279,9 @@ export function Navbar() {
                   </button>
                 </div>
               </div>
-              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+              <div className="w-px h-6 bg-gray-300 dark:bg-[#4A5568]" />
               <button
-                className="h-10 w-10 flex items-center justify-center text-gray-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary"
+                className="h-9 w-9 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 aria-label="Toggle theme"
               >
@@ -279,13 +322,9 @@ export function Navbar() {
                   prefetch
                   className="hidden sm:inline-block"
                 >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="whitespace-nowrap"
-                  >
+                  <span className="inline-flex h-10 items-center justify-center rounded-full border px-5 text-sm font-medium text-gray-900 dark:text-gray-100 border-gray-300 dark:border-[#4A5568] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     List Property
-                  </Button>
+                  </span>
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -306,26 +345,27 @@ export function Navbar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="w-72 p-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl ring-1 ring-zinc-200 dark:ring-zinc-800 overflow-hidden"
+                    sideOffset={8}
+                    className="w-56 sm:w-72 max-w-[90vw] p-0 bg-white dark:bg-zinc-900 rounded-xl shadow-2xl ring-1 ring-zinc-200 dark:ring-zinc-800 overflow-hidden text-[12px] sm:text-sm"
                   >
                     {/* Header */}
-                    <div className="p-4">
-                      <div className="flex items-center space-x-3">
+                    <div className="p-2.5 sm:p-4">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
                         <img
                           alt="User avatar"
-                          className="w-10 h-10 rounded-full object-cover"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                           src={session.user.image || "/placeholder.svg"}
                         />
                         <div>
-                          <p className="font-semibold text-sm text-zinc-800 dark:text-zinc-100">
+                          <p className="font-semibold text-[12px] sm:text-sm text-zinc-800 dark:text-zinc-100">
                             {session.user.name}
                           </p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                          <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400">
                             {session.user.email}
                           </p>
                         </div>
                       </div>
-                      <span className="mt-2 inline-block px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors capitalize">
+                      <span className="mt-2 inline-block px-2 py-0.5 text-[11px] sm:text-xs font-medium bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors capitalize">
                         {session.user.role}
                       </span>
                     </div>
@@ -336,7 +376,7 @@ export function Navbar() {
                     <div className="p-2">
                       <DropdownMenuItem
                         asChild
-                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
                       >
                         <Link
                           href={
@@ -348,7 +388,7 @@ export function Navbar() {
                           prefetch
                           className="flex items-center w-full"
                         >
-                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                          <span className="material-symbols-outlined mr-2.5 sm:mr-3 text-base sm:text-lg text-zinc-500 dark:text-zinc-400">
                             grid_view
                           </span>
                           Dashboard
@@ -356,14 +396,14 @@ export function Navbar() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         asChild
-                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
                       >
                         <Link
                           href="/profile"
                           prefetch
                           className="flex items-center w-full"
                         >
-                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                          <span className="material-symbols-outlined mr-2.5 sm:mr-3 text-base sm:text-lg text-zinc-500 dark:text-zinc-400">
                             person
                           </span>
                           Profile
@@ -371,14 +411,14 @@ export function Navbar() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         asChild
-                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
                       >
                         <Link
                           href="/favorites"
                           prefetch
                           className="flex items-center w-full"
                         >
-                          <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                          <span className="material-symbols-outlined mr-2.5 sm:mr-3 text-base sm:text-lg text-zinc-500 dark:text-zinc-400">
                             favorite
                           </span>
                           Favorites
@@ -393,14 +433,14 @@ export function Navbar() {
                         <div className="p-2">
                           <DropdownMenuItem
                             asChild
-                            className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
+                            className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800"
                           >
                             <Link
                               href="/admin"
                               prefetch
                               className="flex items-center w-full"
                             >
-                              <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                              <span className="material-symbols-outlined mr-2.5 sm:mr-3 text-base sm:text-lg text-zinc-500 dark:text-zinc-400">
                                 admin_panel_settings
                               </span>
                               Admin Panel
@@ -413,10 +453,10 @@ export function Navbar() {
                     <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800" />
                     <div className="p-2">
                       <DropdownMenuItem
-                        className="px-3 py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 cursor-pointer"
+                        className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 cursor-pointer"
                         onClick={() => signOut({ callbackUrl: "/" })}
                       >
-                        <span className="material-symbols-outlined mr-3 text-lg text-zinc-500 dark:text-zinc-400">
+                        <span className="material-symbols-outlined mr-2.5 sm:mr-3 text-base sm:text-lg text-zinc-500 dark:text-zinc-400">
                           logout
                         </span>
                         Sign Out
@@ -430,12 +470,16 @@ export function Navbar() {
                 <Link
                   href="/auth/signin"
                   prefetch
-                  className="hidden sm:inline-block px-5 py-2.5 text-sm font-semibold text-gray-800 dark:text-slate-50 hover:text-primary dark:hover:text-primary transition-colors"
+                  className="inline-block px-3 sm:px-5 py-2 text-sm font-semibold text-gray-800 dark:text-gray-200 hover:text-primary dark:hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
-                <Link href="/auth/signup" prefetch>
-                  <span className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-gray-900 dark:bg-primary text-slate-50 text-sm font-semibold tracking-wide transition-colors hover:bg-gray-800 dark:hover:bg-primary/90">
+                <Link
+                  href="/auth/signup"
+                  prefetch
+                  className="hidden sm:inline-block"
+                >
+                  <span className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 md:h-11 px-5 md:px-6 bg-gray-900 dark:bg-primary text-slate-50 text-sm font-semibold tracking-wide transition-colors hover:bg-gray-800 dark:hover:bg-primary/90">
                     Sign Up
                   </span>
                 </Link>
@@ -448,7 +492,7 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div
           id="mobile-menu"
-          className="md:hidden border-t bg-background mt-[140px]"
+          className="fixed inset-x-0 top-0 z-40 sm:hidden bg-background border-b pt-14"
         >
           <div className="space-y-1 px-4 py-3">
             <Link

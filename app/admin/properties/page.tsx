@@ -125,27 +125,27 @@ export default function AdminPropertiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4fafe] dark:bg-[#0f1923]">
-      <div className="w-full max-w-7xl mx-auto p-6 lg:p-10">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="w-full max-w-7xl mx-auto px-4 py-5 sm:p-6 lg:p-10">
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex flex-wrap justify-between items-center gap-4">
+        <header className="mb-6 sm:mb-8">
+          <div className="flex flex-wrap justify-between items-center gap-3 sm:gap-4">
             <div className="flex flex-col">
-              <h1 className="text-[#03063b] dark:text-white text-3xl font-bold tracking-tight">
+              <h1 className="text-[#03063b] dark:text-white text-2xl sm:text-3xl font-bold tracking-tight">
                 Property Management
               </h1>
-              <p className="text-gray-500 dark:text-gray-400 text-base mt-1">
+              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base mt-1">
                 Review and approve pending property listings
               </p>
-              <div className="flex items-center gap-4 mt-2">
-                <p className="text-sm text-[#03063b] dark:text-gray-300">
+              <div className="flex items-center gap-3 sm:gap-4 mt-2">
+                <p className="text-xs sm:text-sm text-[#03063b] dark:text-gray-300">
                   All:{" "}
                   <span className="font-semibold">
                     {total || allProperties.length}
                   </span>
                 </p>
                 <div className="w-px h-4 bg-gray-300 dark:bg-gray-700"></div>
-                <p className="text-sm text-[#03063b] dark:text-gray-300">
+                <p className="text-xs sm:text-sm text-[#03063b] dark:text-gray-300">
                   Pending:{" "}
                   <span className="font-semibold">
                     {pendingProperties.length}
@@ -155,7 +155,7 @@ export default function AdminPropertiesPage() {
             </div>
             <a
               href="/properties/new"
-              className="flex items-center justify-center gap-2 h-10 px-6 bg-[#0b8bff] text-white rounded-lg text-sm font-semibold hover:bg-[#0b8bff]/90 transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 h-9 px-4 sm:h-10 sm:px-6 bg-[#0b8bff] text-white rounded-lg text-sm font-semibold hover:bg-[#0b8bff]/90 transition-colors shadow-sm"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               Add Property
@@ -164,14 +164,17 @@ export default function AdminPropertiesPage() {
         </header>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 dark:border-gray-800 mb-6">
-          <nav aria-label="Tabs" className="flex -mb-px space-x-6">
+        <div className="border-b border-gray-200 dark:border-gray-800 mb-5 sm:mb-6">
+          <nav
+            aria-label="Tabs"
+            className="flex -mb-px space-x-4 sm:space-x-6 overflow-x-auto"
+          >
             <button
               className={`${
                 activeTab === "all"
                   ? "border-[#0b8bff] text-[#0b8bff] font-semibold"
                   : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300"
-              } shrink-0 border-b-2 px-1 pb-3 text-sm`}
+              } shrink-0 border-b-2 px-1 pb-2 sm:pb-3 text-sm`}
               onClick={() => setActiveTab("all")}
             >
               All Properties
@@ -181,7 +184,7 @@ export default function AdminPropertiesPage() {
                 activeTab === "pending"
                   ? "border-[#0b8bff] text-[#0b8bff] font-semibold"
                   : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300"
-              } shrink-0 border-b-2 px-1 pb-3 text-sm`}
+              } shrink-0 border-b-2 px-1 pb-2 sm:pb-3 text-sm`}
               onClick={() => setActiveTab("pending")}
             >
               Pending Review
@@ -189,8 +192,35 @@ export default function AdminPropertiesPage() {
           </nav>
         </div>
 
-        {/* Filters (UI only) */}
-        <div className="bg-white dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-800 mb-6">
+        {/* Filters (UI only) - mobile uses provided UI; desktop keeps current layout */}
+        <div className="sm:hidden mb-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <select className="w-full text-sm bg-white border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary dark:bg-slate-800 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white">
+              <option>Status</option>
+              <option>Active</option>
+              <option>Pending</option>
+              <option>Sold</option>
+            </select>
+            <select className="w-full text-sm bg-white border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary dark:bg-slate-800 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white">
+              <option>Type</option>
+              <option>House</option>
+              <option>Apartment</option>
+              <option>Cottage</option>
+            </select>
+            <select className="w-full text-sm bg-white border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary dark:bg-slate-800 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white">
+              <option>Agent</option>
+              <option>John Doe</option>
+              <option>Jane Smith</option>
+            </select>
+            <input
+              className="w-full text-sm bg-white border-slate-300 rounded-lg shadow-sm focus:ring-primary focus:border-primary dark:bg-slate-800 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white"
+              placeholder="Date Listed"
+              type="date"
+            />
+          </div>
+        </div>
+        {/* Desktop filters: previous pill/button UI */}
+        <div className="hidden sm:block bg-white dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-800 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {["Status: All", "Property Type", "Agent", "Date Listed"].map(
               (label) => (
@@ -210,25 +240,198 @@ export default function AdminPropertiesPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40">
+        {/* Mobile card list (replaces table on small screens) */}
+        <div className="sm:hidden space-y-4">
+          {(activeTab === "all" ? allProperties : pendingProperties).length ===
+          0 ? (
+            <div className="bg-white dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-800 p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+              {activeTab === "all"
+                ? "No properties found"
+                : "No pending properties"}
+            </div>
+          ) : (
+            (activeTab === "all" ? allProperties : pendingProperties).map(
+              (property) => {
+                const imgSrc =
+                  property.images?.[0] || "/placeholder.svg?height=96&width=96";
+                const agentName = property.listedBy?.name || "Unknown";
+                const created = formatDate(property.createdAt);
+                const statusValue =
+                  property.status ||
+                  (activeTab === "all" ? "active" : "pending");
+                const statusStyles =
+                  statusValue === "active"
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300"
+                    : statusValue === "pending"
+                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"
+                    : statusValue === "sold" || statusValue === "rented"
+                    ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+
+                return (
+                  <div
+                    key={property._id}
+                    className="bg-white dark:bg-gray-900/40 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden"
+                  >
+                    <div className="flex">
+                      <img
+                        src={imgSrc}
+                        alt={property.title}
+                        className="object-cover w-24 h-24"
+                      />
+                      <div className="flex-1 p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-semibold text-[#03063b] dark:text-white text-sm">
+                            {property.title}
+                          </h3>
+                          <div
+                            className={`status-badge ${statusStyles} px-2.5 py-1 rounded-full text-[11px]`}
+                          >
+                            {statusValue.charAt(0).toUpperCase() +
+                              statusValue.slice(1)}
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {property.location?.address ||
+                            property.location?.city ||
+                            ""}
+                        </p>
+                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="text-gray-500 dark:text-gray-400">
+                              <p className="truncate max-w-[140px]">
+                                {agentName}
+                              </p>
+                              <p className="text-[11px]">{created}</p>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              {activeTab === "pending" ? (
+                                <>
+                                  <button
+                                    onClick={() => handleApprove(property._id)}
+                                    className="p-1.5 rounded-full text-green-600 hover:bg-green-100 dark:text-green-500 dark:hover:bg-green-900/50"
+                                    title="Approve"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      check_circle
+                                    </span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleReject(property._id)}
+                                    className="p-1.5 rounded-full text-red-500 hover:bg-red-100 dark:text-red-500 dark:hover:bg-red-900/50"
+                                    title="Reject"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      cancel
+                                    </span>
+                                  </button>
+                                  <a
+                                    href={`/properties/${property._id}`}
+                                    className="p-1.5 rounded-full text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="View"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      visibility
+                                    </span>
+                                  </a>
+                                </>
+                              ) : (
+                                <>
+                                  <a
+                                    href={`/admin/properties/${property._id}/edit`}
+                                    className="p-1.5 rounded-full text-[#0b8bff] hover:bg-blue-100/50"
+                                    title="Edit"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      edit
+                                    </span>
+                                  </a>
+                                  <a
+                                    href={`/properties/${property._id}`}
+                                    className="p-1.5 rounded-full text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    title="View"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      visibility
+                                    </span>
+                                  </a>
+                                  <button
+                                    onClick={() => setDeleteId(property._id)}
+                                    className="p-1.5 rounded-full text-red-500 hover:bg-red-100 dark:text-red-500 dark:hover:bg-red-900/50"
+                                    title="Delete"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      delete
+                                    </span>
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+            )
+          )}
+        </div>
+
+        {/* Mobile pagination at bottom of property list (All tab only) */}
+        {activeTab === "all" && (
+          <div className="sm:hidden mt-4 mb-6 flex items-center justify-between">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {total > 0 ? (
+                <>
+                  Page {page} of {Math.max(1, Math.ceil(total / limit))}
+                </>
+              ) : (
+                <>No results</>
+              )}
+            </p>
+            <div className="flex items-center space-x-2">
+              <button
+                className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
+                disabled={page <= 1}
+                onClick={() => fetchAllProperties(page - 1)}
+              >
+                Prev
+              </button>
+              <button
+                className="px-3 py-1.5 text-xs font-medium bg-white border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50"
+                disabled={page * limit >= total}
+                onClick={() => fetchAllProperties(page + 1)}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop/table view */}
+        <div className="hidden sm:block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead className="bg-gray-50 dark:bg-gray-900/60">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Property Info
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Assigned Agent
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Date Listed
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-[11px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -268,20 +471,20 @@ export default function AdminPropertiesPage() {
 
                       return (
                         <tr key={property._id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-4">
-                              <div className="flex-shrink-0 h-12 w-12">
+                          <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3 sm:gap-4">
+                              <div className="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12">
                                 <img
                                   src={imgSrc}
                                   alt={property.title}
-                                  className="h-12 w-12 rounded-md object-cover"
+                                  className="h-10 w-10 sm:h-12 sm:w-12 rounded-md object-cover"
                                 />
                               </div>
                               <div>
-                                <div className="text-sm font-semibold text-[#03063b] dark:text-white">
+                                <div className="text-sm sm:text-base font-semibold text-[#03063b] dark:text-white">
                                   {property.title}
                                 </div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                <div className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
                                   {property.location?.address ||
                                     property.location?.city ||
                                     ""}
@@ -289,7 +492,7 @@ export default function AdminPropertiesPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                             <span
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles}`}
                             >
@@ -297,14 +500,14 @@ export default function AdminPropertiesPage() {
                                 statusValue.slice(1)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#03063b] dark:text-gray-300">
+                          <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-[#03063b] dark:text-gray-300">
                             {agentName}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {created}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex items-center gap-2">
+                          <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                               {activeTab === "pending" ? (
                                 <>
                                   <button
@@ -312,7 +515,7 @@ export default function AdminPropertiesPage() {
                                     className="text-green-600 hover:text-green-700"
                                     title="Approve"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       check_circle
                                     </span>
                                   </button>
@@ -321,7 +524,7 @@ export default function AdminPropertiesPage() {
                                     className="text-red-500 hover:text-red-700"
                                     title="Reject"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       cancel
                                     </span>
                                   </button>
@@ -332,7 +535,7 @@ export default function AdminPropertiesPage() {
                                     rel="noreferrer"
                                     title="View"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       visibility
                                     </span>
                                   </a>
@@ -344,7 +547,7 @@ export default function AdminPropertiesPage() {
                                     className="text-[#0b8bff] hover:text-[#0b8bff]/80"
                                     title="Edit"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       edit
                                     </span>
                                   </a>
@@ -355,7 +558,7 @@ export default function AdminPropertiesPage() {
                                     rel="noreferrer"
                                     title="View"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       visibility
                                     </span>
                                   </a>
@@ -364,7 +567,7 @@ export default function AdminPropertiesPage() {
                                     className="text-red-500 hover:text-red-700"
                                     title="Delete"
                                   >
-                                    <span className="material-symbols-outlined text-xl">
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
                                       delete
                                     </span>
                                   </button>
@@ -383,8 +586,8 @@ export default function AdminPropertiesPage() {
 
           {/* Pagination for All tab */}
           {activeTab === "all" && (
-            <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-800">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="px-3 sm:px-6 py-3 flex flex-col sm:flex-row gap-2 sm:gap-0 sm:items-center sm:justify-between border-t border-gray-200 dark:border-gray-800">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                 {total > 0 ? (
                   <>
                     Showing{" "}
@@ -403,14 +606,14 @@ export default function AdminPropertiesPage() {
               </p>
               <div className="flex items-center gap-2">
                 <button
-                  className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
                   disabled={page <= 1}
                   onClick={() => fetchAllProperties(page - 1)}
                 >
                   Previous
                 </button>
                 <button
-                  className="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
                   disabled={page * limit >= total}
                   onClick={() => fetchAllProperties(page + 1)}
                 >

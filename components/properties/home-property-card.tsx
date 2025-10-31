@@ -28,7 +28,7 @@ export function HomePropertyCard({ property }: Props) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 h-full flex flex-col">
-      <div className="relative w-full h-56">
+      <div className="relative w-full h-36 sm:h-56">
         {img && (
           <Image
             src={img}
@@ -52,47 +52,59 @@ export function HomePropertyCard({ property }: Props) {
         )}
       </div>
 
-      <div className="p-6 flex-grow flex flex-col">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-1 truncate">
+      <div className="p-3.5 sm:p-6 flex-grow flex flex-col">
+        <h3 className="text-[13px] sm:text-xl font-bold text-gray-800 dark:text-white mb-1 truncate">
           {property.title}
         </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-center">
+        <p className="text-[11px] sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-4 flex items-center">
           <MapPin className="size-4 mr-1" />
           {property.location?.city}, {property.location?.region}
         </p>
 
-        <div className="flex items-center justify-between text-gray-700 dark:text-gray-300 border-t border-b border-gray-200 dark:border-gray-700 py-3 mb-4">
-          <div className="flex items-center text-sm">
-            <BedDouble className="mr-2 size-5 text-gray-500" />
-            <span>{property.specifications?.bedrooms ?? 0} beds</span>
+        <div className="flex items-center justify-between text-gray-700 dark:text-gray-300 border-t border-b border-gray-200 dark:border-gray-700 py-2 sm:py-3 mb-2 sm:mb-4">
+          <div className="flex items-center text-[11px] sm:text-sm">
+            <BedDouble className="mr-2 size-4 sm:size-5 text-gray-500" />
+            <span>
+              {property.specifications?.bedrooms ?? 0}
+              <span className="sm:hidden">bds</span>
+              <span className="hidden sm:inline"> beds</span>
+            </span>
           </div>
-          <div className="flex items-center text-sm">
-            <Bath className="mr-2 size-5 text-gray-500" />
-            <span>{property.specifications?.bathrooms ?? 0} baths</span>
+          <div className="flex items-center text-[11px] sm:text-sm">
+            <Bath className="mr-2 size-4 sm:size-5 text-gray-500" />
+            <span>
+              {property.specifications?.bathrooms ?? 0}
+              <span className="sm:hidden">ba</span>
+              <span className="hidden sm:inline"> baths</span>
+            </span>
           </div>
-          <div className="flex items-center text-sm">
-            <Ruler className="mr-2 size-5 text-gray-500" />
-            <span>{property.specifications?.area ?? 0} sq ft</span>
+          <div className="flex items-center text-[11px] sm:text-sm">
+            <Ruler className="mr-2 size-4 sm:size-5 text-gray-500" />
+            <span>
+              {property.specifications?.area ?? 0}
+              <span className="sm:hidden">sqft</span>
+              <span className="hidden sm:inline"> sq ft</span>
+            </span>
           </div>
         </div>
 
-        <div className="flex justify-between items-center mb-5">
-          <p className="text-2xl font-bold text-primary dark:text-white">
+        <div className="flex justify-between items-center mb-3.5 sm:mb-5">
+          <p className="text-lg sm:text-2xl font-bold text-primary dark:text-white">
             {price}
           </p>
           <button
             onClick={onCompare}
-            className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white transition-colors border border-gray-300 dark:border-gray-600 px-3 py-1.5 rounded-md"
+            className="flex items-center text-[11px] sm:text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white transition-colors border border-gray-300 dark:border-gray-600 px-2 sm:px-3 py-1.5 rounded-md"
           >
             {/* compare arrows icon replacement */}
-            <Scan className="size-4 mr-1" />
+            <Scan className="size-3 sm:size-4 mr-1" />
             {inCompare ? "Added" : "Compare"}
           </button>
         </div>
 
         <Link
           href={`/properties/${property._id}`}
-          className="block w-full text-center bg-primary text-white font-semibold py-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors mt-auto"
+          className="block w-full text-center bg-primary text-white font-semibold py-2 sm:py-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors mt-auto text-sm sm:text-base"
         >
           View Property Details
         </Link>

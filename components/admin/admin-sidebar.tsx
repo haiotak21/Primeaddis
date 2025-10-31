@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
-type NavItem = {
+export type NavItem = {
   title: string;
   href: string;
   icon: string;
   roles: Array<"admin" | "superadmin">;
 };
 
-const adminLinks: NavItem[] = [
+export const adminLinks: NavItem[] = [
   {
     title: "Dashboard",
     href: "/admin",
@@ -68,7 +68,7 @@ export function AdminSidebar() {
   const roleLabel = session.user.role === "superadmin" ? "Superadmin" : "Admin";
 
   return (
-    <aside className="flex h-screen min-h-[700px] w-64 flex-col justify-between bg-white dark:bg-gray-900 p-4 border-r border-gray-200 dark:border-gray-800 sticky top-0">
+    <aside className="hidden lg:flex h-screen min-h-[700px] w-64 flex-col justify-between bg-white dark:bg-gray-900 p-4 border-r border-gray-200 dark:border-gray-800 sticky top-0">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2 px-3 pt-2">
           <h1 className="text-[#03063b] dark:text-white text-xl font-bold leading-normal">

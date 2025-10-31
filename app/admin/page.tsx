@@ -91,12 +91,12 @@ export default async function AdminPage() {
   const isSuperadmin = session.user.role === "superadmin";
 
   return (
-    <div className="min-h-screen bg-[#f4fafe] text-[#03063b]">
-      <header className="flex flex-col items-center text-center gap-2 mb-8">
-        <h1 className="text-4xl font-black leading-tight tracking-tight">
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="flex flex-col items-center text-center gap-1 sm:gap-2 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight">
           {isAgent ? "Agent Dashboard" : "Admin Dashboard"}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-muted-foreground text-sm sm:text-base">
           {isAgent
             ? "Manage your listings, invites, and reviews"
             : "Manage your platform and monitor activity"}
@@ -104,78 +104,80 @@ export default async function AdminPage() {
       </header>
 
       {/* Stats Grid styled like the reference */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-2xl sm:text-3xl">
               group
             </span>
-            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+            <p className="text-base sm:text-lg font-bold leading-tight">
               {stats.totalUsers || 0}
             </p>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             Registered users
           </p>
         </div>
-        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-2xl sm:text-3xl">
               support_agent
             </span>
-            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+            <p className="text-base sm:text-lg font-bold leading-tight">
               {stats.totalAgents || 0}
             </p>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             Active agents
           </p>
         </div>
-        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-2xl sm:text-3xl">
               home_work
             </span>
-            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+            <p className="text-base sm:text-lg font-bold leading-tight">
               {stats.totalProperties || 0}
             </p>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             {stats.activeProperties || 0} active
           </p>
         </div>
-        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-orange-500 text-3xl">
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-orange-500 text-2xl sm:text-3xl">
               notification_important
             </span>
-            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+            <p className="text-base sm:text-lg font-bold leading-tight">
               {stats.pendingProperties || 0}
             </p>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             Properties awaiting review
           </p>
         </div>
-        <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-[#0b8bff] text-3xl">
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-2xl sm:text-3xl">
               attach_money
             </span>
-            <p className="text-[#03063b] dark:text-white text-lg font-bold leading-tight">
+            <p className="text-base sm:text-lg font-bold leading-tight">
               <CurrencyAmount amountUsd={stats.totalRevenue || 0} />
             </p>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             all-time earnings
           </p>
         </div>
       </section>
 
       {/* Role-specific sections as accordion for usability */}
-      <Accordion type="multiple" className="mb-8">
+      <Accordion type="multiple" className="mb-6 sm:mb-8">
         <AccordionItem value="section-properties">
-          <AccordionTrigger>Property Management</AccordionTrigger>
+          <AccordionTrigger className="py-3 sm:py-4 text-sm sm:text-base">
+            Property Management
+          </AccordionTrigger>
           <AccordionContent>
             {isAgent ? (
               <div className="space-y-4">
@@ -202,7 +204,9 @@ export default async function AdminPage() {
         </AccordionItem>
 
         <AccordionItem value="section-users">
-          <AccordionTrigger>Users Management</AccordionTrigger>
+          <AccordionTrigger className="py-3 sm:py-4 text-sm sm:text-base">
+            Users Management
+          </AccordionTrigger>
           <AccordionContent>
             {isSuperadmin ? (
               <div className="space-y-3">
@@ -225,7 +229,9 @@ export default async function AdminPage() {
         </AccordionItem>
 
         <AccordionItem value="section-reviews">
-          <AccordionTrigger>Review Management</AccordionTrigger>
+          <AccordionTrigger className="py-3 sm:py-4 text-sm sm:text-base">
+            Review Management
+          </AccordionTrigger>
           <AccordionContent>
             {isAgent ? (
               <AgentReviews />
@@ -242,7 +248,9 @@ export default async function AdminPage() {
         </AccordionItem>
 
         <AccordionItem value="section-analytics">
-          <AccordionTrigger>Analytics</AccordionTrigger>
+          <AccordionTrigger className="py-3 sm:py-4 text-sm sm:text-base">
+            Analytics
+          </AccordionTrigger>
           <AccordionContent>
             {isAgent ? (
               <AgentAnalytics userId={session.user.id} />
@@ -286,39 +294,39 @@ export default async function AdminPage() {
       </Accordion>
 
       {!isAgent && (
-        <section className="mt-8">
+        <section className="mt-6 sm:mt-8">
           <div className="mb-4">
-            <h2 className="text-[#03063b] dark:text-white text-xl font-bold leading-tight">
+            <h2 className="text-lg sm:text-xl font-bold leading-tight">
               Latest Payments transactions on the platform
             </h2>
           </div>
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm min-h-60">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sm:p-6 shadow-sm min-h-60">
             {recentPayments.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 text-lg">
+              <p className="text-center text-muted-foreground text-base sm:text-lg">
                 No payments yet
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {recentPayments.map((payment: any) => (
                   <div
                     key={payment._id}
-                    className="flex items-center justify-between border-b pb-4 last:border-0"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3 sm:pb-4 last:border-0"
                   >
                     <div>
-                      <p className="font-medium">
+                      <p className="font-medium text-sm sm:text-base">
                         {payment.userId?.name || "Unknown User"}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {payment.type === "subscription"
                           ? `${payment.planType} subscription`
                           : "Featured listing"}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">
+                    <div className="text-left sm:text-right">
+                      <p className="font-semibold text-sm sm:text-base">
                         <CurrencyAmount amountUsd={payment.amount} />
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">
                         {formatDate(payment.createdAt)}
                       </p>
                     </div>

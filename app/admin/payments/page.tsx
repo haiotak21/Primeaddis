@@ -72,22 +72,22 @@ export default function AdminPaymentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4fafe]">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-[#03063b] text-4xl font-black leading-tight tracking-tight">
+          <h1 className="text-4xl font-black leading-tight tracking-tight">
             Payment Management
           </h1>
-          <p className="mt-2 text-[#47739e]">
+          <p className="mt-2 text-muted-foreground">
             View and track all platform payments
           </p>
         </div>
 
         {/* Revenue Stats */}
         <div className="mb-8 grid gap-4 md:grid-cols-3">
-          <Card className="border border-[#dfe6e9] shadow-sm">
+          <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-[#03063b]">
+              <CardTitle className="text-sm font-medium">
                 Total Revenue
               </CardTitle>
             </CardHeader>
@@ -95,15 +95,15 @@ export default function AdminPaymentsPage() {
               <div className="text-2xl font-bold">
                 {formatPrice(totalRevenue)}
               </div>
-              <p className="text-xs text-[#47739e]">
+              <p className="text-xs text-muted-foreground">
                 {payments.length} transactions
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border border-[#dfe6e9] shadow-sm">
+          <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-[#03063b]">
+              <CardTitle className="text-sm font-medium">
                 Subscription Revenue
               </CardTitle>
             </CardHeader>
@@ -118,9 +118,9 @@ export default function AdminPaymentsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border border-[#dfe6e9] shadow-sm">
+          <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-[#03063b]">
+              <CardTitle className="text-sm font-medium">
                 Promotion Revenue
               </CardTitle>
             </CardHeader>
@@ -137,10 +137,10 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Payments List */}
-        <Card className="border border-[#dfe6e9] shadow-sm">
+        <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-[#03063b]">All Payments</CardTitle>
-            <CardDescription className="text-[#47739e]">
+            <CardTitle>All Payments</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Complete payment history
             </CardDescription>
           </CardHeader>
@@ -162,13 +162,13 @@ export default function AdminPaymentsPage() {
                     {filteredPayments.map((payment) => (
                       <div
                         key={payment._id}
-                        className="flex items-center justify-between border-b border-[#dfe6e9] pb-4 last:border-0"
+                        className="flex items-center justify-between border-b border-primary/20 pb-4 last:border-0"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-[#03063b]">
+                          <p className="font-medium">
                             {payment.userId?.name || "Unknown User"}
                           </p>
-                          <p className="text-sm text-[#47739e]">
+                          <p className="text-sm text-muted-foreground">
                             {payment.userId?.email}
                           </p>
                           <div className="mt-1 flex items-center gap-2">
@@ -182,13 +182,13 @@ export default function AdminPaymentsPage() {
                               {payment.type}
                             </Badge>
                             {payment.type === "subscription" && (
-                              <span className="text-xs text-[#47739e] capitalize">
+                              <span className="text-xs text-muted-foreground capitalize">
                                 {payment.planType}
                               </span>
                             )}
                             {payment.type === "promotion" &&
                               payment.propertyId && (
-                                <span className="text-xs text-[#47739e]">
+                                <span className="text-xs text-muted-foreground">
                                   Property: {payment.propertyId.title}
                                 </span>
                               )}
@@ -196,10 +196,10 @@ export default function AdminPaymentsPage() {
                         </div>
 
                         <div className="text-right">
-                          <p className="text-lg font-semibold text-[#03063b]">
+                          <p className="text-lg font-semibold">
                             {formatPrice(payment.amount)}
                           </p>
-                          <p className="text-xs text-[#47739e]">
+                          <p className="text-xs text-muted-foreground">
                             {formatDate(payment.createdAt)}
                           </p>
                           <Badge

@@ -92,10 +92,16 @@ const propertySchemaDefinition: any = {
     amenities: [String],
     images: {
       type: [String],
-      validate: {
-        validator: (v: string[]) => v && v.length > 0,
-        message: "At least one image is required",
-      },
+      validate: [
+        {
+          validator: (v: string[]) => Array.isArray(v) && v.length > 0,
+          message: "At least one image is required",
+        },
+        {
+          validator: (v: string[]) => !Array.isArray(v) || v.length <= 10,
+          message: "A maximum of 10 images is allowed",
+        },
+      ],
     },
     videoUrl: String,
     vrTourUrl: String,

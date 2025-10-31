@@ -61,15 +61,15 @@ async function connectDB(): Promise<typeof mongoose> {
     })()
 
     const isDev = (process.env.NODE_ENV || "development") !== "production"
-    const opts: any = {
+  const opts: any = {
       // Keep bufferCommands false to avoid client-side buffering
       bufferCommands: false,
       // Tighter timeouts to avoid long dev hangs before fallback
       serverSelectionTimeoutMS: Number(
-        process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || (isDev ? 2000 : 5000)
+        process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || (isDev ? 8000 : 8000)
       ),
-      connectTimeoutMS: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || (isDev ? 2000 : 5000)),
-      socketTimeoutMS: Number(process.env.MONGO_SOCKET_TIMEOUT_MS || (isDev ? 5000 : 20000)),
+      connectTimeoutMS: Number(process.env.MONGO_CONNECT_TIMEOUT_MS || (isDev ? 8000 : 8000)),
+      socketTimeoutMS: Number(process.env.MONGO_SOCKET_TIMEOUT_MS || (isDev ? 15000 : 20000)),
       family: 4, // prefer IPv4 to avoid some ISP/IPv6 issues
       // Only enable TLS by default for SRV/Atlas; for localhost it typically fails
       tls: isSrv || isAtlasHost,

@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 const quickLinks = [
   { value: "Terms & Conditions", href: "#!" },
@@ -14,22 +15,30 @@ const socialMedia = [
 ];
 
 const Footer = () => (
-  <footer className="w-full bg-[#f4fafe] dark:bg-[#0f1a23] py-16 px-4 sm:px-6 lg:px-12 xl:px-24">
+  <footer className="w-full bg-[#f4fafe] dark:bg-[#2D3748] py-16 px-4 sm:px-6 lg:px-12 xl:px-24">
     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
       {/* Company Info & Socials */}
       <div className="lg:col-span-2">
         <div className="flex items-center gap-3">
           {/* Brand mark + name */}
-          <img
+          <Image
             src="/logo.png"
             alt="PrimeAddis"
-            width={36}
-            height={36}
-            className="h-9 w-auto"
+            width={180}
+            height={40}
+            className="h-9 w-auto block dark:hidden"
+            priority
           />
-          
+          <Image
+            src="/prime addis white 1.png"
+            alt="PrimeAddis"
+            width={180}
+            height={40}
+            className="h-9 w-auto hidden dark:block"
+            priority
+          />
         </div>
-        <p className="mt-4 text-[#03063b]/80 leading-relaxed max-w-sm">
+        <p className="mt-4 text-[#03063b]/80 dark:text-gray-300 leading-relaxed max-w-sm">
           Your trusted partner in finding the perfect home. We simplify the
           journey to your new front door.
         </p>
@@ -40,7 +49,7 @@ const Footer = () => (
               key={s.value}
               href={s.href}
               aria-label={s.value}
-              className="text-[#03063b]/70 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/70 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
             >
               {s.value === "Facebook" && (
                 <svg
@@ -100,11 +109,13 @@ const Footer = () => (
 
       {/* Navigation Columns */}
       <div>
-        <h3 className="text-lg font-semibold text-[#03063b]">Explore</h3>
+        <h3 className="text-lg font-semibold text-[#03063b] dark:text-white">
+          Explore
+        </h3>
         <ul className="mt-4 space-y-3">
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               For Sale
@@ -112,7 +123,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               For Rent
@@ -120,7 +131,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               New Developments
@@ -128,7 +139,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Agents
@@ -137,11 +148,13 @@ const Footer = () => (
         </ul>
       </div>
       <div>
-        <h3 className="text-lg font-semibold text-[#03063b]">Resources</h3>
+        <h3 className="text-lg font-semibold text-[#03063b] dark:text-white">
+          Resources
+        </h3>
         <ul className="mt-4 space-y-3">
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Mortgage Calculator
@@ -149,7 +162,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Neighborhood Guides
@@ -157,7 +170,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Blog
@@ -166,11 +179,13 @@ const Footer = () => (
         </ul>
       </div>
       <div>
-        <h3 className="text-lg font-semibold text-[#03063b]">Company</h3>
+        <h3 className="text-lg font-semibold text-[#03063b] dark:text-white">
+          Company
+        </h3>
         <ul className="mt-4 space-y-3">
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               About Us
@@ -178,7 +193,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Careers
@@ -186,7 +201,7 @@ const Footer = () => (
           </li>
           <li>
             <a
-              className="text-[#03063b]/80 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/80 dark:text-gray-300 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href="#"
             >
               Contact
@@ -197,16 +212,16 @@ const Footer = () => (
     </div>
 
     {/* Bottom bar */}
-    <div className="mt-16 border-t border-[#03063b]/10 pt-8">
+    <div className="mt-16 border-t border-[#03063b]/10 dark:border-gray-600 pt-8">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-24">
-        <div className="text-sm text-[#03063b]/60 text-center md:text-left">
+        <div className="text-sm text-[#03063b]/60 dark:text-gray-400 text-center md:text-left">
           © 2024 RealEstateHub. All Rights Reserved.
         </div>
         <div className="flex items-center gap-6 text-sm">
           {quickLinks.map((item) => (
             <a
               key={item.value}
-              className="text-[#03063b]/60 hover:text-[#0b8bff] transition-colors"
+              className="text-[#03063b]/60 dark:text-gray-400 hover:text-[#0b8bff] dark:hover:text-white transition-colors"
               href={item.href}
             >
               {item.value}

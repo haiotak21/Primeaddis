@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 
 const Star = () => (
@@ -41,14 +41,16 @@ const ArrowRight = () => (
 
 export function TestimonialsSection() {
   const [index, setIndex] = useState(0);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
   const total = 3; // three groups/slides
   const next = () => setIndex((i) => (i + 1) % total);
   const prev = () => setIndex((i) => (i - 1 + total) % total);
 
   return (
-    <section className="font-display bg-white dark:bg-background-dark">
-      <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-        <div className="flex flex-1 justify-center bg-white px-4 py-12 dark:bg-background-dark sm:px-6 lg:px-8">
+    <section className="font-display bg-background text-foreground">
+      <div className="relative flex min-h-[80vh] sm:min-h-screen w-full flex-col overflow-x-hidden">
+        <div className="flex flex-1 justify-center px-4 py-6 sm:py-12 sm:px-6 lg:px-8">
           <div className="flex w-full max-w-6xl flex-col items-center gap-8">
             {/* Header */}
             <div className="flex w-full max-w-[960px] flex-col items-center text-center">
@@ -63,7 +65,29 @@ export function TestimonialsSection() {
 
             {/* Carousel */}
             <div className="relative w-full">
-              <div className="overflow-hidden">
+              <div
+                className="overflow-hidden"
+                onTouchStart={(e) => {
+                  const t = e.touches[0];
+                  touchStartXRef.current = t.clientX;
+                  touchStartYRef.current = t.clientY;
+                }}
+                onTouchEnd={(e) => {
+                  if (touchStartXRef.current === null) return;
+                  const t = e.changedTouches[0];
+                  const dx = t.clientX - touchStartXRef.current;
+                  const dy =
+                    touchStartYRef.current === null
+                      ? 0
+                      : t.clientY - touchStartYRef.current;
+                  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+                    if (dx < 0) next();
+                    else prev();
+                  }
+                  touchStartXRef.current = null;
+                  touchStartYRef.current = null;
+                }}
+              >
                 <div
                   className="flex w-full transition-transform duration-500 ease-in-out"
                   style={{ transform: `translateX(-${index * 100}%)` }}
@@ -188,18 +212,18 @@ export function TestimonialsSection() {
               </div>
 
               {/* Nav buttons */}
-              <div className="absolute -left-8 top-1/2 -translate-y-1/2 md:-left-10">
+              <div className="hidden sm:block absolute -left-8 top-1/2 -translate-y-1/2 md:-left-10">
                 <button
                   onClick={prev}
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-md ring-1 ring-gray-900/5 backdrop-blur-sm transition hover:bg-white dark:bg-background-dark/80 dark:text-gray-300 dark:hover:bg-background-dark/90"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-md ring-1 ring-gray-900/5 backdrop-blur-sm transition hover:bg-white dark:bg-background/80 dark:text-gray-300 dark:hover:bg-background/90"
                 >
                   <ArrowLeft />
                 </button>
               </div>
-              <div className="absolute -right-8 top-1/2 -translate-y-1/2 md:-right-10">
+              <div className="hidden sm:block absolute -right-8 top-1/2 -translate-y-1/2 md:-right-10">
                 <button
                   onClick={next}
-                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-md ring-1 ring-gray-900/5 backdrop-blur-sm transition hover:bg-white dark:bg-background-dark/80 dark:text-gray-300 dark:hover:bg-background-dark/90"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/80 text-gray-700 shadow-md ring-1 ring-gray-900/5 backdrop-blur-sm transition hover:bg-white dark:bg-background/80 dark:text-gray-300 dark:hover:bg-background/90"
                 >
                   <ArrowRight />
                 </button>

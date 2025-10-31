@@ -89,20 +89,26 @@ export function SignUpForm() {
 
   return (
     <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Create Account</CardTitle>
-        <CardDescription>Sign up for a PrimeAddis account</CardDescription>
+      <CardHeader className="px-4 pt-2 pb-2 sm:px-6 sm:py-6 items-center sm:items-start text-center sm:text-left">
+        <CardTitle className="text-lg sm:text-xl leading-tight font-semibold">
+          Create Account
+        </CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
+          Sign up for a PrimeAddis account
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="px-4 pt-1 pb-3 sm:px-6 sm:pt-6 sm:pb-6">
+        <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-4">
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="name" className="text-xs sm:text-sm">
+              Full Name
+            </Label>
             <Input
               id="name"
               name="name"
@@ -110,12 +116,15 @@ export function SignUpForm() {
               placeholder="John Doe"
               value={formData.name}
               onChange={handleChange}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="email" className="text-xs sm:text-sm">
+              Email
+            </Label>
             <Input
               id="email"
               name="email"
@@ -123,12 +132,15 @@ export function SignUpForm() {
               placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone (Optional)</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="phone" className="text-xs sm:text-sm">
+              Phone (Optional)
+            </Label>
             <Input
               id="phone"
               name="phone"
@@ -136,11 +148,14 @@ export function SignUpForm() {
               placeholder="+1 (555) 000-0000"
               value={formData.phone}
               onChange={handleChange}
+              className="h-8 sm:h-9 text-sm sm:text-base"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="password" className="text-xs sm:text-sm">
+              Password
+            </Label>
             <Input
               id="password"
               name="password"
@@ -148,16 +163,19 @@ export function SignUpForm() {
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
               Must be 8+ chars, with uppercase, lowercase, number, and special
               character.
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <Label htmlFor="confirmPassword" className="text-xs sm:text-sm">
+              Confirm Password
+            </Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -165,11 +183,16 @@ export function SignUpForm() {
               placeholder="••••••••"
               value={formData.confirmPassword}
               onChange={handleChange}
+              className="h-8 sm:h-9 text-sm sm:text-base"
               required
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full h-9 sm:h-10 text-sm sm:text-base"
+            disabled={loading}
+          >
             {loading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>

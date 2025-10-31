@@ -61,7 +61,7 @@ export default function AboutPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="flex flex-1 flex-col items-center gap-3 rounded-lg border border-primary/20 bg-card p-6 text-center shadow-sm"
+                className="flex flex-1 flex-col items-center gap-3 rounded-lg border border-primary/20 bg-card dark:bg-gray-900/30 p-6 text-center shadow-sm"
               >
                 <div className="text-primary mb-2">
                   <span
@@ -166,7 +166,7 @@ export default function AboutPage() {
             ].map((m) => (
               <div
                 key={m.name}
-                className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-primary/20 shadow-sm"
+                className="flex flex-col items-center text-center p-4 rounded-lg bg-card dark:bg-gray-900/30 border border-primary/20 shadow-sm"
               >
                 <img
                   className="w-32 h-32 rounded-full object-cover mb-4 border-2 border-primary"
@@ -185,7 +185,7 @@ export default function AboutPage() {
       {/* CTA */}
       <section>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center bg-card p-10 my-2 sm:my-6 md:my-10 rounded-lg shadow-sm border border-primary/20">
+          <div className="text-center bg-card dark:bg-gray-900/30 p-10 my-2 sm:my-6 md:my-10 rounded-lg shadow-sm border border-primary/20">
             <h2 className="text-foreground text-2xl font-bold tracking-tight">
               Ready to Find Your Dream Property?
             </h2>

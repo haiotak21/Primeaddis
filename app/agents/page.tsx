@@ -91,24 +91,24 @@ export default async function AgentsPage({
           {/* Filters card */}
           <div className="bg-card p-4 sm:p-6 rounded-xl border border-border shadow-sm">
             <form
-              className="grid grid-cols-1 md:grid-cols-5 gap-4"
+              className="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4"
               method="get"
             >
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
-                  <span className="text-sm font-medium mb-1.5 text-foreground">
+                  <span className="text-[13px] sm:text-sm font-medium mb-1.5 text-foreground">
                     Search by Name
                   </span>
                   <div className="relative flex w-full items-center">
-                    <div className="absolute left-3 text-muted-foreground pointer-events-none">
-                      <span className="material-symbols-outlined text-xl">
+                    <div className="absolute inset-y-0 left-3 flex items-center text-muted-foreground pointer-events-none">
+                      <span className="material-symbols-outlined text-lg sm:text-xl leading-none">
                         search
                       </span>
                     </div>
                     <input
                       name="q"
                       defaultValue={q}
-                      className="flex w-full min-w-0 flex-1 rounded-lg border border-border bg-background h-11 placeholder:text-muted-foreground pl-10 text-base focus:border-primary focus:ring-primary"
+                      className="flex w-full min-w-0 flex-1 rounded-lg border border-border bg-background h-9 sm:h-11 placeholder:text-muted-foreground pl-10 text-sm sm:text-base focus:border-primary focus:ring-primary"
                       placeholder="e.g. Abebe Bekele"
                     />
                   </div>
@@ -117,7 +117,7 @@ export default async function AgentsPage({
 
               {/* Unsupported specialty/location filters intentionally omitted to avoid implying features not present in data. */}
               <div className="md:col-span-1 md:col-start-5 flex items-end">
-                <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary text-primary-foreground text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
+                <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 sm:h-11 px-3 sm:px-4 bg-primary text-primary-foreground text-sm sm:text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
                   <span className="truncate">Search</span>
                 </button>
               </div>
@@ -133,27 +133,27 @@ export default async function AgentsPage({
               {agents.map((a) => (
                 <div
                   key={a._id}
-                  className="flex flex-col gap-4 text-center p-6 bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                  className="flex flex-col gap-3 sm:gap-4 text-center p-4 sm:p-6 bg-card rounded-xl border border-border shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                 >
                   <div className="mx-auto">
-                    <div className="size-28 bg-center bg-no-repeat aspect-square bg-cover rounded-full overflow-hidden">
+                    <div className="size-24 sm:size-28 bg-center bg-no-repeat aspect-square bg-cover rounded-full overflow-hidden">
                       {a.profileImage ? (
                         <Image
                           src={a.profileImage}
                           alt={a.name}
-                          width={112}
-                          height={112}
-                          className="size-28 object-cover rounded-full"
+                          width={96}
+                          height={96}
+                          className="size-24 sm:size-28 object-cover rounded-full"
                         />
                       ) : (
-                        <div className="size-28 rounded-full bg-muted flex items-center justify-center text-xl font-bold text-muted-foreground">
+                        <div className="size-24 sm:size-28 rounded-full bg-muted flex items-center justify-center text-lg sm:text-xl font-bold text-muted-foreground">
                           {a.name?.charAt(0) ?? "A"}
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <p className="text-lg font-bold text-foreground">
+                    <p className="text-base sm:text-lg font-bold text-foreground">
                       {a.name}
                     </p>
                     <div className="flex items-center justify-center gap-2">
@@ -172,7 +172,7 @@ export default async function AgentsPage({
                         className="hover:text-primary transition-colors"
                         href={`tel:${a.phone}`}
                       >
-                        <span className="material-symbols-outlined text-xl">
+                        <span className="material-symbols-outlined text-lg sm:text-xl">
                           phone
                         </span>
                       </a>
@@ -182,7 +182,7 @@ export default async function AgentsPage({
                         className="hover:text-primary transition-colors"
                         href={`mailto:${a.email}`}
                       >
-                        <span className="material-symbols-outlined text-xl">
+                        <span className="material-symbols-outlined text-lg sm:text-xl">
                           mail
                         </span>
                       </a>
@@ -190,7 +190,7 @@ export default async function AgentsPage({
                   </div>
                   <Link
                     href={`/agents/${a._id}`}
-                    className="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/10 text-primary text-sm font-bold leading-normal tracking-wide hover:bg-primary/20 transition-colors"
+                    className="w-full mt-2 flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 sm:h-10 px-3 sm:px-4 bg-primary/10 text-primary text-[13px] sm:text-sm font-bold leading-normal tracking-wide hover:bg-primary/20 transition-colors"
                   >
                     <span className="truncate">View Profile</span>
                   </Link>
