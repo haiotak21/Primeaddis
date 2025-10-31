@@ -88,7 +88,7 @@ export function Navbar() {
         <header
           className={`relative mx-auto max-w-[1380px] flex h-14 sm:h-16 lg:h-[90px] w-full items-center justify-between rounded-full px-3 sm:px-4 md:px-8 ${
             mobileMenuOpen
-              ? "bg-transparent shadow-none"
+              ? "bg-white dark:bg-[#2D3748] shadow-none"
               : "bg-white shadow-lg dark:bg-[#2D3748]"
           } border border-transparent dark:border-[#4A5568]`}
         >
@@ -100,7 +100,15 @@ export function Navbar() {
                 alt={t("site.title")}
                 width={180}
                 height={40}
-                className="h-7 w-auto"
+                className="h-7 w-auto block dark:hidden"
+                priority
+              />
+              <Image
+                src="/prime addis white 1.png"
+                alt={t("site.title")}
+                width={180}
+                height={40}
+                className="h-7 w-auto hidden dark:block"
                 priority
               />
             </div>
@@ -181,6 +189,40 @@ export function Navbar() {
               </Link>
             </nav>
           </div>
+
+          {/* Mobile theme toggle icon (only when menu is open) */}
+          {mobileMenuOpen && (
+            <button
+              className="sm:hidden absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-gray-900 dark:text-gray-200"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle theme"
+            >
+              {mounted ? (
+                theme === "dark" ? (
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 1 0 9.79 9.79z" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="12" r="5" />
+                    <path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 6.95l-1.41-1.41M6.46 6.46L5.05 5.05m12.02 0l-1.41 1.41M6.46 17.54l-1.41 1.41" />
+                  </svg>
+                )
+              ) : null}
+            </button>
+          )}
 
           <div
             className={`flex items-center gap-3 sm:gap-4 ${
@@ -492,30 +534,31 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div
           id="mobile-menu"
-          className="fixed inset-x-0 top-0 z-40 sm:hidden bg-background border-b pt-14"
+          className="fixed inset-x-0 top-0 z-40 sm:hidden bg-white dark:bg-[#2D3748] text-foreground border-b dark:border-[#4A5568] pt-14"
         >
           <div className="space-y-1 px-4 py-3">
             <Link
               href="/properties"
-              className="block rounded px-3 py-2 text-sm hover:bg-muted"
+              className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t("nav.properties")}
             </Link>
             <Link
               href="/agents"
-              className="block rounded px-3 py-2 text-sm hover:bg-muted"
+              className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
               onClick={() => setMobileMenuOpen(false)}
             >
               Agents
             </Link>
             <Link
               href="/about"
-              className="block rounded px-3 py-2 text-sm hover:bg-muted"
+              className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
               onClick={() => setMobileMenuOpen(false)}
             >
               About
             </Link>
+            {/* Theme toggle moved to header (mobile only) */}
             {/* Auth shortcuts */}
             {status !== "loading" &&
               (session ? (
@@ -527,27 +570,27 @@ export function Navbar() {
                         ? "/admin"
                         : "/dashboard"
                     }
-                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/profile"
-                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Profile
                   </Link>
                   <Link
                     href="/favorites"
-                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Favorites
                   </Link>
                   <button
-                    className="w-full text-left rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="w-full text-left rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       signOut({ callbackUrl: "/" });
@@ -560,14 +603,14 @@ export function Navbar() {
                 <>
                   <Link
                     href="/auth/signin"
-                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="block rounded px-3 py-2 text-sm hover:bg-muted"
+                    className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Sign Up
