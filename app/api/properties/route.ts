@@ -21,7 +21,9 @@ export async function GET(req: NextRequest) {
     const city = searchParams.get("city")
     const minPrice = searchParams.get("minPrice")
     const maxPrice = searchParams.get("maxPrice")
-    const bedrooms = searchParams.get("bedrooms")
+  const bedrooms = searchParams.get("bedrooms")
+  const financing = searchParams.get("financing")
+  const financingAny = searchParams.get("financingAny")
     const status = searchParams.get("status") || "active"
 
     const query: any = { status }
@@ -46,6 +48,19 @@ export async function GET(req: NextRequest) {
       if (maxPrice) query.price.$lte = Number.parseInt(maxPrice)
     }
     if (bedrooms) query["specifications.bedrooms"] = { $gte: Number.parseInt(bedrooms) }
+    if (financing) {
+      const banks = financing
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+      if (banks.length) {
+        const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        query.financing = { $in: banks.map((b) => new RegExp(`^${esc(b)}$`, "i")) }
+      }
+    }
+    if (!financing && financingAny === "1") {
+      query.financing = { $exists: true, $ne: [] }
+    }
 
     const skip = (page - 1) * limit
 
@@ -53,7 +68,7 @@ export async function GET(req: NextRequest) {
     const [properties, total] = await Promise.all([
       Property.find(query)
         .populate("listedBy", "name email profileImage")
-        .sort({ createdAt: -1 })
+        .sort({ featured: -1, featuredUntil: -1, createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .maxTimeMS(queryMax)

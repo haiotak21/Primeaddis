@@ -14,7 +14,7 @@ export default async function HomePage() {
       <Hero />
 
       {/* Properties Preview Section */}
-      <section className="pt-6 pb-6 sm:py-20">
+      <section className="pt-6 pb-6 sm:py-20 md:py-16 lg:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">

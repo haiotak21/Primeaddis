@@ -3,7 +3,7 @@ import mongoose, { Schema, type Document, type Model } from "mongoose"
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId
   message: string
-  type: "new_listing" | "price_drop" | "approval" | "inquiry" | "system"
+  type: "new_listing" | "price_drop" | "approval" | "inquiry" | "favorite" | "system"
   read: boolean
   relatedId?: mongoose.Types.ObjectId
   createdAt: Date
@@ -23,7 +23,7 @@ const NotificationSchema = new Schema<INotification>(
     },
     type: {
       type: String,
-      enum: ["new_listing", "price_drop", "approval", "inquiry", "system"],
+      enum: ["new_listing", "price_drop", "approval", "inquiry", "favorite", "system"],
       required: true,
     },
     read: {

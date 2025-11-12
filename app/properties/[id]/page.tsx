@@ -2,6 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import connectDB from "@/lib/database";
 import Property from "@/models/Property";
+import Settings from "@/models/Settings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { MessageCircle } from "lucide-react";
 import { ShareDialogButton } from "@/components/properties/share-dialog";
 import MortgageCalculator from "@/components/properties/mortgage-calculator";
 import { GalleryModalButton } from "@/components/properties/gallery-modal";
+import FavoriteButton from "@/components/properties/favorite-button";
 
 function isValidObjectId(id: string) {
   return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
@@ -27,6 +29,16 @@ async function getProperty(id: string) {
     .populate("listedBy", "name email phone profileImage")
     .lean();
   return property;
+}
+
+async function getGlobalSettings() {
+  try {
+    await connectDB();
+    const doc = await Settings.findOne().lean();
+    return doc || null;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function getSimilarProperties(property: any) {
@@ -60,7 +72,10 @@ export default async function PropertyDetailPage({
     notFound();
   }
 
-  const property = await getProperty(id);
+  const [property, globalSettings] = await Promise.all([
+    getProperty(id),
+    getGlobalSettings(),
+  ]);
   if (!property) {
     notFound();
   }
@@ -115,7 +130,12 @@ export default async function PropertyDetailPage({
   const propertyUrl = baseUrl
     ? `${baseUrl}/properties/${property._id}`
     : `/properties/${property._id}`;
-  const whatsappNumber = (property as any).listedBy?.phone?.replace(/\D/g, "");
+  // Choose global override or agent phone
+  const globalWhatsapp = (globalSettings as any)?.whatsappNumber;
+  const whatsappNumber =
+    globalWhatsapp && String(globalWhatsapp).trim().length > 0
+      ? String(globalWhatsapp).replace(/\D/g, "")
+      : (property as any).listedBy?.phone?.replace(/\D/g, "");
   const whatsappMessage = encodeURIComponent(
     `Hello, I'm interested in your property: ${property.title}. Here is the listing link: ${propertyUrl}`
   );
@@ -255,14 +275,9 @@ export default async function PropertyDetailPage({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    className="size-10 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                    aria-label="Favorite"
-                  >
-                    <span className="material-symbols-outlined">
-                      favorite_border
-                    </span>
-                  </button>
+                  {/* Favorite toggle */}
+                  {/** client component to handle add/remove and visual state **/}
+                  <FavoriteButton propertyId={String(property._id)} />
                   <ShareDialogButton url={propertyUrl} title={property.title} />
                 </div>
               </div>
@@ -364,6 +379,28 @@ export default async function PropertyDetailPage({
               </div>
             )}
 
+            {/* Financing / Bank Availability */}
+            {Array.isArray((property as any).financing) &&
+              (property as any).financing.length > 0 && (
+                <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
+                  <h3 className="text-xl font-bold mb-4">
+                    Available Banks / Financing
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {(property as any).financing.map(
+                      (bank: string, i: number) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary ring-1 ring-primary/20"
+                        >
+                          {bank}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
             {/* Note: Contact Agent handled via sidebar button/dialog to match design */}
           </div>
 
@@ -413,6 +450,11 @@ export default async function PropertyDetailPage({
                         WhatsApp
                       </Button>
                     </a>
+                  )}
+                  {!whatsappHref && (
+                    <div className="text-xs text-muted-foreground text-center">
+                      WhatsApp contact unavailable
+                    </div>
                   )}
                 </div>
 

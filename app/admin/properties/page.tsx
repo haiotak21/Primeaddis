@@ -16,6 +16,8 @@ type PropertyDoc = {
   listedBy?: { name?: string; email?: string };
   createdAt: string | Date;
   location?: { address?: string; city?: string; region?: string };
+  featured?: boolean;
+  featuredUntil?: string | Date | null;
 };
 
 export default function AdminPropertiesPage() {
@@ -85,6 +87,45 @@ export default function AdminPropertiesPage() {
     try {
       await axios.put(`/api/admin/properties/${propertyId}/reject`, { reason });
       setPendingProperties((prev) => prev.filter((p) => p._id !== propertyId));
+    } catch (e) {
+      // no-op
+    }
+  }
+
+  async function handleFeature(propertyId: string) {
+    try {
+      const input = prompt(
+        "Enter featured duration in days (blank = 30 days) or ISO date for featuredUntil:",
+        "30"
+      );
+      let payload: any = { featured: true };
+      if (input && input.trim()) {
+        const n = Number(input.trim());
+        if (!Number.isNaN(n)) {
+          const d = new Date();
+          d.setDate(d.getDate() + Math.max(1, Math.floor(n)));
+          payload.featuredUntil = d.toISOString();
+        } else {
+          // assume ISO date string
+          payload.featuredUntil = input.trim();
+        }
+      }
+      await axios.put(`/api/admin/properties/${propertyId}/feature`, payload);
+      // refresh lists
+      fetchAllProperties(page);
+      fetchPendingProperties();
+    } catch (e) {
+      // no-op
+    }
+  }
+
+  async function handleUnfeature(propertyId: string) {
+    try {
+      await axios.put(`/api/admin/properties/${propertyId}/feature`, {
+        featured: false,
+      });
+      fetchAllProperties(page);
+      fetchPendingProperties();
     } catch (e) {
       // no-op
     }
@@ -281,8 +322,16 @@ export default function AdminPropertiesPage() {
                       />
                       <div className="flex-1 p-3">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-[#03063b] dark:text-white text-sm">
+                          <h3 className="font-semibold text-[#03063b] dark:text-white text-sm flex items-center gap-1">
                             {property.title}
+                            {property.featured && (
+                              <span
+                                className="material-symbols-outlined text-amber-500 text-[16px]"
+                                title="Featured"
+                              >
+                                star
+                              </span>
+                            )}
                           </h3>
                           <div
                             className={`status-badge ${statusStyles} px-2.5 py-1 rounded-full text-[11px]`}
@@ -339,6 +388,31 @@ export default function AdminPropertiesPage() {
                                 </>
                               ) : (
                                 <>
+                                  {property.featured ? (
+                                    <button
+                                      onClick={() =>
+                                        handleUnfeature(property._id)
+                                      }
+                                      className="p-1.5 rounded-full text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/40"
+                                      title="Unfeature"
+                                    >
+                                      <span className="material-symbols-outlined text-[20px]">
+                                        star
+                                      </span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        handleFeature(property._id)
+                                      }
+                                      className="p-1.5 rounded-full text-amber-600 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/40"
+                                      title="Feature"
+                                    >
+                                      <span className="material-symbols-outlined text-[20px]">
+                                        grade
+                                      </span>
+                                    </button>
+                                  )}
                                   <a
                                     href={`/admin/properties/${property._id}/edit`}
                                     className="p-1.5 rounded-full text-[#0b8bff] hover:bg-blue-100/50"
@@ -481,8 +555,16 @@ export default function AdminPropertiesPage() {
                                 />
                               </div>
                               <div>
-                                <div className="text-sm sm:text-base font-semibold text-[#03063b] dark:text-white">
+                                <div className="text-sm sm:text-base font-semibold text-[#03063b] dark:text-white flex items-center gap-1">
                                   {property.title}
+                                  {property.featured && (
+                                    <span
+                                      className="material-symbols-outlined text-amber-500 text-[18px]"
+                                      title="Featured"
+                                    >
+                                      star
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400">
                                   {property.location?.address ||
@@ -542,6 +624,31 @@ export default function AdminPropertiesPage() {
                                 </>
                               ) : (
                                 <>
+                                  {property.featured ? (
+                                    <button
+                                      onClick={() =>
+                                        handleUnfeature(property._id)
+                                      }
+                                      className="text-amber-500 hover:text-amber-600"
+                                      title="Unfeature"
+                                    >
+                                      <span className="material-symbols-outlined text-lg sm:text-xl">
+                                        star
+                                      </span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() =>
+                                        handleFeature(property._id)
+                                      }
+                                      className="text-amber-500 hover:text-amber-600"
+                                      title="Feature"
+                                    >
+                                      <span className="material-symbols-outlined text-lg sm:text-xl">
+                                        grade
+                                      </span>
+                                    </button>
+                                  )}
                                   <a
                                     href={`/admin/properties/${property._id}/edit`}
                                     className="text-[#0b8bff] hover:text-[#0b8bff]/80"

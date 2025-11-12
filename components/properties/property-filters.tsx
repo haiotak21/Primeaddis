@@ -20,7 +20,7 @@ export function PropertyFilters() {
 
   const [filters, setFilters] = useState({
     type: searchParams.get("type") || "allTypes",
-    listingType: searchParams.get("listingType") || "allListings",
+    listingType: searchParams.get("listingType") || "any",
     city: searchParams.get("city") || "",
     minPrice: searchParams.get("minPrice") || "",
     maxPrice: searchParams.get("maxPrice") || "",
@@ -30,7 +30,7 @@ export function PropertyFilters() {
 
   // UI-only checkbox to match design (does not alter backend behavior)
   const [financingChecked, setFinancingChecked] = useState<boolean>(
-    Boolean(filters.financing)
+    Boolean(filters.financing || searchParams.get("financingAny") === "1")
   );
 
   const handleFilterChange = (key: string, value: string) => {
@@ -40,9 +40,31 @@ export function PropertyFilters() {
   const applyFilters = () => {
     const params = new URLSearchParams();
 
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
+    // Basic filters
+    (Object.entries(filters) as Array<[keyof typeof filters, string]>).forEach(
+      ([key, value]) => {
+        if (key === "financing") return; // handle below
+        if (!value) return;
+        if (key === "type" && (value === "allTypes" || value === "all")) return;
+        if (
+          key === "listingType" &&
+          (value === "allListings" || value === "any")
+        )
+          return;
+        if (key === "bedrooms" && value === "any") return;
+        params.set(key, value);
+      }
+    );
+
+    // Financing logic
+    const fin = (filters.financing || "").trim();
+    if (financingChecked) {
+      if (fin) {
+        params.set("financing", fin);
+      } else {
+        params.set("financingAny", "1");
+      }
+    }
 
     router.push(`/properties?${params.toString()}`);
   };
@@ -50,13 +72,14 @@ export function PropertyFilters() {
   const clearFilters = () => {
     setFilters({
       type: "allTypes",
-      listingType: "allListings",
+      listingType: "any",
       city: "",
       minPrice: "",
       maxPrice: "",
       bedrooms: "any",
       financing: "",
     });
+    setFinancingChecked(false);
     router.push("/properties");
   };
 
@@ -101,9 +124,10 @@ export function PropertyFilters() {
             onValueChange={(value) => handleFilterChange("listingType", value)}
           >
             <SelectTrigger className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm">
-              <SelectValue placeholder="For Sale" />
+              <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="any">Any</SelectItem>
               <SelectItem value="sale">For Sale</SelectItem>
               <SelectItem value="rent">For Rent</SelectItem>
             </SelectContent>
@@ -142,21 +166,47 @@ export function PropertyFilters() {
           />
         </div>
 
-        <div className="flex items-center">
-          <input
-            id="financing"
-            name="financing"
-            type="checkbox"
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-            checked={financingChecked}
-            onChange={(e) => setFinancingChecked(e.target.checked)}
-          />
-          <label
-            htmlFor="financing"
-            className="ml-2 block text-xs sm:text-sm text-gray-900 dark:text-gray-300"
-          >
-            Acceptable for financing
-          </label>
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <input
+              id="financing"
+              name="financing"
+              type="checkbox"
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              checked={financingChecked}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setFinancingChecked(checked);
+                if (!checked) handleFilterChange("financing", "");
+              }}
+            />
+            <label
+              htmlFor="financing"
+              className="ml-2 block text-xs sm:text-sm text-gray-900 dark:text-gray-300"
+            >
+              Acceptable for financing
+            </label>
+          </div>
+
+          {financingChecked && (
+            <div>
+              <Label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Bank name (optional)
+              </Label>
+              <Input
+                className="h-8 sm:h-9 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-primary text-sm"
+                placeholder="e.g., CBE or Awash"
+                value={filters.financing}
+                onChange={(e) =>
+                  handleFilterChange("financing", e.target.value)
+                }
+              />
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                Leave blank to include any property with financing available, or
+                enter a bank to narrow.
+              </p>
+            </div>
+          )}
         </div>
 
         <div>
@@ -176,7 +226,9 @@ export function PropertyFilters() {
           </div>
           <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
             <span>$100k</span>
-            <span>$2M+</span>
+            <span>
+              ${Number(filters.maxPrice || 2000000) >= 2000000 ? "2M+" : ""}
+            </span>
           </div>
         </div>
 

@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
+import { getAbsoluteBaseUrl } from "@/utils/helpers";
 
 async function getPost(slug: string) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/blog/${slug}`,
-    { cache: "no-store" }
-  );
+  const base = await getAbsoluteBaseUrl();
+  const res = await fetch(`${base}/api/blog/${slug}`, { cache: "no-store" });
   if (!res.ok) return null;
   const data = await res.json();
   return data.post as { title: string; content: string; publishedAt?: string };

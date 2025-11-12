@@ -19,6 +19,25 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength) + "..."
 }
 
+// Determine an absolute base URL for server-side fetches in App Router.
+// Priority: headers (runtime) -> env public base -> localhost fallback.
+export async function getAbsoluteBaseUrl(): Promise<string> {
+  // Dynamic import to avoid hard dependency for client bundles
+  try {
+    // headers() is only available server-side; wrap in try for edge cases.
+    const mod = await import("next/headers");
+    // Some Next versions export headers() synchronously; treat return as any.
+    const h: any = mod.headers();
+    const awaited = typeof h.then === "function" ? await h : h; // handle promise or value
+    const proto = awaited.get("x-forwarded-proto") || "http";
+    const host = awaited.get("x-forwarded-host") || awaited.get("host");
+    if (host) return `${proto}://${host}`;
+  } catch {
+    // ignore – fall back to env/localhost
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+}
+
 export function calculateMortgage(principal: number, annualRate: number, years: number): number {
   const monthlyRate = annualRate / 100 / 12
   const numberOfPayments = years * 12

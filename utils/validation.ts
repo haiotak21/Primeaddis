@@ -34,6 +34,7 @@ export const propertySchema = z.object({
     yearBuilt: z.number().optional(),
   }),
   amenities: z.array(z.string()),
+  financing: z.array(z.string()).optional(),
   images: z.array(z.string()).min(1, "At least one image is required"),
   videoUrl: z.string().url().optional().or(z.literal("")),
   vrTourUrl: z.string().url().optional().or(z.literal("")),

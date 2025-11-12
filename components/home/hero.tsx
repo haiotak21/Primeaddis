@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
 
 const SLIDES = [
@@ -12,14 +12,12 @@ const SLIDES = [
       "Discover exclusive properties in the world's most desired neighborhoods.",
   },
   {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDI31LFZ_nt5UjhYIOyDgVobHnj9NW3I3NI7dKBBDh5ngxxbmo7pgzG5zdEjQGFAgEvWW6cusOj9xvAiSoiAuMvuuGvUJcti2pgERSShkL0i1DeRWFA44Ti7cJJcUzYccsx8gWCrDZFCO3OSapkPTl8-NRqIPSdaCU0agIqBHxENtkZNlUhE3UI_C2OlkyAT_G-fVii8IUGv9eZWBTiAURqIaM3PLa-7EH2qLt6h7HEWH2smq9UhWkWXHGWb2RVKvSGHKh88z9w1_Di",
+    image: "/property%20slide%202.jpg",
     title: "Find Luxury Homes & Apartments.",
     subtitle: "Handpicked listings for modern living and smart investment.",
   },
   {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDI31LFZ_nt5UjhYIOyDgVobHnj9NW3I3NI7dKBBDh5ngxxbmo7pgzG5zdEjQGFAgEvWW6cusOj9xvAiSoiAuMvuuGvUJcti2pgERSShkL0i1DeRWFA44Ti7cJJcUzYccsx8gWCrDZFCO3OSapkPTl8-NRqIPSdaCU0agIqBHxENtkZNlUhE3UI_C2OlkyAT_G-fVii8IUGv9eZWBTiAURqIaM3PLa-7EH2qLt6h7HEWH2smq9UhWkWXHGWb2RVKvSGHKh88z9w1_Di",
+    image: "/property%20slide%203.jpg",
     title: "Live Where It Matters.",
     subtitle: "Top neighborhoods. Trusted agents. Seamless experience.",
   },
@@ -30,6 +28,9 @@ export function Hero() {
   const total = SLIDES.length;
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [active, setActive] = useState(false); // only advance when hero is in view
+  const [paused, setPaused] = useState(false); // pause on hover/touch hold
 
   const next = useCallback(() => setIndex((i) => (i + 1) % total), [total]);
   const prev = useCallback(
@@ -37,13 +38,35 @@ export function Hero() {
     [total]
   );
 
+  // Only count 7 seconds while hero is in view; then auto-advance to next slide
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setActive(entry.isIntersecting),
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!active || paused) return;
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % total);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [active, paused, total]);
+
   return (
     <section
-      className="relative flex min-h-[70svh] sm:min-h-[85vh] md:min-h-screen w-full items-center justify-center overflow-hidden"
+      ref={sectionRef as any}
+      className="relative flex min-h-[70svh] sm:min-h-[85vh] md:min-h-[78vh] lg:min-h-[70vh] w-full items-center justify-center overflow-hidden"
       onTouchStart={(e) => {
         const t = e.touches[0];
         touchStartX.current = t.clientX;
         touchStartY.current = t.clientY;
+        setPaused(true);
       }}
       onTouchEnd={(e) => {
         if (touchStartX.current === null) return;
@@ -58,7 +81,10 @@ export function Hero() {
         }
         touchStartX.current = null;
         touchStartY.current = null;
+        setPaused(false);
       }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
       {/* Background image with dark overlay */}
       <div className="absolute inset-0 z-0">

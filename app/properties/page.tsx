@@ -15,6 +15,7 @@ async function getPropertiesDirect(searchParams: any) {
   const minPrice = searchParams?.minPrice as string | undefined;
   const maxPrice = searchParams?.maxPrice as string | undefined;
   const financing = searchParams?.financing as string | undefined;
+  const financingAny = searchParams?.financingAny as string | undefined;
   const bedrooms = searchParams?.bedrooms as string | undefined;
   const status = (searchParams?.status as string | undefined) || "active";
 
@@ -29,8 +30,12 @@ async function getPropertiesDirect(searchParams: any) {
     $lte: ETH_BOUNDS.maxLng,
   };
 
-  if (type) query.type = type;
-  if (listingType) query.listingType = listingType;
+  if (type && type !== "allTypes" && type !== "all") {
+    query.type = type;
+  }
+  if (listingType && ["sale", "rent"].includes(listingType)) {
+    query.listingType = listingType;
+  }
   if (city) query["location.city"] = new RegExp(city, "i");
   if (minPrice || maxPrice) {
     query.price = {};
@@ -38,15 +43,27 @@ async function getPropertiesDirect(searchParams: any) {
     if (maxPrice) query.price.$lte = Number.parseInt(maxPrice);
   }
   if (financing) {
-    query.financing = {
-      $in: financing
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-    };
+    const terms = financing
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (terms.length) {
+      const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      query.financing = {
+        $in: terms.map((t) => new RegExp(`^${esc(t)}$`, "i")),
+      };
+    }
   }
-  if (bedrooms)
-    query["specifications.bedrooms"] = { $gte: Number.parseInt(bedrooms) };
+  if (!financing && financingAny === "1") {
+    // Any property that lists one or more financing banks
+    query.financing = { $exists: true, $ne: [] };
+  }
+  if (bedrooms) {
+    const minBeds = Number.parseInt(bedrooms);
+    if (!Number.isNaN(minBeds)) {
+      query["specifications.bedrooms"] = { $gte: minBeds };
+    }
+  }
 
   const skip = (page - 1) * limit;
 

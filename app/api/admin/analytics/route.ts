@@ -27,7 +27,12 @@ export async function GET(req: NextRequest) {
     const totalProperties = await Property.countDocuments()
     const activeProperties = await Property.countDocuments({ status: "active" })
     const pendingProperties = await Property.countDocuments({ status: "pending" })
-    const featuredProperties = await Property.countDocuments({ isFeatured: true })
+    // Count currently featured properties (boolean flag AND still within featuredUntil window if set)
+    const now = new Date()
+    const featuredProperties = await Property.countDocuments({
+      featured: true,
+      $or: [{ featuredUntil: { $exists: false } }, { featuredUntil: { $gte: now } }],
+    })
 
     // Revenue stats
     const payments = await Payment.find()

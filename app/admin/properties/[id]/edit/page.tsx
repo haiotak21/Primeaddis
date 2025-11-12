@@ -81,6 +81,7 @@ export default function AdminPropertyEditPage() {
           amenities: Array.isArray(p.amenities) ? p.amenities.join(", ") : "",
           images: Array.isArray(p.images) ? p.images.join(", ") : "",
           vrTourUrl: p.vrTourUrl || "",
+          financing: Array.isArray(p.financing) ? p.financing.join(", ") : "",
         });
       } catch (e) {
         setError("Failed to load property");
@@ -129,6 +130,10 @@ export default function AdminPropertyEditPage() {
           .map((i: string) => i.trim())
           .filter(Boolean),
         vrTourUrl: formData.vrTourUrl || undefined,
+        financing: String(formData.financing)
+          .split(",")
+          .map((b: string) => b.trim())
+          .filter(Boolean),
       };
       await axios.put(`/api/properties/${id}`, body);
       router.push("/admin/properties");
@@ -428,6 +433,20 @@ export default function AdminPropertyEditPage() {
                       value={formData.amenities}
                       onChange={(e) =>
                         setFormData({ ...formData, amenities: e.target.value })
+                      }
+                    />
+                  </label>
+                </div>
+                <div>
+                  <label className="flex flex-col w-full">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
+                      Available Banks / Financing (comma-separated)
+                    </p>
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
+                      value={formData.financing || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, financing: e.target.value })
                       }
                     />
                   </label>

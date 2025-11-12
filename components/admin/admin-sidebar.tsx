@@ -26,6 +26,12 @@ export const adminLinks: NavItem[] = [
     roles: ["admin", "superadmin"],
   },
   {
+    title: "Favorites",
+    href: "/admin/favorites",
+    icon: "favorite",
+    roles: ["admin", "superadmin"],
+  },
+  {
     title: "Users",
     href: "/admin/users",
     icon: "group",

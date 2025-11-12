@@ -4,7 +4,8 @@ import User from "@/models/User"
 import { requireAuth } from "@/lib/middleware/auth"
 
 // DELETE remove from favorites
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+// Next.js 15: params is async for dynamic Route Handlers
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await requireAuth()
     if (session instanceof NextResponse) return session
@@ -16,7 +17,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    user.favorites = user.favorites.filter((fav) => fav.toString() !== params.id)
+    const { id } = await params
+    user.favorites = user.favorites.filter((fav) => fav.toString() !== id)
     await user.save()
 
     return NextResponse.json({ message: "Removed from favorites" })

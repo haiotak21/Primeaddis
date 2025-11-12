@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
+import axios from "axios";
 
 export default function AdminSettingsPage() {
   const { data: session, status } = useSession();
@@ -33,6 +35,43 @@ export default function AdminSettingsPage() {
   if (session?.user.role !== "superadmin") {
     return null;
   }
+
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("");
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
+  const [whatsappSaved, setWhatsappSaved] = useState(false);
+
+  // Load existing WhatsApp number once authenticated
+  useEffect(() => {
+    const load = async () => {
+      if (session?.user.role === "superadmin") {
+        try {
+          const res = await fetch("/api/admin/settings/whatsapp");
+          const data = await res.json();
+          setWhatsappNumber(data.whatsappNumber || "");
+        } catch {}
+      }
+    };
+    load();
+  }, [session]);
+
+  const saveWhatsapp = async () => {
+    setWhatsappLoading(true);
+    setWhatsappSaved(false);
+    try {
+      const res = await axios.put("/api/admin/settings/whatsapp", {
+        whatsappNumber,
+      });
+      if (res.data.success) {
+        setWhatsappNumber(res.data.whatsappNumber || whatsappNumber);
+        setWhatsappSaved(true);
+        setTimeout(() => setWhatsappSaved(false), 2500);
+      }
+    } catch (e) {
+      alert("Failed to save WhatsApp number");
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -71,6 +110,12 @@ export default function AdminSettingsPage() {
               className="flex-none shrink-0 min-w-fit px-3 py-2 text-sm sm:text-base"
             >
               Notifications
+            </TabsTrigger>
+            <TabsTrigger
+              value="contact"
+              className="flex-none shrink-0 min-w-fit px-3 py-2 text-sm sm:text-base"
+            >
+              Contact / WhatsApp
             </TabsTrigger>
           </TabsList>
 
@@ -251,6 +296,44 @@ export default function AdminSettingsPage() {
                 <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                   Save Changes
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="contact" className="mt-3 sm:mt-6">
+            <Card className="border border-primary/20 dark:bg-gray-900/30 shadow-sm !py-0 gap-3 sm:gap-6">
+              <CardHeader className="p-3 sm:p-6">
+                <CardTitle>Contact Channels</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Manage public contact numbers used across the site
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsappNumber">Global WhatsApp Number</Label>
+                  <Input
+                    id="whatsappNumber"
+                    placeholder="e.g. +12025550123"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    If set, this overrides the agent's phone for the WhatsApp
+                    button. Digits only are stored internally.
+                  </p>
+                </div>
+                <Button
+                  disabled={whatsappLoading}
+                  onClick={saveWhatsapp}
+                  className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                >
+                  {whatsappLoading ? "Saving..." : "Save"}
+                </Button>
+                {whatsappSaved && (
+                  <div className="text-xs text-green-600 font-medium">
+                    Saved successfully.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

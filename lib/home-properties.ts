@@ -11,11 +11,29 @@ export async function getHomeProperties(limit = 7) {
     console.warn("Home properties: DB unavailable, showing empty list");
     return [];
   }
-  // Only show active properties, sorted by newest
-  const properties = await Property.find({ status: "active" })
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .populate("listedBy", "name profileImage")
-    .lean();
+  // Show currently featured (non-expired) first, then newest active
+  const now = new Date()
+  const featuredQuery = {
+    status: "active",
+    featured: true,
+    $or: [{ featuredUntil: { $exists: false } }, { featuredUntil: { $gte: now } }],
+  }
+  const regularQuery = { status: "active", $or: [{ featured: false }, { featured: { $exists: false } }] }
+
+  const [featured, regular] = await Promise.all([
+    Property.find(featuredQuery)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate("listedBy", "name profileImage")
+      .lean(),
+    Property.find(regularQuery)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate("listedBy", "name profileImage")
+      .lean(),
+  ])
+
+  const combined = [...featured, ...regular].slice(0, limit)
+  const properties = combined
   return serializeBson(properties);
 }

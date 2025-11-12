@@ -48,6 +48,7 @@ export default function NewPropertyPage() {
     area: "",
     yearBuilt: "",
     amenities: "",
+    financing: "",
     images: [] as string[], // Now an array of URLs
     imagesUrlInput: "",
     videoUrl: "",
@@ -222,6 +223,10 @@ export default function NewPropertyPage() {
         amenities: formData.amenities
           .split(",")
           .map((a) => a.trim())
+          .filter(Boolean),
+        financing: formData.financing
+          .split(",")
+          .map((b) => b.trim())
           .filter(Boolean),
         images: imagesArr,
         videoUrl: formData.videoUrl || undefined,
@@ -452,6 +457,24 @@ export default function NewPropertyPage() {
                     />
                     <p className="text-[#47739e] dark:text-[#a0b3c6] text-sm mt-1.5">
                       Enter amenities separated by commas.
+                    </p>
+                  </label>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="flex flex-col">
+                    <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
+                      Available Banks / Financing
+                    </p>
+                    <input
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
+                      placeholder="e.g., CBE, Awash, Abyssinia"
+                      value={formData.financing}
+                      onChange={(e) =>
+                        setFormData({ ...formData, financing: e.target.value })
+                      }
+                    />
+                    <p className="text-[#47739e] dark:text-[#a0b3c6] text-sm mt-1.5">
+                      Enter bank names separated by commas.
                     </p>
                   </label>
                 </div>

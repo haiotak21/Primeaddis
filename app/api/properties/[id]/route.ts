@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import Property from "@/models/Property"
+import Favorite from "@/models/Favorite"
+import User from "@/models/User"
 import { requireAuth } from "@/lib/middleware/auth"
 
 function isValidObjectId(id: string) {
@@ -101,6 +103,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
 
     await Property.findByIdAndDelete(id)
+    // Cleanup: remove stale favorites referencing this property
+    try {
+      await Favorite.deleteMany({ propertyId: id })
+      await User.updateMany({}, { $pull: { favorites: id as any } })
+    } catch (e) {
+      // non-blocking
+    }
 
     return NextResponse.json({ message: "Property deleted successfully" })
   } catch (error) {
