@@ -4,16 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import CurrencyAmount from "@/components/common/currency-amount";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface MortgageCalculatorProps {
   price: number;
 }
 
 export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
-  const [totalAmount, setTotalAmount] = React.useState<number>(price);
-  const [downPayment, setDownPayment] = React.useState<number>(
-    Math.round(price * 0.2)
+  const { currency, rate } = useCurrency();
+
+  // Initialize amounts in the currently selected currency so inputs match displayed prices.
+  const toDisplayAmount = (usd: number) =>
+    currency === "ETB" ? Math.round(usd * rate) : usd;
+
+  const [totalAmount, setTotalAmount] = React.useState<number>(
+    toDisplayAmount(price)
   );
+  const [downPayment, setDownPayment] = React.useState<number>(
+    Math.round(toDisplayAmount(price) * 0.2)
+  );
+
+  // Keep inputs in sync when price or currency changes (e.g., user toggles currency)
+  React.useEffect(() => {
+    setTotalAmount(toDisplayAmount(price));
+    setDownPayment(Math.round(toDisplayAmount(price) * 0.2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [price, currency, rate]);
   const [rateAnnual, setRateAnnual] = React.useState<number>(6.5);
   const [years, setYears] = React.useState<number>(30);
 
@@ -101,7 +117,12 @@ export default function MortgageCalculator({ price }: MortgageCalculatorProps) {
             Estimated Monthly Payment
           </p>
           <p className="text-3xl font-black text-[#0b8bff]">
-            <CurrencyAmount amountUsd={monthly} />
+            {/* CurrencyAmount expects a USD amount; convert back to USD if we computed in ETB */}
+            {currency === "ETB" ? (
+              <CurrencyAmount amountUsd={monthly / rate} />
+            ) : (
+              <CurrencyAmount amountUsd={monthly} />
+            )}
           </p>
         </div>
       </CardContent>

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +27,7 @@ export const RequestSiteVisit: React.FC<RequestSiteVisitProps> = ({
     date: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [emailWarning, setEmailWarning] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,8 +41,12 @@ export const RequestSiteVisit: React.FC<RequestSiteVisitProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, propertyId, propertyTitle }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setSubmitted(true);
+        if ((data as any)?.warning === "email_failed") {
+          setEmailWarning(true);
+        }
       } else {
         alert("Failed to submit request. Please try again.");
       }
@@ -131,6 +138,12 @@ export const RequestSiteVisit: React.FC<RequestSiteVisitProps> = ({
                         <p className="text-foreground/80">
                           Our team will contact you soon to confirm your visit.
                         </p>
+                        {emailWarning && (
+                          <p className="text-yellow-600 text-sm mt-2">
+                            We couldn't send email notifications right now — the
+                            request was saved and we'll follow up manually.
+                          </p>
+                        )}
                       </div>
                     ) : (
                       <form

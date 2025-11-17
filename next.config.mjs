@@ -9,7 +9,26 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    // Enable Next.js image optimization and allow Cloudinary remote images.
+    // This reduces image payloads (WebP/AVIF, responsive sizes) improving LCP.
+    unoptimized: false,
+    remotePatterns: [
+      {
+        protocol: "https",
+        // Cloudinary serves images from `res.cloudinary.com/<cloud_name>/...`
+        hostname: "res.cloudinary.com",
+        port: "",
+        // Restrict to the configured cloud name for safety
+        pathname: `/${process.env.CLOUDINARY_CLOUD_NAME}/**`,
+      },
+      {
+        // Unsplash CDN images used in dev/content previews
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
   },
   async rewrites() {
     // Avoid Leaflet marker icon requests being handled by /properties/[id]
