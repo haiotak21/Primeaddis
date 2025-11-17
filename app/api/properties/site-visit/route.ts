@@ -87,8 +87,41 @@ We'll get back to you shortly to confirm the schedule.
           await sendViaMailerSend(email, requesterSubject, requesterText);
         }
       } catch (err) {
-        emailWarn = true;
         console.error("MailerSend failed to send emails:", err);
+        // Try SMTP fallback when MailerSend rejects (useful if from domain not verified)
+        try {
+          const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT || 587),
+            secure: process.env.SMTP_SECURE === "true" || Number(process.env.SMTP_PORT) === 465,
+            auth: {
+              user: process.env.SMTP_USER || process.env.EMAIL_USER,
+              pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
+            },
+          });
+
+          if (recipientEmail) {
+            await transporter.sendMail({
+              from: process.env.SMTP_FROM || process.env.SMTP_USER || process.env.EMAIL_USER || "no-reply@example.com",
+              to: recipientEmail,
+              replyTo: email,
+              subject: agentSubject,
+              text: agentText,
+            });
+          }
+
+          if (email) {
+            await transporter.sendMail({
+              from: process.env.SMTP_FROM || process.env.SMTP_USER || process.env.EMAIL_USER || "no-reply@example.com",
+              to: email,
+              subject: requesterSubject,
+              text: requesterText,
+            });
+          }
+        } catch (smtpErr) {
+          emailWarn = true;
+          console.error("MailerSend failed and SMTP fallback also failed:", smtpErr);
+        }
       }
     } else {
       // Configure transporter (SMTP)
