@@ -49,35 +49,46 @@ We'll get back to you shortly to confirm the schedule.
 
     // Prefer SendGrid if API key is configured; otherwise fallback to SMTP (nodemailer)
     let emailWarn = false;
-    if (process.env.SENDGRID_API_KEY) {
+    if (process.env.MAILERSEND_API_KEY) {
       try {
-        const sgMailModule = await import("@sendgrid/mail");
-        const sgMail = sgMailModule.default || sgMailModule;
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+        const fromAddress = process.env.MAILERSEND_FROM || process.env.SMTP_FROM || process.env.EMAIL_USER || "no-reply@example.com";
 
-        const fromAddress = process.env.SENDGRID_FROM || process.env.SMTP_FROM || process.env.EMAIL_USER || "no-reply@example.com";
+        const sendViaMailerSend = async (to: string, subject: string, text: string, replyTo?: string) => {
+          const body: any = {
+            from: { email: fromAddress },
+            to: [ { email: to } ],
+            subject,
+            text,
+          };
+          if (replyTo) {
+            body.reply_to = { email: replyTo };
+          }
+
+          const res = await fetch("https://api.mailersend.com/v1/email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${process.env.MAILERSEND_API_KEY}`,
+            },
+            body: JSON.stringify(body),
+          });
+
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`MailerSend error ${res.status}: ${txt}`);
+          }
+        };
 
         if (recipientEmail) {
-          await sgMail.send({
-            to: recipientEmail,
-            from: fromAddress,
-            subject: agentSubject,
-            text: agentText,
-            replyTo: email,
-          } as any);
+          await sendViaMailerSend(recipientEmail, agentSubject, agentText, email);
         }
 
         if (email) {
-          await sgMail.send({
-            to: email,
-            from: fromAddress,
-            subject: requesterSubject,
-            text: requesterText,
-          } as any);
+          await sendViaMailerSend(email, requesterSubject, requesterText);
         }
       } catch (err) {
         emailWarn = true;
-        console.error("SendGrid failed to send emails:", err);
+        console.error("MailerSend failed to send emails:", err);
       }
     } else {
       // Configure transporter (SMTP)
