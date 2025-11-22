@@ -63,7 +63,7 @@ export default function AdminPaymentsPage() {
     .filter((p) => p.type === "promotion")
     .reduce((sum, payment) => sum + payment.amount, 0);
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">Loading...</div>

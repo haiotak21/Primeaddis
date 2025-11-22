@@ -8,13 +8,13 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { CompareProvider } from "@/contexts/compare-context";
 import { CurrencyProvider } from "@/contexts/currency-context";
 import { Navbar } from "@/components/layout/navbar";
-import { CompareBar } from "@/components/properties/compare-bar";
-import Footer from "@/components/layout/footer";
+import RouteProgress from "@/components/route-progress";
+import ClientWidgets from "@/components/client-widgets";
+import ClientFooter from "@/components/client-footer";
 import "./globals.css";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "../messages.json";
 import { cookies } from "next/headers";
-import TawkWidget from "@/components/common/tawk-widget";
 import { ThemeProvider } from "@/components/theme-provider";
 import ChunkReloadOnce from "@/components/providers/chunk-reload";
 
@@ -50,7 +50,7 @@ export default async function RootLayout({
     | "ETB"
     | undefined;
   const cookieRate = cookieStore.get("CURRENCY_RATE")?.value;
-  const initialCurrency = cookieCurrency ?? "USD";
+  const initialCurrency = cookieCurrency ?? "ETB";
   const initialRate = cookieRate ? Number(cookieRate) : undefined;
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -77,18 +77,17 @@ export default async function RootLayout({
                   {/* Exclude header from new theme by resetting to defaults */}
                   <div className="default-theme">
                     <Navbar />
+                    <RouteProgress />
                   </div>
-                  <TawkWidget />
+                  <ClientWidgets />
                   {/* Main app content stays in the new app theme */}
                   <ChunkReloadOnce />
                   <Suspense fallback={<div>Loading...</div>}>
                     {children}
                   </Suspense>
-                  <CompareBar />
-                  {/* Exclude footer from new theme likewise */}
-                  <div className="default-theme">
-                    <Footer />
-                  </div>
+                  {/* CompareBar and Footer are rendered inside ClientWidgets (client-side) */}
+                  {/* Render footer at the bottom so it appears after page content */}
+                  <ClientFooter />
                 </CompareProvider>
               </CurrencyProvider>
             </ThemeProvider>

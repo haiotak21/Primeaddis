@@ -7,13 +7,22 @@ import SavedSearch from "@/models/SavedSearch"
 import Notification from "@/models/Notification"
 import User from "@/models/User"
 import { sendMail } from "@/lib/mailer"
+import RealEstate from "@/models/RealEstate"
+import mongoose from "mongoose"
 
 // GET all properties with filters
 export async function GET(req: NextRequest) {
   try {
     await connectDB()
 
-    const { searchParams } = new URL(req.url)
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const { searchParams } = parsedUrl
     const page = Number.parseInt(searchParams.get("page") || "1")
     const limit = Number.parseInt(searchParams.get("limit") || "12")
     const type = searchParams.get("type")
@@ -114,6 +123,19 @@ export async function POST(req: NextRequest) {
     // Validate input
     const validatedData = propertySchema.parse(body)
 
+    // Handle Real Estate Agency (create if not exists or if name provided)
+    if (validatedData.realEstate) {
+      const isObjectId = mongoose.isValidObjectId(validatedData.realEstate);
+      if (!isObjectId) {
+        // Assume it's a name
+        let agency = await RealEstate.findOne({ name: validatedData.realEstate });
+        if (!agency) {
+          agency = await RealEstate.create({ name: validatedData.realEstate });
+        }
+        validatedData.realEstate = agency._id.toString();
+      }
+    }
+
     // Enforce Ethiopia bounds for created properties (same as GET filtering)
     const ETH_BOUNDS = {
       minLat: 3.4,
@@ -194,13 +216,14 @@ export async function POST(req: NextRequest) {
         }))
         await Notification.insertMany(notifications)
 
-        // Send emails (fire and forget)
+        // Send emails for matched saved searches (fire and forget)
         for (const s of matched) {
           const user = userMap[s.user.toString?.() || s.user]
           if (!user?.email) continue
           const subject = `New property matches your saved search: ${doc.title}`
           const url = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/properties/${doc._id}`
-          const html = `<p>Hello${user.name ? ` ${user.name}` : ""},</p>
+          const thumbnail = (doc.images && doc.images[0]) ? `<img src="${doc.images[0]}" alt="${doc.title}" style="max-width:300px;display:block;margin-bottom:12px;border-radius:8px;"/>` : ""
+          const html = `${thumbnail}<p>Hello${user.name ? ` ${user.name}` : ""},</p>
             <p>A new property matches your saved search <b>${s.name}</b>:</p>
             <ul>
               <li><b>${doc.title}</b> - ${doc.type}, ${doc.listingType}, ${doc.location?.city || ""}</li>
@@ -212,6 +235,54 @@ export async function POST(req: NextRequest) {
         }
       } catch (e) {
         console.warn("saved-search alert dispatch failed", (e as any)?.message || e)
+      }
+    })()
+
+    // Fire-and-forget: broadcast to registered customers (opt-in respected and deduplicated)
+    ;(async () => {
+      try {
+        if ((property as any)?.status !== "active") return
+        // Build set of users already notified via saved-searches to avoid duplicates
+        const notifiedUserIds = new Set(matched.map((s: any) => String(s.user)))
+
+        // Find active regular users who opted in to marketing and exclude already notified
+        const recipients = await User.find({
+          role: "user",
+          isActive: true,
+          marketingOptIn: true,
+          _id: { $nin: Array.from(notifiedUserIds) },
+        })
+          .select("email name")
+          .lean()
+
+        if (!recipients || recipients.length === 0) return
+
+        const url = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/properties/${property._id}`
+        const subject = `New property listed: ${property.title}`
+        const thumbnail = (property as any).images && (property as any).images[0]
+          ? `<img src="${(property as any).images[0]}" alt="${property.title}" style="max-width:300px;display:block;margin-bottom:12px;border-radius:8px;"/>`
+          : ""
+
+        const htmlFor = (user: any) => `${thumbnail}<p>Hello${user.name ? ` ${user.name}` : ""},</p>
+          <p>We just listed a new property that might interest you:</p>
+          <ul>
+            <li><b>${property.title}</b></li>
+            <li>Type: ${property.type} — ${property.listingType}</li>
+            <li>Location: ${property.location?.city || ""}, ${property.location?.region || ""}</li>
+            <li>Price: ${property.price}</li>
+          </ul>
+          <p><a href="${url}">View property</a></p>
+          <p>If you do not wish to receive these emails, please update your preferences in your account.</p>`
+
+        // Send in small batches to avoid SMTP rate limits
+        const batchSize = 20
+        for (let i = 0; i < recipients.length; i += batchSize) {
+          const batch = recipients.slice(i, i + batchSize)
+          await Promise.allSettled(batch.map((u: any) => sendMail({ to: u.email, subject, html: htmlFor(u) }).catch((e) => e)))
+          if (i + batchSize < recipients.length) await new Promise((r) => setTimeout(r, 500))
+        }
+      } catch (e) {
+        console.warn("broadcast email dispatch failed", (e as any)?.message || e)
       }
     })()
 

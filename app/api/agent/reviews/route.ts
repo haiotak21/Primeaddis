@@ -12,9 +12,15 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get("status");
-    const q = searchParams.get("q");
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const status = parsedUrl.searchParams.get("status");
+    const q = parsedUrl.searchParams.get("q");
 
     const query: any = {};
     if (status && ["pending", "approved", "rejected"].includes(status)) query.status = status;

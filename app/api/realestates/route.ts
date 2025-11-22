@@ -6,7 +6,14 @@ import RealEstate from "@/models/RealEstate"
 export async function GET(req: Request) {
   try {
     await connectDB()
-    const { searchParams } = new URL(req.url)
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const { searchParams } = parsedUrl
     const search = (searchParams.get("search") || "").trim().toLowerCase()
     const limit = Number.parseInt(searchParams.get("limit") || "20")
     const query: any = search ? { name: { $regex: search, $options: "i" } } : {}

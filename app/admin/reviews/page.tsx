@@ -57,7 +57,7 @@ export default function AdminReviewsPage() {
     }
   };
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">Loading...</div>

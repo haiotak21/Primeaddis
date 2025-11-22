@@ -37,3 +37,27 @@ export async function getHomeProperties(limit = 7) {
   const properties = combined
   return serializeBson(properties);
 }
+
+export async function getFeaturedHomeProperties(limit = 12) {
+  try {
+    await connectDB();
+  } catch (e) {
+    console.warn("Featured home properties: DB unavailable, showing empty list");
+    return [];
+  }
+
+  const now = new Date();
+  const featuredQuery = {
+    status: "active",
+    featured: true,
+    $or: [{ featuredUntil: { $exists: false } }, { featuredUntil: { $gte: now } }],
+  };
+
+  const featured = await Property.find(featuredQuery)
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate("listedBy", "name profileImage")
+    .lean();
+
+  return serializeBson(featured);
+}

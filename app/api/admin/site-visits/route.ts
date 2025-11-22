@@ -8,7 +8,14 @@ export async function GET(req: NextRequest) {
   if (session instanceof NextResponse) return session;
   try {
     await connectDB();
-    const { searchParams } = new URL(req.url);
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const { searchParams } = parsedUrl;
     const page = Number.parseInt(searchParams.get("page") || "1");
     const limit = Number.parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;

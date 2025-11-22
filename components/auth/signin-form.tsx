@@ -30,28 +30,31 @@ export function SignInForm() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
+      // Use a full redirect for credentials sign-in so the browser receives
+      // the `Set-Cookie` header from the server response. In local dev a
+      // redirect-based flow is more reliable for cookie persistence.
+      const callbackUrl = `${window.location.origin}/dashboard`;
+      // Default NextAuth behavior (redirect: true) will navigate the page on
+      // success and set the session cookie via the server response.
+      await signIn("credentials", {
         email: email.trim().toLowerCase(),
         password,
-        redirect: false,
+        callbackUrl,
       });
-
-      if (result?.error) {
-        setError(result.error);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
-      }
     } catch (err) {
+      console.error("Sign-in error:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setLoading(true);
-    await signIn("google", { callbackUrl: "/dashboard" });
+    const callbackUrl = `${window.location.origin}/dashboard`;
+    await signIn("google", { callbackUrl });
   };
 
   return (
@@ -125,6 +128,7 @@ export function SignInForm() {
             type="button"
             variant="outline"
             className="w-full bg-transparent h-9 sm:h-10 text-sm sm:text-base"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handleGoogleSignIn}
             disabled={loading}
           >

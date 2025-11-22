@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { toSlug } from "@/lib/slugify";
 import connectDB from "@/lib/database";
 import Property from "@/models/Property";
 import Settings from "@/models/Settings";
@@ -29,6 +30,26 @@ async function getProperty(id: string) {
     .populate("listedBy", "name email phone profileImage")
     .lean();
   return property;
+}
+
+async function getPropertyBySlugOrId(raw: string) {
+  if (!raw) return null;
+  await connectDB();
+  // If raw is an ObjectId, fetch by id
+  if (isValidObjectId(raw)) {
+    return getProperty(raw);
+  }
+  // If raw ends with -<24hex>, extract id
+  const idMatch = raw.match(/-([a-fA-F0-9]{24})$/);
+  if (idMatch) {
+    return getProperty(idMatch[1]);
+  }
+  // Try finding by stored slug field
+  const bySlug = await Property.findOne({ slug: raw })
+    .populate("listedBy", "name email phone profileImage")
+    .lean();
+  if (bySlug) return bySlug;
+  return null;
 }
 
 async function getGlobalSettings() {
@@ -68,12 +89,10 @@ export default async function PropertyDetailPage({
 }) {
   // Next.js 15: params is async; await it before usage
   const { id } = await params;
-  if (!isValidObjectId(id)) {
-    notFound();
-  }
+  const raw = id as string;
 
   const [property, globalSettings] = await Promise.all([
-    getProperty(id),
+    getPropertyBySlugOrId(raw),
     getGlobalSettings(),
   ]);
   if (!property) {
@@ -127,9 +146,14 @@ export default async function PropertyDetailPage({
 
   // Build WhatsApp link and property URL
   const baseUrl = process.env.NEXTAUTH_URL || "";
+  const locationSlug = toSlug(
+    `${property.title} ${property.location?.city || ""} ${
+      property.location?.region || ""
+    }`
+  );
   const propertyUrl = baseUrl
-    ? `${baseUrl}/properties/${property._id}`
-    : `/properties/${property._id}`;
+    ? `${baseUrl}/properties/${locationSlug}`
+    : `/properties/${locationSlug}`;
   // Choose global override or agent phone
   const globalWhatsapp = (globalSettings as any)?.whatsappNumber;
   const whatsappNumber =
@@ -432,7 +456,7 @@ export default async function PropertyDetailPage({
                       asChild
                       className="w-full h-12 px-6 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 text-base font-bold tracking-wide"
                     >
-                      <a href={`/properties/${property._id}/vr`}>
+                      <a href={`/properties/${locationSlug}/vr`}>
                         View VR Tour
                       </a>
                     </Button>

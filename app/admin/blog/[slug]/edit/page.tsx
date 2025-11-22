@@ -78,6 +78,10 @@ export default function EditBlogPostPage() {
 
   if (loading) return <div className="p-8">Loading...</div>;
 
+  if (status === "loading" || loading) {
+    return <div className="p-8">Loading...</div>;
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <Card>
@@ -124,6 +128,13 @@ export default function EditBlogPostPage() {
             Published
           </label>
           <div className="flex justify-end">
+            <Button
+              variant="outline"
+              className="mr-2"
+              onClick={() => router.push("/admin/blog")}
+            >
+              Cancel
+            </Button>
             <Button
               onClick={handleSave}
               disabled={saving || !title || !slug || !content}

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Ruler, Scan, Heart } from "lucide-react";
 import type { IProperty } from "@/models";
 import { useCurrency } from "@/contexts/currency-context";
+import { toSlug } from "@/lib/slugify";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { useCompare } from "@/contexts/compare-context";
 import { useState } from "react";
 import axios from "axios";
@@ -17,6 +19,19 @@ type Props = {
 };
 
 export function HomePropertyCard({ property }: Props) {
+  // Wrap the interactive bits in an inner component that consumes next-auth's
+  // `useSession`. Some render paths were mounting this component outside the
+  // expected provider tree which caused `useSession` to throw. Wrapping the
+  // inner client consumer with our local `SessionProvider` ensures the hook
+  // always has a provider.
+  return (
+    <SessionProvider>
+      <HomePropertyCardInner property={property} />
+    </SessionProvider>
+  );
+}
+
+function HomePropertyCardInner({ property }: Props) {
   const { format } = useCurrency();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const img = property.images?.[0];
@@ -163,7 +178,11 @@ export function HomePropertyCard({ property }: Props) {
           </div>
 
           <Link
-            href={`/properties/${property._id}`}
+            href={`/properties/${toSlug(
+              `${property.title} ${property.location?.city || ""} ${
+                property.location?.region || ""
+              }`
+            )}`}
             className="block w-full text-center bg-primary text-white font-semibold py-2 sm:py-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors mt-auto text-sm sm:text-base"
           >
             View Property Details

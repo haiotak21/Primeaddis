@@ -3,6 +3,7 @@ import { headers, cookies } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
+import { toSlug } from "@/lib/slugify";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ async function getBaseUrl() {
 
 async function fetchAdminFavorites() {
   const baseUrl = await getBaseUrl();
-  const cookieStore: any = cookies();
+  const cookieStore: any = await cookies();
   const cookieHeader =
     typeof cookieStore.getAll === "function"
       ? cookieStore
@@ -92,9 +93,21 @@ export default async function AdminFavoritesPage() {
                   <td className="p-3">{row.user.email}</td>
                   <td className="p-3">
                     <Link
-                      href={`/properties/${
-                        row.property.slug || row.property.id
-                      }`}
+                      href={
+                        row.property.slug
+                          ? `/properties/${row.property.slug}`
+                          : `/properties/${toSlug(
+                              `${row.property.title} ${
+                                (row.property.location &&
+                                  row.property.location.city) ||
+                                ""
+                              } ${
+                                (row.property.location &&
+                                  row.property.location.region) ||
+                                ""
+                              }`
+                            )}`
+                      }
                       className="underline"
                     >
                       {row.property.title}

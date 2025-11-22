@@ -37,7 +37,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       update.featuredUntil = null;
     }
 
-    const property = await Property.findByIdAndUpdate(params.id, update, { new: true });
+    // `params` can be a thenable in Next.js dynamic API routes — await it
+    const resolvedParams: any = await (params as any);
+    const property = await Property.findByIdAndUpdate(resolvedParams.id, update, { new: true });
     if (!property) return NextResponse.json({ error: "Property not found" }, { status: 404 });
 
     return NextResponse.json({ property });

@@ -38,6 +38,7 @@ export const RequestSiteVisit: React.FC<RequestSiteVisitProps> = ({
     try {
       const res = await fetch("/api/properties/site-visit", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, propertyId, propertyTitle }),
       });

@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/contexts/currency-context";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,6 +56,9 @@ export default function NewPropertyPage() {
     vrTourUrl: "",
     realEstate: "",
   });
+
+  // Currency context (defaults to ETB)
+  const { currency, rate } = useCurrency();
 
   // Handle file upload via custom event from FileUpload -> upload to API -> store returned URLs
   useEffect(() => {
@@ -193,10 +197,18 @@ export default function NewPropertyPage() {
         return;
       }
 
+      const inputPrice = Number.parseFloat(formData.price);
+      // Convert to USD for storage: this app stores prices as USD amounts.
+      // If the user entered ETB (currency === 'ETB'), convert by dividing by rate.
+      const priceUsd =
+        currency === "ETB" && !Number.isNaN(inputPrice)
+          ? Math.round(inputPrice / rate)
+          : inputPrice;
+
       const propertyData = {
         title: formData.title,
         description: formData.description,
-        price: Number.parseFloat(formData.price),
+        price: priceUsd,
         type: formData.type,
         listingType: formData.listingType,
         location: {
@@ -348,11 +360,15 @@ export default function NewPropertyPage() {
                 <div>
                   <label className="flex flex-col">
                     <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
-                      Price ($)
+                      Price ({currency === "USD" ? "USD" : "ETB"})
                     </p>
                     <input
                       className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
-                      placeholder="Enter price"
+                      placeholder={
+                        currency === "USD"
+                          ? "Enter price (USD)"
+                          : "Enter price (ETB, e.g. 5,750,000)"
+                      }
                       type="number"
                       value={formData.price}
                       onChange={(e) =>
@@ -406,20 +422,20 @@ export default function NewPropertyPage() {
                     <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
                       Real Estate Agency
                     </p>
-                    <select
-                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] bg-white dark:bg-[#2c3e50] dark:text-white"
+                    <Input
+                      list="agencies"
+                      className="h-12 px-4 border border-[#dfe6e9] dark:border-[#2c3e50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0b8bff66] dark:focus:ring-[#0b8bff66] bg-white dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
+                      placeholder="Select or type agency name"
                       value={formData.realEstate}
                       onChange={(e) =>
                         setFormData({ ...formData, realEstate: e.target.value })
                       }
-                    >
-                      <option value="">Select agency</option>
+                    />
+                    <datalist id="agencies">
                       {realEstates.map((r) => (
-                        <option key={r._id} value={r._id}>
-                          {r.name}
-                        </option>
+                        <option key={r._id} value={r.name} />
                       ))}
-                    </select>
+                    </datalist>
                   </label>
                 </div>
                 <div>
@@ -720,28 +736,71 @@ export default function NewPropertyPage() {
                   </label>
                 </div>
 
-                {/* Thumbnails preview */}
+                {/* Thumbnails preview with per-image cancel controls */}
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {((formData.imagesUrlInput &&
-                    formData.imagesUrlInput.split(",").filter(Boolean).length >
-                      0) ||
-                    (formData.images && formData.images.length > 0)) &&
-                    [
-                      ...(formData.imagesUrlInput
-                        ? formData.imagesUrlInput
-                            .split(",")
-                            .map((i) => i.trim())
-                            .filter(Boolean)
-                        : []),
-                      ...(formData.images || []),
-                    ].map((url, idx) => (
-                      <img
-                        key={idx}
-                        src={url}
-                        alt={`Property image ${idx + 1}`}
-                        className="w-24 h-24 object-cover rounded border dark:border-primary/20"
-                      />
-                    ))}
+                  {(() => {
+                    const inputImgs = formData.imagesUrlInput
+                      ? formData.imagesUrlInput
+                          .split(",")
+                          .map((i) => i.trim())
+                          .filter(Boolean)
+                      : [];
+                    const uploadImgs = formData.images || [];
+                    if (inputImgs.length === 0 && uploadImgs.length === 0)
+                      return null;
+                    const combined = [
+                      ...inputImgs.map((url, i) => ({ url, src: "input", i })),
+                      ...uploadImgs.map((url, i) => ({
+                        url,
+                        src: "upload",
+                        i,
+                      })),
+                    ];
+
+                    const removeImage = (
+                      src: "input" | "upload",
+                      idx: number
+                    ) => {
+                      if (src === "input") {
+                        const arr = formData.imagesUrlInput
+                          ? formData.imagesUrlInput
+                              .split(",")
+                              .map((i) => i.trim())
+                              .filter(Boolean)
+                          : [];
+                        arr.splice(idx, 1);
+                        setFormData((prev) => ({
+                          ...prev,
+                          imagesUrlInput: arr.join(", "),
+                        }));
+                      } else {
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: (prev.images || []).filter(
+                            (_, i) => i !== idx
+                          ),
+                        }));
+                      }
+                    };
+
+                    return combined.map((item, idx) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={item.url}
+                          alt={`Property image ${idx + 1}`}
+                          className="w-24 h-24 object-cover rounded border dark:border-primary/20"
+                        />
+                        <button
+                          type="button"
+                          aria-label={`Remove image ${idx + 1}`}
+                          onClick={() => removeImage(item.src as any, item.i)}
+                          className="absolute -top-1 -right-1 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center border shadow-sm"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ));
+                  })()}
                 </div>
               </div>
             </div>

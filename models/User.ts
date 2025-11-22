@@ -71,6 +71,11 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: true,
     },
+    // Whether the user has opted in to marketing / broadcast emails
+    marketingOptIn: {
+      type: Boolean,
+      default: true,
+    },
     lastLogin: Date,
   },
   {

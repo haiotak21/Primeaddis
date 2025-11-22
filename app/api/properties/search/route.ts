@@ -6,8 +6,14 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB()
 
-    const { searchParams } = new URL(req.url)
-    const query = searchParams.get("q")
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const query = parsedUrl.searchParams.get("q")
 
     if (!query) {
       return NextResponse.json({ error: "Search query is required" }, { status: 400 })

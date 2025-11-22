@@ -23,9 +23,19 @@ export default function NewBlogPostPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/auth/signin");
-    if (session && !["admin", "superadmin"].includes(session.user.role))
+    // Don't redirect while NextAuth is still loading the session to avoid
+    // a race where the client sees "unauthenticated" during the initial
+    // fetch right after sign-in and redirects back to the sign-in page.
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+      return;
+    }
+
+    if (session && !["admin", "superadmin"].includes(session.user.role)) {
       router.push("/dashboard");
+    }
   }, [status, session, router]);
 
   const handleSave = async () => {
@@ -47,10 +57,17 @@ export default function NewBlogPostPage() {
         body.publishedAt = new Date().toISOString();
       const res = await axios.post("/api/blog", body);
       router.push(`/admin/blog/${res.data.post.slug}/edit`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create post");
     } finally {
       setSaving(false);
     }
   };
+
+  if (status === "loading") {
+    return <div className="p-8">Loading...</div>;
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">

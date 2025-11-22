@@ -16,8 +16,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ notifications: [], unreadCount: 0, dbUnavailable: true })
     }
 
-    const { searchParams } = new URL(req.url)
-    const unreadOnly = searchParams.get("unreadOnly") === "true"
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const unreadOnly = parsedUrl.searchParams.get("unreadOnly") === "true"
 
     const userId = session.user.id as string
     // If id isn't a valid ObjectId (e.g., superadmin fallback older session), return empty

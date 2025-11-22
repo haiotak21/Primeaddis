@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { toSlug } from "@/lib/slugify";
 
 export default function AgentProperties() {
   const [properties, setProperties] = useState<any[]>([]);
@@ -64,7 +65,14 @@ export default function AgentProperties() {
             </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
-            <Link href={`/properties/${p._id}`} className="underline">
+            <Link
+              href={`/properties/${toSlug(
+                `${p.title} ${(p.location && p.location.city) || ""} ${
+                  (p.location && p.location.region) || ""
+                }`
+              )}`}
+              className="underline"
+            >
               View
             </Link>
             <span>•</span>

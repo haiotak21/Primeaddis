@@ -4,6 +4,7 @@ export { default as Payment } from "./Payment"
 export { default as Review } from "./Review"
 export { default as Notification } from "./Notification"
 export { default as SiteVisitRequest } from "./SiteVisitRequest"
+export { default as Hero } from "./Hero"
 
 export { default as SavedSearch } from "./SavedSearch"
 

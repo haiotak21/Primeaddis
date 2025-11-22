@@ -1,22 +1,26 @@
-import { type NextRequest, NextResponse } from "next/server"
-import nodemailer from "nodemailer"
-import connectDB from "@/lib/database"
-import Property from "@/models/Property"
-import Notification from "@/models/Notification"
+import { type NextRequest, NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+import connectDB from "@/lib/database";
+import Property from "@/models/Property";
+import Notification from "@/models/Notification";
+import Inquiry from "@/models/Inquiry";
 
 export async function POST(req: NextRequest) {
   try {
-    const { propertyId, name, email, phone, message } = await req.json()
+    const { propertyId, name, email, phone, message } = await req.json();
 
-    await connectDB()
+    await connectDB();
 
-    const property = await Property.findById(propertyId).populate("listedBy")
+    const property = await Property.findById(propertyId).populate("listedBy");
 
     if (!property) {
-      return NextResponse.json({ error: "Property not found" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Property not found" },
+        { status: 404 }
+      );
     }
 
-    const agent = property.listedBy as any
+    const agent = property.listedBy as any;
 
     // Create notification for agent
     await Notification.create({
@@ -24,7 +28,21 @@ export async function POST(req: NextRequest) {
       message: `New inquiry for "${property.title}" from ${name}`,
       type: "inquiry",
       relatedId: propertyId,
-    })
+    });
+
+    // Persist the inquiry so admins can manage it
+    try {
+      await Inquiry.create({
+        propertyId,
+        propertyTitle: property.title,
+        name,
+        email,
+        phone,
+        message,
+      });
+    } catch (e) {
+      console.warn("Failed to persist inquiry:", (e as any)?.message || e);
+    }
 
     // Send email to agent
     if (process.env.EMAIL_SERVER_HOST) {
@@ -36,7 +54,7 @@ export async function POST(req: NextRequest) {
           user: process.env.EMAIL_SERVER_USER,
           pass: process.env.EMAIL_SERVER_PASSWORD,
         },
-      })
+      });
 
       await transporter.sendMail({
         from: process.env.EMAIL_FROM || "noreply@realestatepro.com",
@@ -44,7 +62,9 @@ export async function POST(req: NextRequest) {
         subject: `New Inquiry for ${property.title}`,
         html: `
           <h2>New Property Inquiry</h2>
-          <p>You have received a new inquiry for your property: <strong>${property.title}</strong></p>
+          <p>You have received a new inquiry for your property: <strong>${
+            property.title
+          }</strong></p>
           
           <h3>Contact Details:</h3>
           <ul>
@@ -58,12 +78,15 @@ export async function POST(req: NextRequest) {
           
           <p>Please respond to this inquiry as soon as possible.</p>
         `,
-      })
+      });
     }
 
-    return NextResponse.json({ message: "Inquiry sent successfully" })
+    return NextResponse.json({ message: "Inquiry sent successfully" });
   } catch (error) {
-    console.error("Error sending inquiry:", error)
-    return NextResponse.json({ error: "Failed to send inquiry" }, { status: 500 })
+    console.error("Error sending inquiry:", error);
+    return NextResponse.json(
+      { error: "Failed to send inquiry" },
+      { status: 500 }
+    );
   }
 }

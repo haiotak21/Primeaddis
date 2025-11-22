@@ -8,6 +8,7 @@ import { CompareButton } from "@/components/properties/compare-button";
 import type { IProperty } from "@/models";
 import PropertyCardFooter from "@/components/properties/property-card-footer";
 import { useMemo, useState } from "react";
+import { toSlug } from "@/lib/slugify";
 import axios from "axios";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,11 @@ export function PropertyCard({ property, compactSpecs }: PropertyCardProps) {
     <>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 h-full flex flex-col">
         <Link
-          href={`/properties/${property._id}`}
+          href={`/properties/${toSlug(
+            `${property.title} ${property.location?.city || ""} ${
+              property.location?.region || ""
+            }`
+          )}`}
           className="relative w-full h-48 sm:h-56 block"
         >
           <Image src={img} alt={property.title} fill className="object-cover" />
@@ -80,7 +85,14 @@ export function PropertyCard({ property, compactSpecs }: PropertyCardProps) {
         </Link>
 
         <div className="p-3 sm:p-6 flex-grow flex flex-col">
-          <Link href={`/properties/${property._id}`} className="block">
+          <Link
+            href={`/properties/${toSlug(
+              `${property.title} ${property.location?.city || ""} ${
+                property.location?.region || ""
+              }`
+            )}`}
+            className="block"
+          >
             <h3 className="text-[13px] sm:text-xl font-bold text-gray-800 dark:text-white mb-1 truncate">
               {property.title}
             </h3>
@@ -171,7 +183,11 @@ export function PropertyCard({ property, compactSpecs }: PropertyCardProps) {
               <span className="text-sm">{saved ? "Saved" : "Save"}</span>
             </Button>
             <Link
-              href={`/properties/${property._id}`}
+              href={`/properties/${toSlug(
+                `${property.title} ${property.location?.city || ""} ${
+                  property.location?.region || ""
+                }`
+              )}`}
               className="flex-1 text-center bg-primary text-white font-semibold py-2 sm:py-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-sm sm:text-base"
             >
               View Details

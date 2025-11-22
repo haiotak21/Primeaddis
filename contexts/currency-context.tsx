@@ -27,7 +27,7 @@ const DEFAULT_RATE = 115; // 1 USD = 115 ETB (example)
 
 export function CurrencyProvider({
   children,
-  initialCurrency = "USD",
+  initialCurrency = "ETB",
   initialRate = DEFAULT_RATE,
 }: {
   children: React.ReactNode;
@@ -57,11 +57,12 @@ export function CurrencyProvider({
         }).format(amountUsd);
       }
       const birr = amountUsd * rate;
-      return new Intl.NumberFormat("am-ET", {
-        style: "currency",
-        currency: "ETB",
-        minimumFractionDigits: 0,
-      }).format(birr);
+      // Format the numeric part and append the ETB symbol after the number
+      // This ensures values render as "5,750,000 ብር" instead of "ብር 5,750,000"
+      const numberFormatted = new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+      }).format(Math.round(birr));
+      return `${numberFormatted} ብር`;
     };
   }, [currency, rate]);
 
@@ -81,17 +82,18 @@ export function useCurrency() {
   const ctx = useContext(CurrencyContext);
   if (!ctx) {
     // Graceful fallback if provider is missing in a subtree during SSR/refresh
-    const fallbackFormat = (amountUsd: number) =>
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 0,
-      }).format(amountUsd);
+    const fallbackFormat = (amountUsd: number) => {
+      const birr = amountUsd * DEFAULT_RATE;
+      const numberFormatted = new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 0,
+      }).format(Math.round(birr));
+      return `${numberFormatted} ብር`;
+    };
     return {
-      currency: "USD",
+      currency: "ETB",
       // no-ops to avoid state updates without a provider
       setCurrency: () => {},
-      rate: 115,
+      rate: DEFAULT_RATE,
       setRate: () => {},
       format: fallbackFormat,
     };

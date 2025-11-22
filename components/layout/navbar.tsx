@@ -16,7 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
+import dynamic from "next/dynamic";
+const NotificationDropdown = dynamic(
+  () =>
+    import("@/components/notifications/notification-dropdown").then(
+      (m) => m.NotificationDropdown
+    ),
+  { ssr: false }
+);
 import { useCurrency } from "@/contexts/currency-context";
 import { useTheme } from "next-themes";
 import { GlobeIcon } from "lucide-react";
@@ -93,8 +100,12 @@ export function Navbar() {
           } border border-transparent dark:border-[#4A5568]`}
         >
           <div className="flex items-center gap-10">
-            {/* Centered logo on mobile (absolute) */}
-            <div className="sm:hidden absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">
+            {/* Centered logo on mobile (absolute) - clickable */}
+            <Link
+              href="/"
+              className="sm:hidden absolute left-1/2 -translate-x-1/2 -translate-y-0"
+              aria-label={t("site.title")}
+            >
               <Image
                 src="/logo.png"
                 alt={t("site.title")}
@@ -111,7 +122,7 @@ export function Navbar() {
                 className="h-7 w-auto hidden dark:block"
                 priority
               />
-            </div>
+            </Link>
 
             {/* Default logo (hidden on mobile) */}
             <Link href="/" className="hidden sm:flex items-center gap-3">
@@ -179,6 +190,13 @@ export function Navbar() {
                 className="text-gray-800 dark:text-gray-300 text-base font-medium hover:text-primary dark:hover:text-white transition-colors"
               >
                 Agents
+              </Link>
+              <Link
+                href="/blog"
+                prefetch
+                className="text-gray-800 dark:text-gray-300 text-base font-medium hover:text-primary dark:hover:text-white transition-colors"
+              >
+                Blog
               </Link>
               <Link
                 href="/about"
@@ -550,6 +568,13 @@ export function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Agents
+            </Link>
+            <Link
+              href="/blog"
+              className="block rounded px-3 py-2 text-sm text-[#03063b] dark:text-white hover:bg-muted"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Blog
             </Link>
             <Link
               href="/about"

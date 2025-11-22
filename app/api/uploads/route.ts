@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { cloudinary } from "@/lib/cloudinary"
 
 const MAX_BYTES = Number(process.env.UPLOAD_MAX_BYTES || 5 * 1024 * 1024) // 5MB default
-const UPLOAD_TIMEOUT_MS = Number(process.env.CLOUDINARY_TIMEOUT_MS || 20000) // 20s default
+// Default upload timeout (ms). Increase to 60s to tolerate slower network/dev setups.
+const UPLOAD_TIMEOUT_MS = Number(process.env.CLOUDINARY_TIMEOUT_MS || 60000) // 60s default
 const FAKE_UPLOAD = process.env.UPLOADS_FAKE === "true" || process.env.UPLOADS_FAKE === "1"
 
 export const runtime = "nodejs"

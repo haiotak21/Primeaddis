@@ -3,7 +3,9 @@ import connectDB from "@/lib/database"
 import Property from "@/models/Property"
 import Favorite from "@/models/Favorite"
 import User from "@/models/User"
+import RealEstate from "@/models/RealEstate"
 import { requireAuth } from "@/lib/middleware/auth"
+import mongoose from "mongoose"
 
 function isValidObjectId(id: string) {
   return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id)
@@ -18,7 +20,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     await connectDB()
 
-    const property = await Property.findById(id).populate("listedBy", "name email phone profileImage").lean()
+    const property = await Property.findById(id)
+      .populate("listedBy", "name email phone profileImage")
+      .populate("realEstate", "name")
+      .lean()
 
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 })
@@ -41,6 +46,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (session instanceof NextResponse) return session
 
     const body = await req.json()
+
+    // Handle Real Estate Agency (create if not exists or if name provided)
+    if (body.realEstate) {
+      const isObjectId = mongoose.isValidObjectId(body.realEstate);
+      if (!isObjectId) {
+        // Assume it's a name
+        let agency = await RealEstate.findOne({ name: body.realEstate });
+        if (!agency) {
+          agency = await RealEstate.create({ name: body.realEstate });
+        }
+        body.realEstate = agency._id.toString();
+      }
+    }
 
     const { id } = await params
     if (!isValidObjectId(id)) {

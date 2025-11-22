@@ -1,11 +1,31 @@
 import Link from "next/link";
+import { toSlug } from "@/lib/slugify";
+import ResendSiteVisit from "@/components/admin/resend-site-visit";
+import { requireRole } from "@/lib/middleware/auth";
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/database";
+import SiteVisitRequest from "@/models/SiteVisitRequest";
 
-async function getSiteVisits() {
-  const res = await fetch(`/api/admin/site-visits`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return { siteVisits: [], pagination: null };
-  return res.json();
+async function getSiteVisits(page = 1, limit = 20) {
+  const session = await requireRole(["admin", "superadmin"]);
+  if (session instanceof NextResponse)
+    return { siteVisits: [], pagination: null };
+
+  await connectDB();
+  const skip = (page - 1) * limit;
+  const [items, total] = await Promise.all([
+    SiteVisitRequest.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    SiteVisitRequest.countDocuments(),
+  ]);
+
+  return {
+    siteVisits: items,
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+  };
 }
 
 export default async function AdminSiteVisitsPage() {
@@ -27,13 +47,15 @@ export default async function AdminSiteVisitsPage() {
               <th className="px-4 py-3 text-left">Name</th>
               <th className="px-4 py-3 text-left">Email</th>
               <th className="px-4 py-3 text-left">Phone</th>
+              <th className="px-4 py-3 text-left">Email Status</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {siteVisits.length === 0 ? (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={7}
                   className="px-4 py-6 text-center text-muted-foreground"
                 >
                   No site visit requests yet
@@ -41,14 +63,18 @@ export default async function AdminSiteVisitsPage() {
               </tr>
             ) : (
               siteVisits.map((sv: any) => (
-                <tr key={sv._id} className="border-t">
+                <tr key={String(sv._id)} className="border-t">
                   <td className="px-4 py-3">
                     {new Date(sv.createdAt).toLocaleString()}
                   </td>
                   <td className="px-4 py-3">
                     <Link
                       className="text-primary underline"
-                      href={`/properties/${sv.propertyId}`}
+                      href={
+                        sv.propertyTitle
+                          ? `/properties/${toSlug(sv.propertyTitle)}`
+                          : `/properties/${sv.propertyId}`
+                      }
                     >
                       {sv.propertyTitle || sv.propertyId}
                     </Link>
@@ -56,6 +82,22 @@ export default async function AdminSiteVisitsPage() {
                   <td className="px-4 py-3">{sv.name}</td>
                   <td className="px-4 py-3">{sv.email}</td>
                   <td className="px-4 py-3">{sv.phone}</td>
+                  <td className="px-4 py-3">
+                    {sv.emailSent ? (
+                      <span className="text-xs text-green-600">Sent</span>
+                    ) : sv.emailError ? (
+                      <span className="text-xs text-amber-600">
+                        {sv.emailError}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Pending
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <ResendSiteVisit id={String(sv._id)} />
+                  </td>
                 </tr>
               ))
             )}

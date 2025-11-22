@@ -7,6 +7,9 @@ export interface ISiteVisitRequest extends Document {
   email: string;
   phone: string;
   date: string;
+  // Email delivery status
+  emailSent?: boolean;
+  emailError?: string;
   createdAt: Date;
 }
 
@@ -18,6 +21,8 @@ const SiteVisitRequestSchema = new Schema<ISiteVisitRequest>(
     email: { type: String, required: true },
     phone: { type: String, required: true },
     date: { type: String, required: true },
+    emailSent: { type: Boolean, default: false },
+    emailError: { type: String, default: "" },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

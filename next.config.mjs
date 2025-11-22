@@ -9,9 +9,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    // Enable Next.js image optimization and allow Cloudinary remote images.
-    // This reduces image payloads (WebP/AVIF, responsive sizes) improving LCP.
-    unoptimized: false,
+    // During local development Next's image optimizer can cause fetch/proxy
+    // timeouts when external image hosts are slow or unreachable. Disable
+    // optimization in non-production to avoid repeated _next/image 500s.
+    unoptimized: process.env.NODE_ENV !== "production",
     remotePatterns: [
       {
         protocol: "https",
@@ -25,6 +26,13 @@ const nextConfig = {
         // Unsplash CDN images used in dev/content previews
         protocol: "https",
         hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        // Some premium Unsplash images come from plus.unsplash.com
+        protocol: "https",
+        hostname: "plus.unsplash.com",
         port: "",
         pathname: "/**",
       },

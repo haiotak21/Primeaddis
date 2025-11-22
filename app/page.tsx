@@ -2,23 +2,23 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HomeLatest } from "@/components/properties/home-latest";
-import { getHomeProperties } from "@/lib/home-properties";
-import { Hero } from "@/components/home/hero";
+import { getFeaturedHomeProperties } from "@/lib/home-properties";
+import HeroServer from "@/components/home/hero-server";
 import { TestimonialsSection } from "@/components/testimonials/testimonials";
 
 export default async function HomePage() {
-  const properties = await getHomeProperties(7);
+  const properties = await getFeaturedHomeProperties(12);
   return (
     <div className="min-h-screen home-theme bg-background text-foreground">
       {/* Hero Section (full-screen) */}
-      <Hero />
+      <HeroServer />
 
       {/* Properties Preview Section */}
       <section className="pt-6 pb-6 sm:py-20 md:py-16 lg:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Latest Properties
+              Featured Properties
             </h2>
             <Link
               href="/properties"

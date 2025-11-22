@@ -9,8 +9,14 @@ export async function GET(req: NextRequest) {
   if (session instanceof NextResponse) return session;
   try {
     await connectDB();
-    const { searchParams } = new URL(req.url);
-    const days = Math.min(Math.max(Number(searchParams.get("days") || 30), 1), 180);
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url);
+    } catch (e) {
+      const base = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+      parsedUrl = new URL(req.url, base);
+    }
+    const days = Math.min(Math.max(Number(parsedUrl.searchParams.get("days") || 30), 1), 180);
     const since = new Date();
     since.setUTCDate(since.getUTCDate() - days + 1);
     const snapshots = await FavoriteSnapshot.find({ date: { $gte: since } })

@@ -59,7 +59,7 @@ export default function PendingReviewPage() {
 
   const total = properties.length;
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div>Loading...</div>

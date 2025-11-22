@@ -25,7 +25,7 @@ export default function AdminBottomNav() {
         aria-label="Admin bottom navigation"
       >
         <ul className="flex items-stretch gap-1 px-1 whitespace-nowrap">
-          {links.slice(0, 7).map((l) => {
+          {links.map((l) => {
             const active =
               pathname === l.href ||
               (l.href !== "/admin" && pathname?.startsWith(l.href));
@@ -34,7 +34,7 @@ export default function AdminBottomNav() {
                 <Link
                   href={l.href}
                   className={cn(
-                    "inline-flex min-w-[84px] flex-col items-center justify-center px-3 py-2.5 text-[11px] font-medium rounded-md",
+                    "inline-flex min-w-[64px] flex-col items-center justify-center px-3 py-2.5 text-[11px] font-medium rounded-md",
                     active
                       ? "text-[#0b8bff]"
                       : "text-gray-600 dark:text-gray-300"
@@ -58,7 +58,7 @@ export default function AdminBottomNav() {
             <Link
               href="/dashboard"
               className={cn(
-                "inline-flex min-w-[84px] flex-col items-center justify-center px-3 py-2.5 text-[11px] font-medium text-gray-600 dark:text-gray-300 rounded-md"
+                "inline-flex min-w-[64px] flex-col items-center justify-center px-3 py-2.5 text-[11px] font-medium text-gray-600 dark:text-gray-300 rounded-md"
               )}
             >
               <span className="material-symbols-outlined text-[22px] leading-none">

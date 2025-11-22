@@ -115,6 +115,16 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
+      try {
+        // Debug: log provider and user info (no secrets)
+        console.debug('[nextauth] signIn callback', {
+          provider: account?.provider,
+          email: user?.email,
+        });
+      } catch (e) {
+        /* ignore logging errors */
+      }
+
       if (account?.provider === "google") {
         // Best effort: don't crash if DB is unavailable
         try {
@@ -156,6 +166,17 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async jwt({ token, user, trigger, session }) {
+      try {
+        // Debug: log jwt callback inputs (avoid sensitive data)
+        console.debug('[nextauth] jwt callback', {
+          trigger,
+          hasUser: !!user,
+          tokenKeys: Object.keys(token || {}),
+        });
+      } catch (e) {
+        /* ignore logging errors */
+      }
+
       const isSuperEmail = (email?: string | null) =>
         !!(
           email &&
@@ -180,17 +201,27 @@ export const authOptions: NextAuthOptions = {
         token.image = safeImage((user as any).image) ?? token.image
       }
 
-      // Handle session update
-      if (trigger === "update" && session) {
-        // Merge selected fields from session into token to allow updating name/image
-        token = { ...token, ...session }
-        const updatedImage = safeImage((session as any).image)
-        if (updatedImage) (token as any).image = updatedImage
+      // Handle session update: safely merge allowed fields from session.user
+      if (trigger === "update" && session?.user) {
+        const { name, image } = session.user as any;
+        if (typeof name === "string" && name) token.name = name;
+        const updatedImage = safeImage(image);
+        if (updatedImage) token.image = updatedImage as any;
       }
 
       return token
     },
     async session({ session, token }) {
+      try {
+        // Debug: log session callback inputs
+        console.debug('[nextauth] session callback', {
+          userId: token.id,
+          role: token.role,
+        });
+      } catch (e) {
+        /* ignore logging errors */
+      }
+
       if (session.user) {
         session.user.id = token.id as string
         const email = session.user.email
@@ -219,6 +250,23 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60, // 24 hours
+  },
+  // Explicit cookie configuration to ensure consistent cookie attributes
+  // across environments. This helps browsers persist the session cookie
+  // after redirects (important for credentials flow).
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   // Be explicit about JWT handling and provide a stable dev fallback secret to avoid JWE/JWS mismatches
   jwt: {

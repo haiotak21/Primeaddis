@@ -9,6 +9,7 @@ import connectDB from "@/lib/database";
 import User from "@/models/User";
 import Property from "@/models/Property";
 import Payment from "@/models/Payment";
+import SiteVisitRequest from "@/models/SiteVisitRequest";
 import {
   Accordion,
   AccordionContent,
@@ -76,6 +77,20 @@ async function getAdminStatsDirect() {
   }
 }
 
+async function getRecentSiteVisits(limit = 5) {
+  try {
+    await connectDB();
+    const total = await SiteVisitRequest.countDocuments();
+    const items = await SiteVisitRequest.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+    return { total, items } as any;
+  } catch (e) {
+    return { total: 0, items: [] };
+  }
+}
+
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 
@@ -87,6 +102,9 @@ export default async function AdminPage() {
   }
 
   const { stats, recentPayments } = await getAdminStatsDirect();
+  const totalSiteVisits = await SiteVisitRequest.countDocuments().catch(
+    () => 0
+  );
   const isAgent = session.user.role === "agent";
   const isSuperadmin = session.user.role === "superadmin";
 
@@ -168,6 +186,22 @@ export default async function AdminPage() {
           </div>
           <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
             all-time earnings
+          </p>
+        </div>
+        <div className="flex flex-col gap-1 rounded-xl p-4 sm:p-5 lg:p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="material-symbols-outlined text-[#0b8bff] text-2xl sm:text-3xl">
+              event_available
+            </span>
+            <p className="text-base sm:text-lg font-bold leading-tight">
+              {totalSiteVisits || 0}
+            </p>
+          </div>
+          <p className="text-muted-foreground text-xs sm:text-sm font-medium leading-normal">
+            Site visit requests •{" "}
+            <Link href="/admin/site-visits" className="underline">
+              View
+            </Link>
           </p>
         </div>
       </section>

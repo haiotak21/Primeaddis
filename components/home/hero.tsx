@@ -2,30 +2,16 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import { DEFAULT_SLIDES } from "./hero-defaults";
 
-const SLIDES = [
-  {
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDI31LFZ_nt5UjhYIOyDgVobHnj9NW3I3NI7dKBBDh5ngxxbmo7pgzG5zdEjQGFAgEvWW6cusOj9xvAiSoiAuMvuuGvUJcti2pgERSShkL0i1DeRWFA44Ti7cJJcUzYccsx8gWCrDZFCO3OSapkPTl8-NRqIPSdaCU0agIqBHxENtkZNlUhE3UI_C2OlkyAT_G-fVii8IUGv9eZWBTiAURqIaM3PLa-7EH2qLt6h7HEWH2smq9UhWkWXHGWb2RVKvSGHKh88z9w1_Di",
-    title: "Your New Beginning Starts Here.",
-    subtitle:
-      "Discover exclusive properties in the world's most desired neighborhoods.",
-  },
-  {
-    image: "/property%20slide%202.jpg",
-    title: "Find Luxury Homes & Apartments.",
-    subtitle: "Handpicked listings for modern living and smart investment.",
-  },
-  {
-    image: "/property%20slide%203.jpg",
-    title: "Live Where It Matters.",
-    subtitle: "Top neighborhoods. Trusted agents. Seamless experience.",
-  },
-];
+const SLIDES = DEFAULT_SLIDES;
 
-export function Hero() {
+export function Hero({ initialSlides }: { initialSlides?: typeof SLIDES }) {
   const [index, setIndex] = useState(0);
-  const total = SLIDES.length;
+  const [slides, setSlides] = useState<typeof SLIDES>(
+    initialSlides && initialSlides.length ? initialSlides : SLIDES
+  );
+  const total = slides.length;
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -57,6 +43,29 @@ export function Hero() {
     }, 7000);
     return () => clearInterval(timer);
   }, [active, paused, total]);
+
+  // Try to load hero content from API (admin-editable). Fall back to static SLIDES.
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin/hero");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (cancelled) return;
+        const data = json?.data;
+        if (data && Array.isArray(data.slides) && data.slides.length > 0) {
+          setSlides(data.slides);
+        }
+      } catch (e) {
+        // ignore and keep fallback
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section
@@ -91,8 +100,16 @@ export function Hero() {
         <div className="absolute inset-0 bg-black/50" />
         <img
           className="h-full w-full object-cover"
-          src={SLIDES[index].image}
-          alt="A luxurious modern house with a pristine lawn, large windows, and a sophisticated architectural design at dusk."
+          src={
+            slides[index] && slides[index].image
+              ? slides[index].image
+              : SLIDES[0].image
+          }
+          alt={
+            slides[index] && slides[index].title
+              ? slides[index].title
+              : "Hero image"
+          }
           loading="eager"
           decoding="async"
         />
@@ -102,10 +119,14 @@ export function Hero() {
       <div className="relative z-10 flex flex-col items-center gap-5 px-4 sm:px-6 pt-16 sm:pt-0 text-center text-white">
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-black leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            {SLIDES[index].title}
+            {slides[index] && slides[index].title
+              ? slides[index].title
+              : SLIDES[0].title}
           </h1>
           <h2 className="mx-auto max-w-2xl text-base font-normal leading-normal text-slate-200 sm:text-lg">
-            {SLIDES[index].subtitle}
+            {slides[index] && slides[index].subtitle
+              ? slides[index].subtitle
+              : SLIDES[0].subtitle}
           </h2>
         </div>
         <Link
@@ -155,7 +176,7 @@ export function Hero() {
       {/* Dots */}
       <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-center justify-center space-x-2">
-          {SLIDES.map((_, i) => (
+          {slides.map((_, i) => (
             <button
               key={i}
               aria-label={`Go to slide ${i + 1}`}

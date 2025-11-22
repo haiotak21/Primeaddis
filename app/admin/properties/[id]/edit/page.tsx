@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/ui/file-upload";
 import CoordinatePicker from "@/components/properties/coordinate-picker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -23,6 +24,15 @@ export default function AdminPropertyEditPage() {
   const router = useRouter();
   const params = useParams();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
+
+  const [realEstates, setRealEstates] = useState<
+    { _id: string; name: string }[]
+  >([]);
+  useEffect(() => {
+    axios.get("/api/realestates?limit=50").then((res) => {
+      setRealEstates(res.data.realEstates || []);
+    });
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -79,9 +89,11 @@ export default function AdminPropertyEditPage() {
           area: p.specifications?.area ?? "",
           yearBuilt: p.specifications?.yearBuilt ?? "",
           amenities: Array.isArray(p.amenities) ? p.amenities.join(", ") : "",
-          images: Array.isArray(p.images) ? p.images.join(", ") : "",
+          images: Array.isArray(p.images) ? p.images : [],
+          imagesUrlInput: "",
           vrTourUrl: p.vrTourUrl || "",
           financing: Array.isArray(p.financing) ? p.financing.join(", ") : "",
+          realEstate: p.realEstate?.name || "",
         });
       } catch (e) {
         setError("Failed to load property");
@@ -92,6 +104,42 @@ export default function AdminPropertyEditPage() {
     if (id) fetchProperty();
   }, [id]);
 
+  // Handle file upload events (same behavior as create page)
+  useEffect(() => {
+    const handler = async (e: any) => {
+      const files: File[] = e?.detail?.files || [];
+      if (!files.length) return;
+      try {
+        const fd = new FormData();
+        files.forEach((f) => fd.append("files", f));
+        const res = await fetch("/api/uploads", { method: "POST", body: fd });
+        if (!res.ok)
+          throw new Error((await res.json())?.error || "Upload failed");
+        const data = await res.json();
+        const urls: string[] = (data.uploads || [])
+          .map((u: any) => u.url)
+          .filter(Boolean);
+        if (urls.length) {
+          setFormData((prev: any) => {
+            const existing = Array.isArray(prev.images) ? prev.images : [];
+            const remaining = Math.max(0, 10 - existing.length);
+            const toAdd = urls.slice(0, remaining);
+            if (toAdd.length < urls.length) {
+              setError("You can upload up to 10 images total.");
+            }
+            return { ...prev, images: [...existing, ...toAdd] };
+          });
+        }
+      } catch (err: any) {
+        console.error("Upload error:", err?.message || err);
+        setError("Image upload failed. Please try again.");
+      }
+    };
+    window.addEventListener("file-upload:change", handler as any);
+    return () =>
+      window.removeEventListener("file-upload:change", handler as any);
+  }, [setFormData]);
+
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -99,6 +147,16 @@ export default function AdminPropertyEditPage() {
     try {
       const latNum = Number.parseFloat(formData.lat);
       const lngNum = Number.parseFloat(formData.lng);
+      // Combine images from URL input and uploaded images array
+      const inputImgs = formData.imagesUrlInput
+        ? String(formData.imagesUrlInput)
+            .split(",")
+            .map((i: string) => i.trim())
+            .filter(Boolean)
+        : [];
+      const uploadImgs = Array.isArray(formData.images) ? formData.images : [];
+      const imagesCombined = [...inputImgs, ...uploadImgs].slice(0, 10);
+
       const body = {
         title: formData.title,
         description: formData.description,
@@ -125,15 +183,13 @@ export default function AdminPropertyEditPage() {
           .split(",")
           .map((a: string) => a.trim())
           .filter(Boolean),
-        images: String(formData.images)
-          .split(",")
-          .map((i: string) => i.trim())
-          .filter(Boolean),
+        images: imagesCombined,
         vrTourUrl: formData.vrTourUrl || undefined,
         financing: String(formData.financing)
           .split(",")
           .map((b: string) => b.trim())
           .filter(Boolean),
+        realEstate: formData.realEstate,
       };
       await axios.put(`/api/properties/${id}`, body);
       router.push("/admin/properties");
@@ -145,7 +201,7 @@ export default function AdminPropertyEditPage() {
     }
   };
 
-  if (loading || !formData) {
+  if (status === "loading" || loading || !formData) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         Loading...
@@ -263,6 +319,27 @@ export default function AdminPropertyEditPage() {
                     <option value="sale">For Sale</option>
                     <option value="rent">For Rent</option>
                   </select>
+                </label>
+              </div>
+              <div className="md:col-span-2">
+                <label className="flex flex-col w-full">
+                  <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
+                    Real Estate Agency
+                  </p>
+                  <input
+                    list="agencies"
+                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white focus:border-[#0b8bff] focus:ring-[#0b8bff]/50 placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
+                    placeholder="Select or type agency name"
+                    value={formData.realEstate || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, realEstate: e.target.value })
+                    }
+                  />
+                  <datalist id="agencies">
+                    {realEstates.map((r) => (
+                      <option key={r._id} value={r.name} />
+                    ))}
+                  </datalist>
                 </label>
               </div>
             </div>
@@ -464,15 +541,98 @@ export default function AdminPropertyEditPage() {
               <div className="md:col-span-2">
                 <label className="flex flex-col w-full">
                   <p className="text-[#03063b] dark:text-white text-base font-medium pb-2">
-                    Images (comma-separated URLs)
+                    Images (upload or comma-separated URLs)
                   </p>
-                  <input
-                    className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
-                    value={formData.images}
-                    onChange={(e) =>
-                      setFormData({ ...formData, images: e.target.value })
-                    }
-                  />
+                  <div className="flex flex-col gap-3">
+                    <FileUpload
+                      eventName="file-upload:change"
+                      multiple
+                      maxFiles={10}
+                    />
+                    <input
+                      className="h-12 px-4 rounded-lg border border-gray-300 dark:border-[#2c3e50] bg-[#f4fafe] dark:bg-[#2c3e50] dark:text-white placeholder:text-[#47739e] dark:placeholder:text-[#a0b3c6]"
+                      placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+                      value={formData.imagesUrlInput}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          imagesUrlInput: e.target.value,
+                        })
+                      }
+                    />
+                    {/* Thumbnails with per-image remove */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {(() => {
+                        const inputImgs = formData.imagesUrlInput
+                          ? String(formData.imagesUrlInput)
+                              .split(",")
+                              .map((i: string) => i.trim())
+                              .filter(Boolean)
+                          : [];
+                        const uploadImgs = Array.isArray(formData.images)
+                          ? formData.images
+                          : [];
+                        if (inputImgs.length === 0 && uploadImgs.length === 0)
+                          return null;
+                        const combined = [
+                          ...inputImgs.map((url: string, i: number) => ({
+                            url,
+                            src: "input" as const,
+                            i,
+                          })),
+                          ...uploadImgs.map((url: string, i: number) => ({
+                            url,
+                            src: "upload" as const,
+                            i,
+                          })),
+                        ];
+
+                        const removeImage = (
+                          src: "input" | "upload",
+                          idx: number
+                        ) => {
+                          if (src === "input") {
+                            const arr = formData.imagesUrlInput
+                              ? String(formData.imagesUrlInput)
+                                  .split(",")
+                                  .map((i: string) => i.trim())
+                                  .filter(Boolean)
+                              : [];
+                            arr.splice(idx, 1);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              imagesUrlInput: arr.join(", "),
+                            }));
+                          } else {
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              images: (prev.images || []).filter(
+                                (_: any, i: number) => i !== idx
+                              ),
+                            }));
+                          }
+                        };
+
+                        return combined.map((item, idx) => (
+                          <div key={idx} className="relative">
+                            <img
+                              src={item.url}
+                              alt={`Property image ${idx + 1}`}
+                              className="w-24 h-24 object-cover rounded border dark:border-primary/20"
+                            />
+                            <button
+                              type="button"
+                              aria-label={`Remove image ${idx + 1}`}
+                              onClick={() => removeImage(item.src, item.i)}
+                              className="absolute -top-1 -right-1 bg-white text-red-600 rounded-full w-6 h-6 flex items-center justify-center border shadow-sm"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
                 </label>
               </div>
               <div className="md:col-span-2">

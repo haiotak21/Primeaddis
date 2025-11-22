@@ -78,7 +78,8 @@ export default function AdminBlogListPage() {
     );
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (status === "loading" || loading)
+    return <div className="p-8">Loading...</div>;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">

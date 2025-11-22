@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 export type NavItem = {
   title: string;
@@ -23,6 +24,24 @@ export const adminLinks: NavItem[] = [
     title: "Properties",
     href: "/admin/properties",
     icon: "apartment",
+    roles: ["admin", "superadmin"],
+  },
+  {
+    title: "Featured",
+    href: "/admin/featured",
+    icon: "star",
+    roles: ["admin", "superadmin"],
+  },
+  {
+    title: "Hero",
+    href: "/admin/hero",
+    icon: "image",
+    roles: ["admin", "superadmin"],
+  },
+  {
+    title: "Blog",
+    href: "/admin/blog",
+    icon: "article",
     roles: ["admin", "superadmin"],
   },
   {
@@ -50,6 +69,12 @@ export const adminLinks: NavItem[] = [
     roles: ["admin", "superadmin"],
   },
   {
+    title: "Inquiries",
+    href: "/admin/inquiries",
+    icon: "support_agent",
+    roles: ["admin", "superadmin"],
+  },
+  {
     title: "Analytics",
     href: "/admin/analytics",
     icon: "bar_chart",
@@ -66,6 +91,35 @@ export const adminLinks: NavItem[] = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [inquiryCount, setInquiryCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadCount() {
+      try {
+        const res = await fetch("/api/admin/inquiries/count");
+        if (!mounted) return;
+        if (res.ok) {
+          const j = await res.json();
+          setInquiryCount(typeof j.count === "number" ? j.count : 0);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    if (session && ["admin", "superadmin"].includes(session.user.role))
+      loadCount();
+
+    // Refresh count when inquiries are updated elsewhere (delete/mark responded)
+    const onUpdated = () => {
+      loadCount();
+    };
+    window.addEventListener("inquiries:updated", onUpdated as any);
+    return () => {
+      mounted = false;
+      window.removeEventListener("inquiries:updated", onUpdated as any);
+    };
+  }, [session]);
 
   if (!session || !["admin", "superadmin"].includes(session.user.role)) {
     return null;
@@ -116,7 +170,14 @@ export function AdminSidebar() {
                         : "text-[#03063b] dark:text-gray-300"
                     )}
                   >
-                    {l.title}
+                    <span className="flex items-center gap-2">
+                      {l.title}
+                      {l.href === "/admin/inquiries" && inquiryCount ? (
+                        <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">
+                          {inquiryCount}
+                        </span>
+                      ) : null}
+                    </span>
                   </p>
                 </Link>
               );

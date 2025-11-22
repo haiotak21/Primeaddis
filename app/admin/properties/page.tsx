@@ -1,12 +1,14 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { FeatureDialog } from "@/components/ui/feature-dialog";
 import { formatDate } from "@/utils/helpers";
+import { toSlug } from "@/lib/slugify";
 
 type PropertyDoc = {
   _id: string;
@@ -33,15 +35,36 @@ export default function AdminPropertiesPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
   const [total, setTotal] = useState(0);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/auth/signin");
-    if (session && !["admin", "superadmin"].includes(session.user.role))
-      router.push("/dashboard");
+    // Debug: log status/role to help diagnose repeated render loops
+    // (temporary - remove once issue is resolved)
+    // eslint-disable-next-line no-console
+    console.debug("AdminProperties mount/effect", {
+      status,
+      role: session?.user?.role,
+    });
+
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+      return;
+    }
+
     if (status === "authenticated") {
-      Promise.all([fetchAllProperties(1), fetchPendingProperties()]).finally(
-        () => setLoading(false)
-      );
+      // Protect against repeated fetches that can occur if session/status
+      // toggles rapidly during hydration. Only fetch once per mount.
+      if (!hasFetchedRef.current) {
+        hasFetchedRef.current = true;
+        Promise.all([fetchAllProperties(1), fetchPendingProperties()]).finally(
+          () => setLoading(false)
+        );
+      }
+
+      // Role-based redirect if authenticated but not admin/superadmin
+      if (session && !["admin", "superadmin"].includes(session.user.role)) {
+        router.push("/dashboard");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
@@ -92,30 +115,42 @@ export default function AdminPropertiesPage() {
     }
   }
 
-  async function handleFeature(propertyId: string) {
+  // Feature dialog state
+  const [featureDialogOpen, setFeatureDialogOpen] = useState(false);
+  const [featureTargetId, setFeatureTargetId] = useState<string | null>(null);
+
+  function handleFeature(propertyId: string) {
+    setFeatureTargetId(propertyId);
+    setFeatureDialogOpen(true);
+  }
+
+  async function confirmFeature(inputValue: string) {
+    if (!featureTargetId) return;
     try {
-      const input = prompt(
-        "Enter featured duration in days (blank = 30 days) or ISO date for featuredUntil:",
-        "30"
-      );
       let payload: any = { featured: true };
-      if (input && input.trim()) {
-        const n = Number(input.trim());
+      if (inputValue && inputValue.trim()) {
+        const n = Number(inputValue.trim());
         if (!Number.isNaN(n)) {
           const d = new Date();
           d.setDate(d.getDate() + Math.max(1, Math.floor(n)));
           payload.featuredUntil = d.toISOString();
         } else {
           // assume ISO date string
-          payload.featuredUntil = input.trim();
+          payload.featuredUntil = inputValue.trim();
         }
       }
-      await axios.put(`/api/admin/properties/${propertyId}/feature`, payload);
+      await axios.put(
+        `/api/admin/properties/${featureTargetId}/feature`,
+        payload
+      );
       // refresh lists
       fetchAllProperties(page);
       fetchPendingProperties();
     } catch (e) {
       // no-op
+    } finally {
+      setFeatureDialogOpen(false);
+      setFeatureTargetId(null);
     }
   }
 
@@ -157,7 +192,7 @@ export default function AdminPropertiesPage() {
     };
   }, [deleteId]);
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div>Loading...</div>
@@ -320,7 +355,7 @@ export default function AdminPropertiesPage() {
                         alt={property.title}
                         className="object-cover w-24 h-24"
                       />
-                      <div className="flex-1 p-3">
+                      <div className="flex-1 min-w-0 p-3">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-[#03063b] dark:text-white text-sm flex items-center gap-1">
                             {property.title}
@@ -375,7 +410,19 @@ export default function AdminPropertiesPage() {
                                     </span>
                                   </button>
                                   <a
-                                    href={`/properties/${property._id}`}
+                                    href={`/properties/${encodeURIComponent(
+                                      toSlug(
+                                        `${property.title} ${
+                                          (property.location &&
+                                            property.location.city) ||
+                                          ""
+                                        } ${
+                                          (property.location &&
+                                            property.location.region) ||
+                                          ""
+                                        }`
+                                      )
+                                    )}`}
                                     className="p-1.5 rounded-full text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
                                     target="_blank"
                                     rel="noreferrer"
@@ -423,7 +470,19 @@ export default function AdminPropertiesPage() {
                                     </span>
                                   </a>
                                   <a
-                                    href={`/properties/${property._id}`}
+                                    href={`/properties/${encodeURIComponent(
+                                      toSlug(
+                                        `${property.title} ${
+                                          (property.location &&
+                                            property.location.city) ||
+                                          ""
+                                        } ${
+                                          (property.location &&
+                                            property.location.region) ||
+                                          ""
+                                        }`
+                                      )
+                                    )}`}
                                     className="p-1.5 rounded-full text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
                                     target="_blank"
                                     rel="noreferrer"
@@ -611,7 +670,19 @@ export default function AdminPropertiesPage() {
                                     </span>
                                   </button>
                                   <a
-                                    href={`/properties/${property._id}`}
+                                    href={`/properties/${encodeURIComponent(
+                                      toSlug(
+                                        `${property.title} ${
+                                          (property.location &&
+                                            property.location.city) ||
+                                          ""
+                                        } ${
+                                          (property.location &&
+                                            property.location.region) ||
+                                          ""
+                                        }`
+                                      )
+                                    )}`}
                                     className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
                                     target="_blank"
                                     rel="noreferrer"
@@ -659,7 +730,19 @@ export default function AdminPropertiesPage() {
                                     </span>
                                   </a>
                                   <a
-                                    href={`/properties/${property._id}`}
+                                    href={`/properties/${encodeURIComponent(
+                                      toSlug(
+                                        `${property.title} ${
+                                          (property.location &&
+                                            property.location.city) ||
+                                          ""
+                                        } ${
+                                          (property.location &&
+                                            property.location.region) ||
+                                          ""
+                                        }`
+                                      )
+                                    )}`}
                                     className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white"
                                     target="_blank"
                                     rel="noreferrer"
@@ -739,6 +822,12 @@ export default function AdminPropertiesPage() {
           confirmText="Delete"
           confirmEvent="admin-prop-delete:confirm"
           openChangeEvent="admin-prop-delete:open-change"
+        />
+        <FeatureDialog
+          open={featureDialogOpen}
+          defaultValue="30"
+          onOpenChange={(open) => setFeatureDialogOpen(open)}
+          onConfirm={(value) => confirmFeature(value)}
         />
       </div>
     </div>

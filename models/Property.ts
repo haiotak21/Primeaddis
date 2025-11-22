@@ -1,4 +1,5 @@
 import mongoose, { Schema, type Document, type Model } from "mongoose"
+import { toSlug } from "@/lib/slugify"
 
 export interface IProperty extends Document {
   title: string
@@ -105,6 +106,12 @@ const propertySchemaDefinition: any = {
     },
     videoUrl: String,
     vrTourUrl: String,
+    // Human-friendly URL slug (e.g. 'nice-house-bole-addis-ababa')
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     listedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -149,6 +156,26 @@ PropertySchema.index({ "location.city": 1, type: 1 })
 PropertySchema.index({ price: 1, type: 1 })
 PropertySchema.index({ "location.coordinates": "2dsphere" })
 PropertySchema.index({ createdAt: -1 })
+// Note: unique + sparse are declared at the field level to avoid duplicate
+// schema index warnings during hot-reload in development.
+
+// Generate slug from title + city + region when creating/updating
+PropertySchema.pre("save", function (next) {
+  try {
+    const doc: any = this
+    const title = doc.title || ""
+    const city = (doc.location && doc.location.city) || ""
+    const region = (doc.location && doc.location.region) || ""
+    const newSlug = toSlug(`${title} ${city} ${region}`)
+    // Only set/overwrite slug when it's missing or when title/location changed
+    if (!doc.slug || doc.isModified("title") || doc.isModified("location")) {
+      doc.slug = newSlug
+    }
+  } catch (e) {
+    // noop
+  }
+  next()
+})
 
 const Property: Model<IProperty> = mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema)
 
