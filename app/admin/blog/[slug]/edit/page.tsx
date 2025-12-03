@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
 
 export default function EditBlogPostPage() {
   const { data: session, status } = useSession();
@@ -70,7 +71,11 @@ export default function EditBlogPostPage() {
       if (published && !publishedAt)
         body.publishedAt = new Date().toISOString();
       await axios.put(`/api/blog/${params.slug}`, body);
-      if (slug !== params.slug) router.replace(`/admin/blog/${slug}/edit`);
+      toast({
+        title: "Blog updated",
+        description: "Blog post saved successfully.",
+      });
+      router.push("/admin/blog");
     } finally {
       setSaving(false);
     }

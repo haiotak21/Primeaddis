@@ -2,9 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, BedDouble, Bath, Ruler, Scan, Heart } from "lucide-react";
+import {
+  MapPin,
+  BedDouble,
+  Bath,
+  Ruler,
+  Scan,
+  Heart,
+  ArrowRightLeft,
+} from "lucide-react";
+import { useCompare } from "@/contexts/compare-context";
 import CurrencyAmount from "@/components/common/currency-amount";
-import { CompareButton } from "@/components/properties/compare-button";
 import type { IProperty } from "@/models";
 import PropertyCardFooter from "@/components/properties/property-card-footer";
 import { useMemo, useState } from "react";
@@ -25,8 +33,12 @@ export function PropertyCard({ property, compactSpecs }: PropertyCardProps) {
   const forText = property.listingType === "sale" ? "For Sale" : "For Rent";
   const router = useRouter();
   const { data: session } = useSession();
+  const statusVal = (property as any).status as string | undefined;
+  const isInactive = statusVal === "sold" || statusVal === "rented";
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
+  const inCompare = isInCompare(property._id as string);
 
   const onSave = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -52,158 +64,241 @@ export function PropertyCard({ property, compactSpecs }: PropertyCardProps) {
   };
 
   return (
-    <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 h-full flex flex-col">
-        <Link
-          href={`/properties/${toSlug(
-            `${property.title} ${property.location?.city || ""} ${
-              property.location?.region || ""
-            }`
-          )}`}
-          className="relative w-full h-48 sm:h-56 block"
-        >
-          <Image src={img} alt={property.title} fill className="object-cover" />
-          {/* For Sale / For Rent */}
-          <span
-            className={`absolute top-4 left-4 text-white text-xs font-semibold px-3 py-1 rounded-full ${
-              property.listingType === "sale" ? "bg-green-500" : "bg-blue-500"
-            }`}
-          >
-            {forText}
-          </span>
-          {property.featured && (
-            <span className="absolute top-4 right-4 bg-amber-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-              Featured
-            </span>
-          )}
-          {/* VR badge */}
+    <div className="group bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col w-full max-w-sm mx-auto">
+      {/* IMAGE SECTION - Hero aspect ratio */}
+      <div className="relative aspect-[3/2] w-full bg-gray-200 overflow-hidden">
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src={img}
+            alt={property.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        </div>
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent opacity-60" />
+
+        {/* Status Badge (Top Left) */}
+        <div className="absolute top-3 left-3 flex items-center gap-2">
+          {(() => {
+            const st = (property as any).status;
+            if (st === "sold") {
+              return (
+                <span
+                  className={`bg-white/95 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-900 flex items-center gap-1.5 uppercase tracking-wide`}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-600" />
+                  SOLD
+                </span>
+              );
+            }
+            if (st === "rented") {
+              return (
+                <span
+                  className={`bg-white/95 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-900 flex items-center gap-1.5 uppercase tracking-wide`}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-gray-600" />
+                  RENTED
+                </span>
+              );
+            }
+            return (
+              <span
+                className={`bg-white/95 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded shadow-sm text-gray-900 flex items-center gap-1.5 uppercase tracking-wide`}
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    property.listingType === "sale"
+                      ? "bg-red-600"
+                      : "bg-purple-600"
+                  }`}
+                />
+                {forText.toUpperCase()}
+              </span>
+            );
+          })()}
           {property.vrTourUrl && (
-            <span className="absolute top-4 right-4 bg-purple-500 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center">
-              <Scan className="size-3 mr-1" /> VR Tour
+            <span className="bg-indigo-600/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded shadow-sm text-white uppercase tracking-wide">
+              3D Tour
             </span>
           )}
-        </Link>
+        </div>
 
-        <div className="p-3 sm:p-6 flex-grow flex flex-col">
-          <Link
-            href={`/properties/${toSlug(
-              `${property.title} ${property.location?.city || ""} ${
-                property.location?.region || ""
-              }`
-            )}`}
-            className="block"
-          >
-            <h3 className="text-[13px] sm:text-xl font-bold text-gray-800 dark:text-white mb-1 truncate">
-              {property.title}
-            </h3>
-            <p className="text-[11px] sm:text-sm text-gray-500 dark:text-gray-400 mb-1.5 sm:mb-4 flex items-center">
-              <MapPin className="size-4 mr-1" />
-              {property.location?.city}, {property.location?.region}
-            </p>
+        {/* Save Icon (Top Right) */}
+        <button
+          onClick={onSave}
+          className="absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 hover:bg-black/20 active:scale-95 focus:outline-none"
+        >
+          <Heart
+            className={`w-7 h-7 filter drop-shadow-md ${
+              saved
+                ? "fill-red-500 text-red-500"
+                : "text-white fill-black/40 hover:fill-red-500/50"
+            }`}
+            strokeWidth={2}
+          />
+        </button>
 
-            {/* Specs bar */}
-            <div className="spec-row flex items-center justify-between text-gray-700 dark:text-gray-300 border-t border-b border-gray-200 dark:border-gray-700 py-1.5 sm:py-3 mb-2 sm:mb-4">
-              <div
-                className={`spec-item flex items-center ${
-                  compactSpecs
-                    ? "text-[10px] sm:text-xs"
-                    : "text-[11px] sm:text-sm"
-                }`}
-              >
-                <BedDouble className="mr-2 size-4 sm:size-5 text-gray-500" />
-                <span>
-                  {property.specifications?.bedrooms ?? 0}
-                  <span className="sm:hidden"> bds</span>
-                  <span className="hidden sm:inline"> beds</span>
-                </span>
-              </div>
-              <div
-                className={`spec-item flex items-center ${
-                  compactSpecs
-                    ? "text-[10px] sm:text-xs"
-                    : "text-[11px] sm:text-sm"
-                }`}
-              >
-                <Bath className="mr-2 size-4 sm:size-5 text-gray-500" />
-                <span>
-                  {property.specifications?.bathrooms ?? 0}
-                  <span className="sm:hidden"> ba</span>
-                  <span className="hidden sm:inline"> baths</span>
-                </span>
-              </div>
-              <div
-                className={`spec-item flex items-center ${
-                  compactSpecs
-                    ? "text-[10px] sm:text-xs"
-                    : "text-[11px] sm:text-sm"
-                }`}
-              >
-                <Ruler className="mr-2 size-4 sm:size-5 text-gray-500" />
-                <span>
-                  {property.specifications?.area ?? 0}
-                  <span className="sm:hidden"> sqft</span>
-                  <span className="hidden sm:inline"> sq ft</span>
-                </span>
-              </div>
-            </div>
-          </Link>
+        {/* Broker Name (Bottom Left on Image) */}
+        {property.listedBy?.name && (
+          <div className="absolute bottom-2 left-3 text-[10px] text-white font-medium uppercase tracking-wider drop-shadow-md opacity-90">
+            {property.listedBy?.name}
+          </div>
+        )}
+      </div>
 
-          {/* Price + Compare */}
-          <div className="flex justify-between items-center mb-3 sm:mb-5">
-            <p className="text-lg sm:text-2xl font-bold text-primary dark:text-white">
-              <CurrencyAmount amountUsd={property.price} />
-            </p>
-            {/* Keep existing CompareButton functionality */}
-            <div className="[&_button]:!border [&_button]:!border-gray-300 dark:[&_button]:!border-gray-600 [&_button]:!px-2 sm:[&_button]:!px-3 [&_button]:!py-1.5 [&_button]:!text-[11px] sm:[&_button]:!text-sm [&_button]:!rounded-md [&_button]:!text-gray-600 dark:[&_button]:!text-gray-300 [&_button:hover]:!text-primary dark:[&_button:hover]:!text-white">
-              <CompareButton
-                property={property}
-                size="sm"
-                labels={{ add: "Compare", added: "Added" }}
-              />
-            </div>
+      {/* CONTENT SECTION */}
+      <div className="flex flex-col flex-grow">
+        <div className="px-4 pt-3 pb-2">
+          {/* Price & Stats Row */}
+          <div className="flex items-baseline justify-between mb-1">
+            {(() => {
+              const st = (property as any).status;
+              const isInactive = st === "sold" || st === "rented";
+              return (
+                <>
+                  <span
+                    className={`text-2xl font-bold ${
+                      isInactive
+                        ? "text-gray-400 line-through"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    <CurrencyAmount amountUsd={property.price} />
+                  </span>
+                  {isInactive && (
+                    <span
+                      className={`text-sm font-bold uppercase tracking-wide ${
+                        st === "sold" ? "text-red-600" : "text-red-600"
+                      }`}
+                    >
+                      {st === "sold" ? "SOLD" : "RENTED"}
+                    </span>
+                  )}
+                </>
+              );
+            })()}
           </div>
 
-          {/* CTA row */}
-          <div className="mt-auto flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onSave}
-              aria-pressed={saved}
-              className="flex items-center"
-            >
-              <Heart
-                className={`mr-1 h-4 w-4 transition-colors ${
-                  saved
-                    ? "fill-red-500 stroke-red-500"
-                    : "stroke-gray-400 group-hover:stroke-red-500"
-                }`}
-              />
-              <span className="text-sm">{saved ? "Saved" : "Save"}</span>
-            </Button>
+          {/* Specs Row */}
+          <div className="flex items-center text-gray-700 text-sm mb-1.5">
+            <span className="font-bold text-gray-900">
+              {property.specifications?.bedrooms ?? 0}
+            </span>{" "}
+            <span className="ml-1 mr-2 text-gray-600">bds</span>
+            <span className="text-gray-300 mx-1">|</span>
+            <span className="font-bold text-gray-900 ml-1">
+              {property.specifications?.bathrooms ?? 0}
+            </span>{" "}
+            <span className="ml-1 mr-2 text-gray-600">ba</span>
+            <span className="text-gray-300 mx-1">|</span>
+            <span className="font-bold text-gray-900 ml-1">
+              {property.specifications?.area ?? 0}
+            </span>{" "}
+            <span className="ml-1 text-gray-600">sqft</span>
+            <span className="text-gray-300 mx-2">-</span>
+            <span className="text-gray-500 text-xs uppercase tracking-wide font-medium">
+              {property.listingType}
+            </span>
+          </div>
+
+          {/* Address */}
+          <div className="text-sm text-gray-500 truncate">
+            {property.title} — {property.location?.city},{" "}
+            {property.location?.region}
+          </div>
+        </div>
+
+        {/* ACTION BUTTONS FOOTER */}
+        <div className="mt-auto px-4 py-3 border-t border-gray-100 bg-gray-50/50 grid grid-cols-[auto_1fr] gap-3">
+          {/* Compare Button */}
+          <button
+            disabled={isInactive}
+            onClick={(e) => {
+              if (isInactive) return;
+              e.preventDefault();
+              e.stopPropagation();
+              if (inCompare) removeFromCompare(property._id as string);
+              else addToCompare(property as any);
+            }}
+            className={`flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg border transition-all ${
+              inCompare
+                ? "bg-blue-50 border-blue-200 text-blue-700"
+                : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+            } ${
+              isInactive
+                ? "opacity-60 cursor-not-allowed pointer-events-none"
+                : ""
+            }`}
+            title="Compare Property"
+            aria-disabled={isInactive}
+          >
+            <ArrowRightLeft
+              className={`w-3.5 h-3.5 ${
+                inCompare ? "text-blue-600" : "text-gray-400"
+              }`}
+            />
+            <span className="hidden sm:inline">
+              {inCompare ? "Added" : "Compare"}
+            </span>
+          </button>
+
+          {/* Main Actions */}
+          <div className="grid grid-cols-2 gap-2">
             <Link
               href={`/properties/${toSlug(
                 `${property.title} ${property.location?.city || ""} ${
                   property.location?.region || ""
                 }`
               )}`}
-              className="flex-1 text-center bg-primary text-white font-semibold py-2 sm:py-3 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-sm sm:text-base"
+              onClick={(e) => {
+                if (isInactive) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              className={`flex items-center justify-center px-3 py-2 bg-white border border-blue-600 text-blue-600 text-xs font-bold uppercase tracking-wide rounded-lg hover:bg-blue-50 transition-colors ${
+                isInactive
+                  ? "opacity-60 cursor-not-allowed pointer-events-none"
+                  : ""
+              }`}
+              aria-disabled={isInactive}
             >
-              View Details
+              Contact
+            </Link>
+            <Link
+              href={`/properties/${toSlug(
+                `${property.title} ${property.location?.city || ""} ${
+                  property.location?.region || ""
+                }`
+              )}`}
+              onClick={(e) => {
+                if (isInactive) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
+              className={`flex items-center justify-center px-3 py-2 bg-blue-600 border border-blue-600 text-white text-xs font-bold uppercase tracking-wide rounded-lg hover:bg-blue-700 transition-colors shadow-sm ${
+                isInactive
+                  ? "opacity-60 cursor-not-allowed pointer-events-none"
+                  : ""
+              }`}
+              aria-disabled={isInactive}
+            >
+              Details
             </Link>
           </div>
         </div>
-
-        {/* Listed by footer preserved */}
-        <div className="border-t p-3 sm:p-4">
-          <PropertyCardFooter
-            propertyId={String(property._id)}
-            listedBy={property.listedBy}
-          />
-        </div>
       </div>
-      {/* No modal needed anymore. Logged-out users are redirected to signup, logged-in users save immediately. */}
-    </>
+
+      {/* Listed by footer preserved */}
+      <div className="border-t p-3 sm:p-4">
+        <PropertyCardFooter
+          propertyId={String(property._id)}
+          listedBy={property.listedBy}
+        />
+      </div>
+    </div>
   );
 }

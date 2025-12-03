@@ -6,6 +6,7 @@ import Property from "@/models/Property";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PropertyCard } from "@/components/properties/property-card";
+import ContactAgentActions from "@/components/agents/contact-agent-actions";
 
 function isValidObjectId(id: string) {
   return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
@@ -94,12 +95,7 @@ export default async function AgentProfilePage({
                   )}
                 </div>
                 {agent.email && (
-                  <a
-                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 sm:h-12 px-4 sm:px-6 bg-primary text-primary-foreground text-sm sm:text-base font-bold tracking-wide hover:bg-primary/90"
-                    href={`mailto:${agent.email}`}
-                  >
-                    Contact Agent
-                  </a>
+                  <ContactAgentActions agentName={(agent as any).name} />
                 )}
               </div>
 

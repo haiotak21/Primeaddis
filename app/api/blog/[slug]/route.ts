@@ -16,6 +16,19 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
   }
+  // Attach author info if available
+  if (post.authorId) {
+    const User = (await import("@/models/User")).default;
+    const u = await User.findById(post.authorId).lean();
+    if (u) {
+      post.author = { name: u.name, profileImage: u.profileImage, role: u.role };
+    } else {
+      post.author = null;
+    }
+  } else {
+    post.author = null;
+  }
+
   return NextResponse.json({ post });
 }
 

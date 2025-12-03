@@ -33,9 +33,18 @@ export async function GET(req: NextRequest) {
   const bedrooms = searchParams.get("bedrooms")
   const financing = searchParams.get("financing")
   const financingAny = searchParams.get("financingAny")
-    const status = searchParams.get("status") || "active"
+    const includeInactive =
+      searchParams.get("includeInactive") === "1" || searchParams.get("includeInactive") === "true"
+    const status = searchParams.get("status")
 
-    const query: any = { status }
+    const query: any = {}
+    // By default return only active properties. When `includeInactive=1` is set,
+    // include all statuses (unless a specific `status` param is provided).
+    if (!includeInactive) {
+      query.status = status || "active"
+    } else if (status) {
+      query.status = status
+    }
 
     // Ethiopia bounds (lat/lng)
     const ETH_BOUNDS = {
@@ -173,6 +182,9 @@ export async function POST(req: NextRequest) {
       status: session.user.role === "agent" ? "pending" : "active",
     })
 
+    // Track users notified by saved-search alerts so we avoid duplicate broadcasts
+    let notifiedUserIds = new Set<string>()
+
     // Fire and forget: send instant alerts to matching saved searches when listing is active
     ;(async () => {
       try {
@@ -233,6 +245,9 @@ export async function POST(req: NextRequest) {
             <p>You are receiving this because you enabled alerts for this search.</p>`
           sendMail({ to: user.email, subject, html }).catch(() => {})
         }
+        // Remember who we've notified via saved-search alerts so the broadcast
+        // to marketing recipients can avoid duplicates.
+        notifiedUserIds = new Set(matched.map((s: any) => String(s.user)))
       } catch (e) {
         console.warn("saved-search alert dispatch failed", (e as any)?.message || e)
       }
@@ -243,7 +258,7 @@ export async function POST(req: NextRequest) {
       try {
         if ((property as any)?.status !== "active") return
         // Build set of users already notified via saved-searches to avoid duplicates
-        const notifiedUserIds = new Set(matched.map((s: any) => String(s.user)))
+        // (saved-search flow populates `notifiedUserIds` above)
 
         // Find active regular users who opted in to marketing and exclude already notified
         const recipients = await User.find({

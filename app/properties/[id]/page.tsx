@@ -12,10 +12,10 @@ import { CompareButton } from "@/components/properties/compare-button";
 import RequestSiteVisitClient from "@/components/properties/request-site-visit-client";
 import { formatDate } from "@/utils/helpers";
 import CurrencyAmount from "@/components/common/currency-amount";
+import MortgageCalculator from "@/components/properties/mortgage-calculator";
 // Removed SocialShareButtons from this page per request (only keep Compare button here)
 import { MessageCircle } from "lucide-react";
 import { ShareDialogButton } from "@/components/properties/share-dialog";
-import MortgageCalculator from "@/components/properties/mortgage-calculator";
 import { GalleryModalButton } from "@/components/properties/gallery-modal";
 import FavoriteButton from "@/components/properties/favorite-button";
 
@@ -218,6 +218,7 @@ export default async function PropertyDetailPage({
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
                 priority
+                unoptimized
               />
               {/* On mobile, provide a modal trigger overlay since right-side tiles are hidden */}
               <div className="absolute inset-0 md:hidden bg-black/20 flex items-center justify-center">
@@ -245,6 +246,7 @@ export default async function PropertyDetailPage({
                   alt={`${property.title} photo 2`}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             )}
@@ -255,6 +257,7 @@ export default async function PropertyDetailPage({
                   alt={`${property.title} photo 3`}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
               </div>
             )}
@@ -265,6 +268,7 @@ export default async function PropertyDetailPage({
                   alt={`${property.title} photo 4`}
                   fill
                   className="object-cover"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                   <GalleryModalButton
@@ -433,9 +437,34 @@ export default async function PropertyDetailPage({
             <div className="sticky top-24 space-y-6">
               <div className="rounded-2xl border border-primary/20 bg-card dark:bg-gray-900/30 p-6 shadow-sm">
                 <p className="text-sm text-muted-foreground">Asking Price</p>
-                <div className="text-4xl font-black text-foreground mb-4">
-                  <CurrencyAmount amountUsd={property.price} />
-                </div>
+                {(() => {
+                  const st = (property as any).status;
+                  const isInactive = st === "sold" || st === "rented";
+                  return (
+                    <div className="flex items-baseline justify-between mb-4">
+                      <div
+                        className={`text-4xl font-black mb-0 ${
+                          isInactive
+                            ? "text-gray-400 line-through"
+                            : "text-foreground"
+                        }`}
+                      >
+                        <CurrencyAmount amountUsd={property.price} />
+                      </div>
+                      {isInactive && (
+                        <div className="ml-3 flex items-center">
+                          <span
+                            className={`text-sm font-bold uppercase tracking-wide ${
+                              st === "sold" ? "text-red-600" : "text-red-600"
+                            }`}
+                          >
+                            {st === "sold" ? "SOLD" : "RENTED"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 <div className="mt-4 space-y-3">
                   {/* Use ContactAgentForm which renders its own button and dialog */}
                   <ContactAgentForm
@@ -482,6 +511,11 @@ export default async function PropertyDetailPage({
                   )}
                 </div>
 
+                {/* Mortgage Calculator - prefills with asking price */}
+                <div className="mt-6">
+                  <MortgageCalculator initialAmount={property.price} />
+                </div>
+
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-xs text-[#51607a]">Listed by:</span>
                   <div className="flex items-center gap-3">
@@ -517,8 +551,7 @@ export default async function PropertyDetailPage({
                 </div>
               </div>
 
-              {/* Mortgage Calculator */}
-              <MortgageCalculator price={property.price} />
+              {/* Mortgage Calculator removed per request */}
             </div>
           </aside>
         </div>

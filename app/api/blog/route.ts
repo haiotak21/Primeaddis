@@ -26,7 +26,25 @@ export async function GET(req: NextRequest) {
   }
 
   const posts = await BlogPost.find({ published: true }).sort({ publishedAt: -1 }).lean();
-  return NextResponse.json({ posts });
+
+  // Attach author info when available (authorId stored on the post)
+  const authorIds = Array.from(new Set(posts.map((p: any) => p.authorId).filter(Boolean)));
+  let authorsMap: Record<string, any> = {};
+  if (authorIds.length) {
+    const User = (await import("@/models/User")).default;
+    const users = await User.find({ _id: { $in: authorIds } }).lean();
+    authorsMap = users.reduce((acc: any, u: any) => {
+      acc[u._id.toString()] = { name: u.name, profileImage: u.profileImage, role: u.role };
+      return acc;
+    }, {} as Record<string, any>);
+  }
+
+  const postsWithAuthors = posts.map((p: any) => ({
+    ...p,
+    author: p.authorId ? authorsMap[p.authorId] || null : null,
+  }));
+
+  return NextResponse.json({ posts: postsWithAuthors });
 }
 
 export async function POST(req: NextRequest) {

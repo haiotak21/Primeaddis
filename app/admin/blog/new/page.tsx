@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
 
 export default function NewBlogPostPage() {
   const { data: session, status } = useSession();
@@ -56,10 +57,14 @@ export default function NewBlogPostPage() {
       if (published && !body.publishedAt)
         body.publishedAt = new Date().toISOString();
       const res = await axios.post("/api/blog", body);
-      router.push(`/admin/blog/${res.data.post.slug}/edit`);
+      toast({
+        title: "Blog created",
+        description: "Blog post created successfully.",
+      });
+      router.push(`/admin/blog`);
     } catch (err) {
       console.error(err);
-      alert("Failed to create post");
+      toast({ title: "Error", description: "Failed to create post." });
     } finally {
       setSaving(false);
     }

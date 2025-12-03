@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { PropertyFilters } from "@/components/properties/property-filters";
 import PropertyResultsWithMap from "@/components/properties/property-results-with-map";
 import connectDB from "@/lib/database";
@@ -17,9 +19,33 @@ async function getPropertiesDirect(searchParams: any) {
   const financing = searchParams?.financing as string | undefined;
   const financingAny = searchParams?.financingAny as string | undefined;
   const bedrooms = searchParams?.bedrooms as string | undefined;
-  const status = (searchParams?.status as string | undefined) || "active";
+  const status = (searchParams?.status as string | undefined) || undefined;
+  const includeInactive =
+    String(searchParams?.includeInactive || "").toLowerCase() === "1" ||
+    String(searchParams?.includeInactive || "").toLowerCase() === "true";
 
-  const query: any = { status };
+  // If `includeInactive` is explicitly requested, or the current server
+  // session belongs to an admin, do not restrict by status. Otherwise
+  // default to active listings only.
+  let query: any = {};
+  if (!includeInactive) {
+    try {
+      const session = await getServerSession(authOptions as any);
+      const isAdmin = !!(
+        session &&
+        (session as any).user &&
+        ["admin", "superadmin"].includes((session as any).user.role)
+      );
+      if (!isAdmin) {
+        query.status = status || "active";
+      }
+    } catch (e) {
+      // If session resolution fails, fall back to public behavior
+      query.status = status || "active";
+    }
+  } else {
+    if (status) query.status = status;
+  }
   const ETH_BOUNDS = { minLat: 3.4, maxLat: 14.9, minLng: 32.9, maxLng: 48.0 };
   query["location.coordinates.lat"] = {
     $gte: ETH_BOUNDS.minLat,

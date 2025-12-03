@@ -30,6 +30,10 @@ export default function AdminPropertiesPage() {
   const [allProperties, setAllProperties] = useState<PropertyDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [statusTargetId, setStatusTargetId] = useState<string | null>(null);
+  const [statusTargetAction, setStatusTargetAction] = useState<
+    "sold" | "rented" | null
+  >(null);
   const [activeTab, setActiveTab] = useState<"all" | "pending">("all");
   // pagination for All list
   const [page, setPage] = useState(1);
@@ -80,9 +84,15 @@ export default function AdminPropertiesPage() {
 
   async function fetchAllProperties(nextPage: number) {
     try {
-      const res = await axios.get("/api/properties", {
-        params: { status: "active", limit, page: nextPage },
-      });
+      const params: any = { limit, page: nextPage };
+      // When viewing the All tab in admin, include inactive statuses
+      // so admins can see sold/rented items as well.
+      if (activeTab === "all") {
+        params.includeInactive = 1;
+      } else {
+        params.status = "active";
+      }
+      const res = await axios.get("/api/properties", { params });
       setAllProperties(res.data.properties || []);
       const pg = res.data.pagination || { page: nextPage, limit, total: 0 };
       setPage(pg.page);
@@ -166,6 +176,19 @@ export default function AdminPropertiesPage() {
     }
   }
 
+  // UI-only: allow admins to mark a property as Sold or Rented locally
+  async function handleMarkSold(propertyId: string) {
+    // Open styled confirm dialog for status change
+    setStatusTargetId(propertyId);
+    setStatusTargetAction("sold");
+  }
+
+  async function handleMarkRented(propertyId: string) {
+    // Open styled confirm dialog for status change
+    setStatusTargetId(propertyId);
+    setStatusTargetAction("rented");
+  }
+
   // Confirm dialog events for delete
   useEffect(() => {
     const onConfirm = async () => {
@@ -183,14 +206,57 @@ export default function AdminPropertiesPage() {
       "admin-prop-delete:open-change",
       onOpenChange as any
     );
+
+    // Status change confirm dialog handlers
+    const onStatusConfirm = async () => {
+      if (!statusTargetId || !statusTargetAction) return;
+      try {
+        await axios.put(`/api/admin/properties/${statusTargetId}/status`, {
+          status: statusTargetAction,
+        });
+        // refresh lists
+        fetchAllProperties(page);
+        fetchPendingProperties();
+      } catch (e) {
+        // eslint-disable-next-line no-alert
+        alert("Failed to update property status");
+      } finally {
+        setStatusTargetId(null);
+        setStatusTargetAction(null);
+      }
+    };
+
+    const onStatusOpenChange = (e: any) => {
+      if (!e?.detail?.open) {
+        setStatusTargetId(null);
+        setStatusTargetAction(null);
+      }
+    };
+    window.addEventListener(
+      "admin-prop-status:confirm",
+      onStatusConfirm as any
+    );
+    window.addEventListener(
+      "admin-prop-status:open-change",
+      onStatusOpenChange as any
+    );
+
     return () => {
       window.removeEventListener("admin-prop-delete:confirm", onConfirm as any);
       window.removeEventListener(
         "admin-prop-delete:open-change",
         onOpenChange as any
       );
+      window.removeEventListener(
+        "admin-prop-status:confirm",
+        onStatusConfirm as any
+      );
+      window.removeEventListener(
+        "admin-prop-status:open-change",
+        onStatusOpenChange as any
+      );
     };
-  }, [deleteId]);
+  }, [deleteId, statusTargetId, statusTargetAction, page]);
 
   if (status === "loading" || loading) {
     return (
@@ -432,6 +498,27 @@ export default function AdminPropertiesPage() {
                                       visibility
                                     </span>
                                   </a>
+                                  {/* Admin quick status actions (mobile) */}
+                                  <button
+                                    onClick={() => handleMarkSold(property._id)}
+                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-100"
+                                    title="Mark Sold"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      sell
+                                    </span>
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleMarkRented(property._id)
+                                    }
+                                    className="p-1.5 rounded-full text-gray-700 hover:bg-gray-100"
+                                    title="Mark Rented"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      home
+                                    </span>
+                                  </button>
                                 </>
                               ) : (
                                 <>
@@ -492,6 +579,27 @@ export default function AdminPropertiesPage() {
                                       visibility
                                     </span>
                                   </a>
+                                  {/* Admin quick status actions (mobile) */}
+                                  <button
+                                    onClick={() => handleMarkSold(property._id)}
+                                    className="p-1.5 rounded-full text-red-600 hover:bg-red-100"
+                                    title="Mark Sold"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      sell
+                                    </span>
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleMarkRented(property._id)
+                                    }
+                                    className="p-1.5 rounded-full text-gray-700 hover:bg-gray-100"
+                                    title="Mark Rented"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      home
+                                    </span>
+                                  </button>
                                   <button
                                     onClick={() => setDeleteId(property._id)}
                                     className="p-1.5 rounded-full text-red-500 hover:bg-red-100 dark:text-red-500 dark:hover:bg-red-900/50"
@@ -729,6 +837,27 @@ export default function AdminPropertiesPage() {
                                       edit
                                     </span>
                                   </a>
+                                  {/* Desktop quick status actions */}
+                                  <button
+                                    onClick={() => handleMarkSold(property._id)}
+                                    className="text-red-600 hover:text-red-700"
+                                    title="Mark Sold"
+                                  >
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
+                                      sell
+                                    </span>
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleMarkRented(property._id)
+                                    }
+                                    className="text-gray-700 hover:text-gray-900"
+                                    title="Mark Rented"
+                                  >
+                                    <span className="material-symbols-outlined text-lg sm:text-xl">
+                                      home
+                                    </span>
+                                  </button>
                                   <a
                                     href={`/properties/${encodeURIComponent(
                                       toSlug(
@@ -822,6 +951,21 @@ export default function AdminPropertiesPage() {
           confirmText="Delete"
           confirmEvent="admin-prop-delete:confirm"
           openChangeEvent="admin-prop-delete:open-change"
+        />
+        {/* Status change dialog (Mark Sold / Mark Rented) */}
+        <ConfirmDialog
+          open={!!statusTargetId}
+          title={
+            statusTargetAction === "sold"
+              ? "Mark this property as SOLD?"
+              : "Mark this property as RENTED?"
+          }
+          description={`This will mark the listing as ${statusTargetAction?.toUpperCase()}.`}
+          confirmText={
+            statusTargetAction === "sold" ? "Mark Sold" : "Mark Rented"
+          }
+          confirmEvent="admin-prop-status:confirm"
+          openChangeEvent="admin-prop-status:open-change"
         />
         <FeatureDialog
           open={featureDialogOpen}

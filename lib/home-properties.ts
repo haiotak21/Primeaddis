@@ -13,11 +13,13 @@ export async function getHomeProperties(limit = 7) {
   }
   // Show currently featured (non-expired) first, then newest active
   const now = new Date()
+  // Featured properties should be shown on the home page regardless of
+  // their current `status` (so sold/rented featured listings don't disappear).
   const featuredQuery = {
-    status: "active",
     featured: true,
     $or: [{ featuredUntil: { $exists: false } }, { featuredUntil: { $gte: now } }],
   }
+  // Regular (non-featured) items must still be active
   const regularQuery = { status: "active", $or: [{ featured: false }, { featured: { $exists: false } }] }
 
   const [featured, regular] = await Promise.all([
@@ -47,8 +49,9 @@ export async function getFeaturedHomeProperties(limit = 12) {
   }
 
   const now = new Date();
+  // Include featured properties even if they are sold/rented so the
+  // featured carousel on the home page remains consistent.
   const featuredQuery = {
-    status: "active",
     featured: true,
     $or: [{ featuredUntil: { $exists: false } }, { featuredUntil: { $gte: now } }],
   };

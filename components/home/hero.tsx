@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { DEFAULT_SLIDES } from "./hero-defaults";
 
 const SLIDES = DEFAULT_SLIDES;
@@ -98,21 +99,24 @@ export function Hero({ initialSlides }: { initialSlides?: typeof SLIDES }) {
       {/* Background image with dark overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/50" />
-        <img
-          className="h-full w-full object-cover"
-          src={
-            slides[index] && slides[index].image
-              ? slides[index].image
-              : SLIDES[0].image
-          }
-          alt={
-            slides[index] && slides[index].title
-              ? slides[index].title
-              : "Hero image"
-          }
-          loading="eager"
-          decoding="async"
-        />
+        <div className="absolute inset-0">
+          <Image
+            src={
+              slides[index] && slides[index].image
+                ? slides[index].image
+                : SLIDES[0].image
+            }
+            alt={
+              slides[index] && slides[index].title
+                ? slides[index].title
+                : "Hero image"
+            }
+            fill
+            className="h-full w-full object-cover"
+            priority
+            unoptimized
+          />
+        </div>
       </div>
 
       {/* Content */}

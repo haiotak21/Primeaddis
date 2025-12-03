@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getAbsoluteBaseUrl } from "@/utils/helpers";
+import BlogDetail from "@/components/blog/blog-detail";
 
 async function getPost(slug: string) {
   const base = await getAbsoluteBaseUrl();
@@ -42,19 +43,12 @@ function renderMarkdown(md: string) {
 export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }> | { slug: string };
 }) {
-  const post = await getPost(params.slug);
+  const { slug } = await params;
+  const post = await getPost(slug);
   if (!post) return notFound();
-  return (
-    <div className="mx-auto max-w-3xl px-4 py-8 prose dark:prose-invert">
-      <h1 className="mb-2 text-4xl font-bold">{post.title}</h1>
-      {post.publishedAt ? (
-        <p className="text-sm text-muted-foreground">
-          {new Date(post.publishedAt).toLocaleDateString()}
-        </p>
-      ) : null}
-      <div className="mt-6">{renderMarkdown(post.content)}</div>
-    </div>
-  );
+
+  // Render the client-side blog detail UI component
+  return <BlogDetail post={post as any} />;
 }

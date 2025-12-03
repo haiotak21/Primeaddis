@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 type GalleryModalButtonProps = {
   images: string[];
@@ -111,12 +112,15 @@ export function GalleryModalButton({
               </span>
             </button>
             <div className="relative h-full w-full max-w-7xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt={title}
-                src={safeImages[index]}
-                className="h-full w-full rounded-xl object-contain"
-              />
+              <div className="relative h-full w-full rounded-xl">
+                <Image
+                  alt={title}
+                  src={safeImages[index]}
+                  fill
+                  className="h-full w-full rounded-xl object-contain"
+                  unoptimized
+                />
+              </div>
             </div>
             <button
               className="absolute right-0 top-1/2 -translate-y-1/2 z-10 m-2 flex size-14 items-center justify-center rounded-full bg-[#0b8bff]/80 text-white transition-opacity hover:opacity-90 md:m-4 md:size-16"

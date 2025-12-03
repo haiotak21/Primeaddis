@@ -72,7 +72,13 @@ export default async function AdminInquiriesPage() {
                       {inq.propertyTitle ? (
                         <Link
                           className="text-primary underline"
-                          href={`/properties/${toSlug(inq.propertyTitle)}`}
+                          href={
+                            inq.propertyId
+                              ? `/properties/${toSlug(
+                                  inq.propertyTitle
+                                )}-${String(inq.propertyId)}`
+                              : `/properties/${toSlug(inq.propertyTitle)}`
+                          }
                         >
                           {inq.propertyTitle}
                         </Link>
