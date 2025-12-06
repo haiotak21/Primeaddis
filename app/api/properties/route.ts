@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
             </ul>
             <p><a href="${url}">View property</a></p>
             <p>You are receiving this because you enabled alerts for this search.</p>`
-          sendMail({ to: user.email, subject, html }).catch(() => {})
+          sendMail({ to: user.email, subject, html, from: process.env.SMTP_FROM }).catch(() => {})
         }
         // Remember who we've notified via saved-search alerts so the broadcast
         // to marketing recipients can avoid duplicates.
@@ -293,7 +293,7 @@ export async function POST(req: NextRequest) {
         const batchSize = 20
         for (let i = 0; i < recipients.length; i += batchSize) {
           const batch = recipients.slice(i, i + batchSize)
-          await Promise.allSettled(batch.map((u: any) => sendMail({ to: u.email, subject, html: htmlFor(u) }).catch((e) => e)))
+          await Promise.allSettled(batch.map((u: any) => sendMail({ to: u.email, subject, html: htmlFor(u), from: process.env.SMTP_FROM }).catch((e) => e)))
           if (i + batchSize < recipients.length) await new Promise((r) => setTimeout(r, 500))
         }
       } catch (e) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/database";
 import Property from "@/models/Property";
 import { requireRole } from "@/lib/middleware/auth";
+import mongoose from "mongoose";
 
 // PUT /api/admin/properties/[id]/status
 // Body: { status: 'active'|'pending'|'sold'|'rented'|'draft' }
@@ -25,6 +26,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     await connectDB();
 
     const resolvedParams: any = await (params as any);
+    // Validate property id format early to return a clear error instead of 500
+    if (!mongoose.isValidObjectId(resolvedParams.id)) {
+      return NextResponse.json({ error: "Invalid property id" }, { status: 400 });
+    }
     const property = await Property.findByIdAndUpdate(
       resolvedParams.id,
       { status },

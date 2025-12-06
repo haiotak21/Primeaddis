@@ -10,6 +10,37 @@ async function getPost(slug: string) {
   return data.post as { title: string; content: string; publishedAt?: string };
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const { slug } = params;
+  const post = await getPost(slug);
+  if (!post) {
+    return {
+      title: "Article not found - PrimeAddis",
+      robots: { index: false, follow: false },
+    };
+  }
+  const base = await getAbsoluteBaseUrl();
+  const description =
+    (post as any).excerpt || (post.content || "").slice(0, 160);
+  const image = (post as any).featuredImage || (post as any).coverImage;
+  return {
+    title: `${post.title} | Real Estate Tips - Prime Addis Et`,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      images: image ? [image] : [],
+      type: "article",
+    },
+    alternates: { canonical: `${base}/blog/${slug}` },
+    robots: { index: true, follow: true },
+  } as any;
+}
+
 function renderMarkdown(md: string) {
   // Minimal markdown: paragraphs and headings; keeps dependency light
   return md.split("\n").map((line, i) => {

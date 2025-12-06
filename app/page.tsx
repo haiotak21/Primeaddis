@@ -1,3 +1,16 @@
+export const metadata = {
+  title:
+    "Addis Bet - አዲስ ቤት | Houses & Apartments for Sale/Rent in Addis Ababa",
+  description:
+    "Find your dream home in Addis Ababa. Latest Addis Bet properties in Bole, Sarbet, CMC, Kazanchis and more. Updated daily.",
+  openGraph: {
+    title: "Prime Addis Et - አዲስ ቤት Real Estate",
+    description: "Best houses and apartments for sale and rent in Addis Ababa",
+    images: ["/og-homepage.jpg"],
+  },
+  alternates: { canonical: "https://primeaddiset.com" },
+};
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
+import { sendMail } from "@/lib/mailer"
 import { registerSchema } from "@/utils/validation"
 
 export async function POST(req: NextRequest) {
@@ -33,6 +34,21 @@ export async function POST(req: NextRequest) {
       phone: validatedData.phone,
       role: "user",
     })
+
+    // Send welcome email (fire-and-forget) — log failures for diagnostics
+    ;(async () => {
+      try {
+        const subject = `Welcome to ${process.env.SITE_NAME || "PrimeAddis"}`
+        const url = process.env.NEXTAUTH_URL || "http://localhost:3000"
+        const html = `<p>Hi ${user.name || "there"},</p>
+          <p>Welcome to ${process.env.SITE_NAME || "PrimeAddis"}! We're glad you joined.</p>
+          <p>You can browse listings here: <a href="${url}/properties">Browse properties</a></p>
+          <p>If you need help, reply to this email.</p>`
+        await sendMail({ to: user.email, subject, html, from: process.env.SMTP_FROM })
+      } catch (e) {
+        console.error("Welcome email failed:", (e as any)?.message || e)
+      }
+    })()
 
     return NextResponse.json(
       {

@@ -25,6 +25,13 @@ async function getPosts() {
   return data.posts as Array<any>;
 }
 
+export const metadata = {
+  title: "Real Estate Blog & Tips | Addis Bet - Prime Addis Et",
+  description:
+    "Latest guides on buying, renting, and investing in Addis Ababa real estate market.",
+  alternates: { canonical: "https://primeaddiset.com/blog" },
+};
+
 export default async function BlogPage() {
   const posts = (await getPosts()) || [];
   const featured = posts[0];
