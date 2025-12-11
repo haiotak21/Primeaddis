@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAbsoluteBaseUrl } from "@/utils/helpers";
 import connectDB from "@/lib/database";
 import Property from "@/models/Property";
+import RealEstate from "@/models/RealEstate";
 import Settings from "@/models/Settings";
 
 function isValidObjectId(id: string) {
@@ -10,24 +11,28 @@ function isValidObjectId(id: string) {
 }
 
 async function getPropertyBySlug(slug: string) {
-  await connectDB();
+  try {
+    await connectDB();
 
-  // 1) Try exact slug match
-  const bySlug = await Property.findOne({ slug })
-    .populate("listedBy", "name email phone profileImage")
-    .populate("realEstate", "name")
-    .lean();
-  if (bySlug) return bySlug;
-
-  // 2) Try slug-with-id pattern: ...-<ObjectId>
-  const idMatch = slug.match(/-([a-fA-F0-9]{24})$/);
-  const id = idMatch?.[1];
-  if (id && isValidObjectId(id)) {
-    const byId = await Property.findById(id)
+    // 1) Try exact slug match
+    const bySlug = await Property.findOne({ slug })
       .populate("listedBy", "name email phone profileImage")
       .populate("realEstate", "name")
       .lean();
-    if (byId) return byId;
+    if (bySlug) return bySlug;
+
+    // 2) Try slug-with-id pattern: ...-<ObjectId>
+    const idMatch = slug.match(/-([a-fA-F0-9]{24})$/);
+    const id = idMatch?.[1];
+    if (id && isValidObjectId(id)) {
+      const byId = await Property.findById(id)
+        .populate("listedBy", "name email phone profileImage")
+        .populate("realEstate", "name")
+        .lean();
+      if (byId) return byId;
+    }
+  } catch (err) {
+    console.error("Property lookup failed for slug", slug, err);
   }
 
   // 3) Fallback: try fetching via API (covers environments where DB unavailable at edge)
@@ -39,7 +44,8 @@ async function getPropertyBySlug(slug: string) {
     if (!res.ok) return null;
     const data = await res.json();
     return (data as any).property || data;
-  } catch {
+  } catch (err) {
+    console.error("API lookup failed for property slug", slug, err);
     return null;
   }
 }
@@ -76,52 +82,92 @@ async function getSimilarProperties(property: any) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
-  const property = await getPropertyBySlug(slug as string);
-  if (!property)
+  const { slug: rawSlug } = await params;
+  const slug = typeof rawSlug === "string" ? rawSlug.trim() : "";
+  if (!slug) {
     return {
       title: "Property not found - PrimeAddis",
-      robots: { index: false, follow: false },
-    };
-  const base = await getAbsoluteBaseUrl();
-  const title = `${property.title} - ${
-    property.location?.city || "Addis Ababa"
-  } | Addis Bet - አዲስ ቤት`;
-  const description = `${property.specifications?.bedrooms || 0} bedroom ${
-    property.type
-  } for ${property.purpose || "sale/rent"} in ${
-    property.location?.city || "Addis Ababa"
-  }. Price: ${property.price ? property.price + " ETB" : "Contact for price"}`;
-  return {
-    title,
-    description,
-    openGraph: {
-      title: property.title,
+      description:
+        "The property you are looking for does not exist or has been removed.",
+      robots: { index: false, follow: true },
+    } as any;
+  }
+
+  try {
+    const property = await getPropertyBySlug(slug);
+    if (!property) {
+      return {
+        title: "Property not found - PrimeAddis",
+        description:
+          "The property you are looking for does not exist or has been removed.",
+        robots: { index: false, follow: true },
+      } as any;
+    }
+
+    const base = await getAbsoluteBaseUrl();
+    const title = `${property.title} - ${
+      property.location?.city || "Addis Ababa"
+    } | Addis Bet - አዲስ ቤት`;
+    const description = `${property.specifications?.bedrooms || 0} bedroom ${
+      property.type
+    } for ${property.purpose || "sale/rent"} in ${
+      property.location?.city || "Addis Ababa"
+    }. Price: ${
+      property.price ? property.price + " ETB" : "Contact for price"
+    }`;
+    return {
+      title,
       description,
-      images: property.images ? [property.images[0]] : [],
-      type: "website",
-    },
-    alternates: {
-      canonical: `${
-        process.env.NEXTAUTH_URL ||
-        process.env.NEXT_PUBLIC_BASE_URL ||
-        "https://primeaddiset.com"
-      }/addis-bet/${slug}`,
-    },
-    robots: { index: true, follow: true },
-  } as any;
+      openGraph: {
+        title: property.title,
+        description,
+        images: property.images ? [property.images[0]] : [],
+        type: "website",
+      },
+      alternates: {
+        canonical: `${
+          process.env.NEXTAUTH_URL ||
+          process.env.NEXT_PUBLIC_BASE_URL ||
+          "https://primeaddiset.com"
+        }/addis-bet/${slug}`,
+      },
+      robots: { index: true, follow: true },
+    } as any;
+  } catch (error) {
+    console.error("Metadata error for property slug:", slug, error);
+    return {
+      title: "Property not found - PrimeAddis",
+      robots: { index: false, follow: true },
+    } as any;
+  }
 }
 
 export default async function AddisbBetPropertyPage({
   params,
 }: {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug?: string }>;
 }) {
-  const { slug } = await params;
-  const property = await getPropertyBySlug(slug as string);
-  if (!property) return notFound();
+  const { slug: rawSlug } = await params;
+  const slug = typeof rawSlug === "string" ? rawSlug.trim() : "";
+  if (!slug) {
+    return notFound();
+  }
+
+  let property: any = null;
+
+  try {
+    property = await getPropertyBySlug(slug);
+  } catch (error) {
+    console.error("Render failed for property slug", slug, error);
+    return notFound();
+  }
+
+  if (!property) {
+    return notFound();
+  }
+
   const [globalSettings, similarProperties] = await Promise.all([
     getGlobalSettings(),
     getSimilarProperties(property),

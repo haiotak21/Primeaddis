@@ -13,32 +13,33 @@ async function getPost(slug: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
-  const post = await getPost(slug);
-  if (!post) {
+  const { slug } = await params;
+  try {
+    const post = await getPost(slug);
+    if (!post) notFound();
+
+    const base = await getAbsoluteBaseUrl();
+    const description =
+      (post as any).excerpt || (post.content || "").slice(0, 160);
+    const image = (post as any).featuredImage || (post as any).coverImage;
     return {
-      title: "Article not found - PrimeAddis",
-      robots: { index: false, follow: false },
-    };
-  }
-  const base = await getAbsoluteBaseUrl();
-  const description =
-    (post as any).excerpt || (post.content || "").slice(0, 160);
-  const image = (post as any).featuredImage || (post as any).coverImage;
-  return {
-    title: `${post.title} | Real Estate Tips - Prime Addis Et`,
-    description,
-    openGraph: {
-      title: post.title,
+      title: `${post.title} | Real Estate Tips - Prime Addis Et`,
       description,
-      images: image ? [image] : [],
-      type: "article",
-    },
-    alternates: { canonical: `${base}/blog/${slug}` },
-    robots: { index: true, follow: true },
-  } as any;
+      openGraph: {
+        title: post.title,
+        description,
+        images: image ? [image] : [],
+        type: "article",
+      },
+      alternates: { canonical: `${base}/blog/${slug}` },
+      robots: { index: true, follow: true },
+    } as any;
+  } catch (error) {
+    console.error("Metadata fetch failed for blog slug", slug, error);
+    notFound();
+  }
 }
 
 function renderMarkdown(md: string) {
@@ -74,12 +75,17 @@ function renderMarkdown(md: string) {
 export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = await getPost(slug);
-  if (!post) return notFound();
+  try {
+    const post = await getPost(slug);
+    if (!post) return notFound();
 
-  // Render the client-side blog detail UI component
-  return <BlogDetail post={post as any} />;
+    // Render the client-side blog detail UI component
+    return <BlogDetail post={post as any} />;
+  } catch (error) {
+    console.error("Render failed for blog slug", slug, error);
+    return notFound();
+  }
 }

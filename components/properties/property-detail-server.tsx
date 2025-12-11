@@ -11,6 +11,7 @@ import { MessageCircle } from "lucide-react";
 import { ShareDialogButton } from "@/components/properties/share-dialog";
 import { GalleryModalButton } from "@/components/properties/gallery-modal";
 import FavoriteButton from "@/components/properties/favorite-button";
+import CurrencyAmount from "@/components/common/currency-amount";
 
 type Props = {
   property: any;
@@ -62,9 +63,7 @@ export default function PropertyDetailServer({
   const latitude = property.location?.lat || property.lat || null;
   const longitude = property.location?.lng || property.lng || null;
   const street = property.location?.address || property.street || "";
-  const formattedPrice = property.price
-    ? `${Number(property.price).toLocaleString()} ብር`
-    : "Contact for price";
+  const priceUsd = Number(property.price) || 0;
 
   const jsonLd: any = {
     "@context": "https://schema.org",
@@ -325,7 +324,7 @@ export default function PropertyDetailServer({
                 <p className="text-sm text-muted-foreground">Asking Price</p>
                 <div className="flex items-baseline justify-between mb-4">
                   <div className="text-4xl font-black mb-0 text-foreground">
-                    <span>{formattedPrice}</span>
+                    <CurrencyAmount amountUsd={priceUsd} />
                   </div>
                   {(property as any).status &&
                     ["sold", "rented"].includes((property as any).status) && (

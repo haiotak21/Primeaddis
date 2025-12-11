@@ -46,14 +46,32 @@ async function getPropertyBySlugOrId(raw: string) {
   return null;
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: rawId } = await params;
+  const id = typeof rawId === "string" ? rawId.trim() : "";
+  if (!id) {
+    return {
+      title: "Property not found - PrimeAddis",
+      description:
+        "The property you are looking for does not exist or has been removed.",
+      robots: { index: false, follow: true },
+    } as any;
+  }
+
   try {
-    const property = await getPropertyBySlugOrId(params.id);
+    const property = await getPropertyBySlugOrId(id);
+
     if (!property) {
       return {
         title: "Property not found - PrimeAddis",
-        robots: { index: false, follow: false },
-      };
+        description:
+          "The property you are looking for does not exist or has been removed.",
+        robots: { index: false, follow: true },
+      } as any;
     }
 
     const title = `${property.title} - ${
@@ -90,8 +108,12 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       },
       robots: { index: true, follow: true },
     } as any;
-  } catch (e) {
-    return { title: "Property - PrimeAddis" } as any;
+  } catch (error) {
+    console.error("Metadata error for property ID:", id, error);
+    return {
+      title: "Property not found - PrimeAddis",
+      robots: { index: false, follow: true },
+    } as any;
   }
 }
 
@@ -134,20 +156,31 @@ import PropertyDetailServer from "@/components/properties/property-detail-server
 export default async function PropertyDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id?: string }>;
 }) {
-  // Next.js 15: params is async; await it before usage
-  const { id } = await params;
-  const raw = id as string;
+  const { id: rawId } = await params;
+  const id = typeof rawId === "string" ? rawId.trim() : "";
+  if (!id) {
+    notFound();
+  }
 
-  const [property, globalSettings] = await Promise.all([
-    getPropertyBySlugOrId(raw),
-    getGlobalSettings(),
-  ]);
+  let property: any = null;
+
+  try {
+    property = await getPropertyBySlugOrId(id);
+  } catch (error) {
+    console.error("Property page error for ID:", id, error);
+    notFound();
+  }
+
   if (!property) {
     notFound();
   }
-  const similarProperties = await getSimilarProperties(property);
+
+  const [globalSettings, similarProperties] = await Promise.all([
+    getGlobalSettings(),
+    getSimilarProperties(property),
+  ]);
 
   // Serialize for client component boundaries
   const toStringIfObjectId = (val: any) =>

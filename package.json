@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
+    "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "test:favorites": "ts-node -P tests/tsconfig.json tests/run.ts",
     "test:feature-permission": "ts-node -T -P tests/tsconfig.json -r tsconfig-paths/register tests/feature-permission.ts"
   },
@@ -62,10 +62,10 @@
     "lucide-react": "^0.454.0",
     "mailersend": "^2.6.0",
     "mapbox-gl": "^2.0.0",
-    "mongodb": "^7.0.0",
+    "mongodb": "^6.20.0",
     "mongoose": "latest",
-    "next": "16.0.7",
-    "next-auth": "latest",
+    "next": "16.0.0",
+    "next-auth": "^4.24.11",
     "next-intl": "^4.3.12",
     "next-themes": "^0.4.6",
     "nodemailer": "latest",
@@ -83,7 +83,7 @@
     "stripe": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.9",
+    "vaul": "^1.1.2",
     "zod": "3.25.76"
   },
   "devDependencies": {
