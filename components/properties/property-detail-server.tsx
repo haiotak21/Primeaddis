@@ -32,8 +32,8 @@ export default function PropertyDetailServer({
     }`
   );
   const propertyUrl = baseUrl
-    ? `${baseUrl}/addis-bet/${property.slug || locationSlug}`
-    : `/addis-bet/${property.slug || locationSlug}`;
+    ? `${baseUrl}/properties/${property.slug || locationSlug}`
+    : `/properties/${property.slug || locationSlug}`;
 
   const globalWhatsapp = (globalSettings as any)?.whatsappNumber;
   const whatsappNumber =
@@ -418,8 +418,8 @@ export default function PropertyDetailServer({
                           );
                         // Append ObjectId when slug is missing to guarantee a hit in getPropertyBySlugOrId
                         const similarHref = p.slug
-                          ? `/addis-bet/${baseSlug}`
-                          : `/addis-bet/${baseSlug}-${p._id}`;
+                          ? `/properties/${baseSlug}`
+                          : `/properties/${baseSlug}-${p._id}`;
 
                         return (
                           <Link

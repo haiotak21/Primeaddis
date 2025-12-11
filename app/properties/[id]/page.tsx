@@ -104,7 +104,7 @@ export async function generateMetadata({
         type: "website",
       },
       alternates: {
-        canonical: `${base}/addis-bet/${slugPath}`,
+        canonical: `${base}/properties/${slugPath}`,
       },
       robots: { index: true, follow: true },
     } as any;

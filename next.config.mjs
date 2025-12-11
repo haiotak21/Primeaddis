@@ -30,32 +30,47 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/addis-bet/:slug",
+        destination: "/properties/:slug",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       // Leaflet marker icon fixes
       {
         source: "/properties/:id/marker-icon-2x.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
       },
       {
         source: "/properties/:id/marker-icon.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
       },
       {
         source: "/properties/:id/marker-shadow.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       },
       {
         source: "/properties/marker-icon-2x.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
       },
       {
         source: "/properties/marker-icon.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
       },
       {
         source: "/properties/marker-shadow.png",
-        destination: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        destination:
+          "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       },
     ];
   },

@@ -131,7 +131,7 @@ export async function generateMetadata({
           process.env.NEXTAUTH_URL ||
           process.env.NEXT_PUBLIC_BASE_URL ||
           "https://primeaddiset.com"
-        }/addis-bet/${slug}`,
+        }/properties/${slug}`,
       },
       robots: { index: true, follow: true },
     } as any;

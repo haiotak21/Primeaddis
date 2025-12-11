@@ -1,39 +1,38 @@
 import { MetadataRoute } from "next";
 import { getAbsoluteBaseUrl } from "@/utils/helpers";
 import { toSlug } from "@/lib/slugify";
-
-async function safeFetchJson(url: string) {
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
+import connectDB from "@/lib/database";
+import Property from "@/models/Property";
+import BlogPost from "@/models/BlogPost";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = await getAbsoluteBaseUrl();
 
-  // Fetch data defensively so build doesn't fail when API is unreachable during export
-  const [propsJson, blogsJson] = await Promise.all([
-    safeFetchJson(`${base}/api/properties`),
-    safeFetchJson(`${base}/api/blog`),
-  ]);
+  await connectDB();
 
-  const properties = propsJson?.properties || propsJson?.list || propsJson || [];
-  const posts = blogsJson?.posts || blogsJson || [];
+  // Only publish active properties and published blog posts
+  const [properties, posts] = await Promise.all([
+    Property.find({ status: "active" })
+      .select("slug title location updatedAt _id")
+      .lean(),
+    BlogPost.find({ published: true })
+      .select("slug title publishedAt updatedAt")
+      .lean(),
+  ]);
 
   const propertyUrls = (properties || [])
     .map((p: any) => {
       const baseSlug =
         p?.slug ||
-        toSlug(`${p?.title || "property"} ${p?.location?.city || ""} ${p?.location?.region || ""}`);
+        toSlug(
+          `${p?.title || "property"} ${p?.location?.city || ""} ${p?.location?.region || ""}`
+        );
       if (!baseSlug) return null;
       const slugWithId = !p?.slug && p?._id ? `${baseSlug}-${p._id}` : baseSlug;
       return {
-        url: `${base}/addis-bet/${slugWithId}`,
-        lastModified: p?.updatedAt || p?.updated_at || p?.updated || undefined,
+        url: `${base}/properties/${slugWithId}`,
+        lastModified: p?.updatedAt || undefined,
+        changeFrequency: "weekly" as const,
         priority: 0.8,
       };
     })
@@ -45,7 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (!blogSlug) return null;
       return {
         url: `${base}/blog/${blogSlug}`,
-        lastModified: b?.publishedAt || b?.published_at || b?.published || undefined,
+        lastModified: b?.updatedAt || b?.publishedAt || undefined,
+        changeFrequency: "weekly" as const,
         priority: 0.7,
       };
     })
@@ -53,8 +53,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: `${base}`, lastModified: new Date(), priority: 1 },
-    { url: `${base}/addis-bet`, priority: 0.9 },
-    { url: `${base}/blog`, priority: 0.8 },
+    { url: `${base}/addis-bet`, lastModified: new Date(), priority: 0.9 },
+    { url: `${base}/blog`, lastModified: new Date(), priority: 0.8 },
     ...propertyUrls,
     ...blogUrls,
   ];
