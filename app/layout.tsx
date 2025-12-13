@@ -59,7 +59,10 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
           rel="stylesheet"
         />
-        <link rel="icon" href="/logo%20primeaddis.jpg" type="image/jpeg" />
+        <link rel="icon" href="/logo primeaddis.jpg" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/logo primeaddis.jpg" type="image/png" sizes="16x16" />
+        <link rel="shortcut icon" href="/logo primeaddis.jpg" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo primeaddis.jpg" />
       </head>
       <body
         className={`font-sans app-theme ${GeistSans.variable} ${GeistMono.variable}`}
