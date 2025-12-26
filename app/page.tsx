@@ -15,12 +15,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { HomeLatest } from "@/components/properties/home-latest";
-import { getFeaturedHomeProperties } from "@/lib/home-properties";
+import {
+  getFeaturedHomeProperties,
+  getNewHomeProperties,
+} from "@/lib/home-properties";
 import HeroServer from "@/components/home/hero-server";
 import { TestimonialsSection } from "@/components/testimonials/testimonials";
 
 export default async function HomePage() {
   const properties = await getFeaturedHomeProperties(12);
+  const newProperties = await getNewHomeProperties(10);
   return (
     <div className="min-h-screen home-theme bg-background text-foreground">
       {/* Hero Section (full-screen) */}
@@ -42,6 +46,25 @@ export default async function HomePage() {
             </Link>
           </div>
           <HomeLatest properties={properties as any} />
+        </div>
+      </section>
+
+      {/* New Properties Section */}
+      <section className="pt-6 pb-6 sm:py-20 md:py-16 lg:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              New Properties
+            </h2>
+            <Link
+              href="/properties"
+              className="hidden sm:inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white transition-colors"
+            >
+              See more
+              <span className="ml-1">→</span>
+            </Link>
+          </div>
+          <HomeLatest properties={newProperties as any} />
         </div>
       </section>
 

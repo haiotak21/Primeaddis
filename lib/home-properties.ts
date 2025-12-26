@@ -64,3 +64,21 @@ export async function getFeaturedHomeProperties(limit = 12) {
 
   return serializeBson(featured);
 }
+
+export async function getNewHomeProperties(limit = 10) {
+  try {
+    await connectDB();
+  } catch (e) {
+    console.warn("New home properties: DB unavailable, showing empty list");
+    return [];
+  }
+
+  // Latest active properties without any date window limit
+  const latest = await Property.find({ status: "active" })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate("listedBy", "name profileImage")
+    .lean();
+
+  return serializeBson(latest);
+}
