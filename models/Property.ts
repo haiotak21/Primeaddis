@@ -162,20 +162,21 @@ PropertySchema.index({ createdAt: -1 })
 // Generate slug from title + city + region when creating/updating
 PropertySchema.pre("save", function (next) {
   try {
-    const doc: any = this
-    const title = doc.title || ""
-    const city = (doc.location && doc.location.city) || ""
-    const region = (doc.location && doc.location.region) || ""
-    const newSlug = toSlug(`${title} ${city} ${region}`)
+    const doc: any = this;
+    console.log('[PropertySchema pre-save hook] doc:', doc);
+    const title = doc.title || "";
+    const city = (doc.location && doc.location.city) || "";
+    const region = (doc.location && doc.location.region) || "";
+    const newSlug = toSlug(`${title} ${city} ${region}`);
     // Only set/overwrite slug when it's missing or when title/location changed
     if (!doc.slug || doc.isModified("title") || doc.isModified("location")) {
-      doc.slug = newSlug
+      doc.slug = newSlug;
     }
   } catch (e) {
-    // noop
+    console.error('[PropertySchema pre-save hook] error:', e);
   }
-  next()
-})
+  next();
+});
 
 const Property: Model<IProperty> =
   mongoose.models.Property ||

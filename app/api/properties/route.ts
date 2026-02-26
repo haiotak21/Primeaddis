@@ -181,11 +181,19 @@ export async function POST(req: NextRequest) {
     console.log('typeof Property.create:', typeof Property.create);
     console.log('Property keys:', Object.keys(Property));
 
-    const property = await Property.create({
-      ...validatedData,
-      listedBy: session.user.id,
-      status: session.user.role === "agent" ? "pending" : "active",
-    })
+    let property;
+    try {
+      property = await Property.create({
+        ...validatedData,
+        listedBy: session.user.id,
+        status: session.user.role === "agent" ? "pending" : "active",
+      });
+    } catch (err) {
+      console.error('Property.create error:', err);
+      if (err && err.stack) console.error('Error stack:', err.stack);
+      console.error('Input data:', validatedData);
+      throw err;
+    }
 
     // Track users notified by saved-search alerts so we avoid duplicate broadcasts
     let notifiedUserIds = new Set<string>()
