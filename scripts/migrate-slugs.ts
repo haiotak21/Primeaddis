@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 import { connectDB } from "../lib/database"
-import Property from "../models/Property"
+import Property from "@/models/Property"
 import { toSlug } from "../lib/slugify"
 
 async function run() {

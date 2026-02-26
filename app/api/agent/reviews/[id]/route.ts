@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/middleware/auth";
 import connectDB from "@/lib/database";
 import Review from "@/models/Review";
-import Property from "../../../models/Property"
+import Property from "@/models/Property"
 
 // Approve or reject review if it belongs to agent's property
 export async function PUT(req: Request, { params }: { params: { id: string } }) {

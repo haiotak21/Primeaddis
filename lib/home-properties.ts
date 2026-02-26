@@ -1,13 +1,5 @@
 // Ensure the referenced models are registered before populate
-<<<<<<< HEAD
-<<<<<<< HEAD
-import Property from "../models/Property";
-=======
-import Property from "../../../models/Property"
->>>>>>> 8a5255dad9d7d8475daa8dee58d14ba6f4cd2054
-=======
-import Property from "../models/Property";
->>>>>>> 70c1674a641ace203a759115ba92d4b4b5af25ea
+import Property from "@/models/Property"
 import "@/models/User";
 import { connectDB } from "@/lib/database";
 import { serializeBson } from "@/lib/serialize";

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/database"
-import Property from "../../../models/Property"
+import Property from "@/models/Property"
 import { requireAuth } from "@/lib/middleware/auth"
 
 // GET user's properties
