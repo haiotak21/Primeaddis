@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/database";
-import Property from "../../../models/Property"
+import Property from "../../../../models/Property";
 import SiteVisitRequest from "@/models/SiteVisitRequest";
 import nodemailer from "nodemailer";
 
