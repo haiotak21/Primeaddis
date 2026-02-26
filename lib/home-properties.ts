@@ -1,5 +1,9 @@
 // Ensure the referenced models are registered before populate
+<<<<<<< HEAD
 import Property from "../models/Property";
+=======
+import Property from "../../../models/Property"
+>>>>>>> 8a5255dad9d7d8475daa8dee58d14ba6f4cd2054
 import "@/models/User";
 import { connectDB } from "@/lib/database";
 import { serializeBson } from "@/lib/serialize";

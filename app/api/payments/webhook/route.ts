@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getStripe } from "@/lib/stripe"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
-import Property from "@/models/Property"
+import Property from "../../../models/Property"
 import Payment from "@/models/Payment"
 
 export async function POST(req: NextRequest) {

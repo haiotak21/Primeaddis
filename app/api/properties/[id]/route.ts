@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/database"
-import Property from "@/models/Property"
+import Property from "../../../models/Property"
 import Favorite from "@/models/Favorite"
 import User from "@/models/User"
 import RealEstate from "@/models/RealEstate"

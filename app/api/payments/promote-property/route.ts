@@ -3,7 +3,7 @@ import { getStripe } from "@/lib/stripe"
 import { PROMOTION_PRODUCTS } from "@/lib/products"
 import { requireAuth } from "@/lib/middleware/auth"
 import connectDB from "@/lib/database"
-import Property from "@/models/Property"
+import Property from "../../../models/Property"
 
 export async function POST(req: NextRequest) {
   try {

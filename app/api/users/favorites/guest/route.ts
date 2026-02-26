@@ -1,7 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/database"
 import User from "@/models/User"
+<<<<<<< HEAD
 import Property from "../../../../models/Property"
+=======
+import Property from "../../../models/Property"
+>>>>>>> 8a5255dad9d7d8475daa8dee58d14ba6f4cd2054
 import Notification from "@/models/Notification"
 import { sendMail } from "@/lib/mailer"
 import Favorite from "@/models/Favorite"

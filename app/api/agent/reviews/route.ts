@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { requireRole } from "@/lib/middleware/auth";
 import connectDB from "@/lib/database";
 import Review from "@/models/Review";
-import Property from "@/models/Property";
+import Property from "../../../models/Property"
 
 // GET reviews with optional filters (status, q)
 export async function GET(req: NextRequest) {
