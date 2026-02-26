@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/database";
-import Property from "@/models/Property";
+import Property from "../../../models/Property"
 import RealEstate from "@/models/RealEstate";
 
 // Compare real estate companies by performance and pricing
