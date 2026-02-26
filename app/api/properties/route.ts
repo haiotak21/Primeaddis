@@ -176,6 +176,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Only agents can create properties" }, { status: 403 })
     }
 
+    // Debug logs to inspect Property model at runtime
+    console.log('Property model in handler:', Property);
+    console.log('typeof Property.create:', typeof Property.create);
+    console.log('Property keys:', Object.keys(Property));
+
     const property = await Property.create({
       ...validatedData,
       listedBy: session.user.id,
