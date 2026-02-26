@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/database"
-import Property from "@/models/Property"
+import Property from "../../../models/Property"
 
 export async function GET(req: NextRequest) {
   try {
