@@ -177,6 +177,11 @@ PropertySchema.pre("save", function (next) {
   next()
 })
 
-const Property: Model<IProperty> = mongoose.models.Property || mongoose.model<IProperty>("Property", PropertySchema)
-
+const modelName = "Property";
+let Property: Model<IProperty>;
+if (mongoose.models[modelName]) {
+  Property = mongoose.model<IProperty>(modelName);
+} else {
+  Property = mongoose.model<IProperty>(modelName, PropertySchema);
+}
 export default Property
